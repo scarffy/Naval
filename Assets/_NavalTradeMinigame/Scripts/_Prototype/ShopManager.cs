@@ -15,12 +15,12 @@ public class ShopManager : MonoBehaviour
     }
 
     [Header("Ship")]
-    public NavalShipObj NavalSlowShip;
-    public NavalShipObj NavalMediumShip;
-    public NavalShipObj NavalFastShip;
+    public NavalShipSO NavalSlowShip;
+    public NavalShipSO NavalMediumShip;
+    public NavalShipSO NavalFastShip;
 
     [Header("Goods")]
-    public NavalGoodObj NavalGood;
+    public NavalShipSO NavalGood;
 
     public void PurchaseShip()
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Naval Ship", menuName = "Mini Game/Ship", order = 1)]
-public class NavalShipObj : ScriptableObject
+public class NavalShipSO : ScriptableObject
 {
     [Header("Basic Information")]
     public int shipId = -1;

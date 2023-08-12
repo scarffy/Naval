@@ -12,7 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecbcedda5ab1b48d596b4540d4ea70b8, type: 3}
   m_Name: Base Inventory
   m_EditorClassIdentifier: 
-  id: 0
-  goodName: 
-  goodBasePrice: 
-  goodImage: {fileID: 0}
+  itemInventory: []

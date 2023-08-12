@@ -6,7 +6,7 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent))]
 public class NavalShip : MonoBehaviour
 {
-    public NavalShipObj defaultShip;
+    public NavalShipSO defaultShip;
 
     [Space]
     public string shipName;

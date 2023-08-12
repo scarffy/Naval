@@ -6,7 +6,7 @@ namespace MiniGame.Inventory
 {
     public class BaseInventory : MonoBehaviour
     {
-        public NavalGoodObj baseInventory;
+        public NavalGoodSO baseInventory;
 
         public virtual void AddItem()
         {
