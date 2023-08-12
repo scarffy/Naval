@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ecbcedda5ab1b48d596b4540d4ea70b8, type: 3}
-  m_Name: Naval Ship
+  m_Name: Base Inventory
   m_EditorClassIdentifier: 
   id: 0
   goodName: 

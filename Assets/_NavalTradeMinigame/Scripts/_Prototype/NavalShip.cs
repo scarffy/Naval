@@ -16,10 +16,13 @@ public class NavalShip : MonoBehaviour
     public float speed;
     public float distance;
     public float timeArrival;
-    
-    public Port startPort;
-    public Port EndPort;
 
+    [Header("Navigation")]
+    //! UIs
+    public UIPort startPort;
+    public UIPort EndPort;
+
+    [Space]
     public Transform startPortTransform;
     public Transform endPortTransform;
 

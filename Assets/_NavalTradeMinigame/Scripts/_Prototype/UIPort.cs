@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public class Port : MonoBehaviour
+public class UIPort : MonoBehaviour
 {
     public int portId;
     public string portName;
@@ -26,6 +26,6 @@ public class Port : MonoBehaviour
 
     public void SetPort()
     {
-        Manager.Instance.currentSelectedPort = this;
+        //Manager.Instance.currentSelectedPort = this;
     }
 }
