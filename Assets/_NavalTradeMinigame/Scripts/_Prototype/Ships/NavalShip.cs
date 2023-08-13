@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
+//! TODO: Remove/Rewrite this script.
+//! Only to have NavMeshAgent
 [RequireComponent(typeof(NavMeshAgent))]
 public class NavalShip : MonoBehaviour
 {
@@ -19,8 +21,10 @@ public class NavalShip : MonoBehaviour
 
     [Header("Navigation")]
     //! UIs
-    public UIPort startPort;
-    public UIPort EndPort;
+    //! TODO
+    // TO No get things from UI side but get it from manager
+    public MiniGame.UI.UIPort startPort;
+    public MiniGame.UI.UIPort EndPort;
 
     [Space]
     public Transform startPortTransform;

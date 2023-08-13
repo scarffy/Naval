@@ -12,7 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce58119bccee644ce826974c0514fe3e, type: 3}
   m_Name: Fast
   m_EditorClassIdentifier: 
+  shipId: -1
   shipName: Marikh
+  shipHP: 0
   shipPrice: 5000
   shipImage: {fileID: 0}
   shipSpeed: 3
+  maximumInventory: 13

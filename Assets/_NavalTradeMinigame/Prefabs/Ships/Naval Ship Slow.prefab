@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 299697029782651530}
   - component: {fileID: 299697029782651531}
   - component: {fileID: 299697029782651528}
+  - component: {fileID: 5417006688672934089}
   m_Layer: 0
   m_Name: Naval Ship Slow
   m_TagString: Untagged
@@ -28,7 +29,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 299697029782651529}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -145,3 +146,16 @@ MonoBehaviour:
   endPortTransform: {fileID: 0}
   destination: {fileID: 0}
   isOnSail: 0
+--- !u!114 &5417006688672934089
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 299697029782651529}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c41621b07b36046a6b34c2dd09030e93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseInventory: {fileID: 11400000, guid: 39e90b9afc590447689b02707a817aba, type: 2}

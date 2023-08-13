@@ -8,17 +8,23 @@ namespace MiniGame.Manager
     {
         public static Manager Instance;
 
-        private void OnEnable()
+        [SerializeField] private PortManager portManager;
+
+        private void Awake()
         {
             if (Instance == null)
                 Instance = this;
             else
                 Destroy(gameObject);
+
+            portManager.Initialized();
         }
 
         public int playerMoney = 1500;
 
-        public UIPort currentSelectedPort;
+        //! ToDO: Remove this
+        [Space]
+        public UI.UIPort currentSelectedPort;
 
 
         public List<NavalShip> TotalShips;
@@ -28,5 +34,8 @@ namespace MiniGame.Manager
         // === Ship Management == //
 
 
+        #region Accessor
+        public PortManager PortManager => portManager;
+        #endregion
     }
 }

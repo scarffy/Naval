@@ -12,7 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce58119bccee644ce826974c0514fe3e, type: 3}
   m_Name: Medium
   m_EditorClassIdentifier: 
+  shipId: -1
   shipName: Neptune
+  shipHP: 0
   shipPrice: 2000
   shipImage: {fileID: 0}
   shipSpeed: 2
+  maximumInventory: 8

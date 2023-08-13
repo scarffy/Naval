@@ -584,6 +584,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 155a65e539c21480c9a8b10a7a8310eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  portManager: {fileID: 387106079}
   playerMoney: 1500
   currentSelectedPort: {fileID: 0}
   TotalShips:
@@ -1416,6 +1417,51 @@ MonoBehaviour:
   NavalMediumShip: {fileID: 11400000, guid: 69d2a46c0c1d14e16a6f88fda2d2325d, type: 2}
   NavalFastShip: {fileID: 11400000, guid: d6e18c80170894b6a8e7db9ad96c1d25, type: 2}
   NavalGood: {fileID: 0}
+--- !u!1 &387106078
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 387106080}
+  - component: {fileID: 387106079}
+  m_Layer: 0
+  m_Name: Port Manager Mockup
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &387106079
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 387106078}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9afcea41c96f04196b8c620ecfdc3c98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &387106080
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 387106078}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1669.6373, y: 537.7662, z: 2.3350205}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1643592694}
+  m_Father: {fileID: 0}
+  m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &415597622
 GameObject:
   m_ObjectHideFlags: 0
@@ -4509,6 +4555,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1605134211}
   m_CullTransparentMesh: 1
+--- !u!1 &1643592692
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1643592694}
+  - component: {fileID: 1643592693}
+  m_Layer: 0
+  m_Name: Ports MockUp Script
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1643592693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1643592692}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90511e5a8c624435d9e66a884b5385cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ports: {fileID: 11400000, guid: 855d3f572ddb34219a8f85d93d8122e1, type: 2}
+--- !u!4 &1643592694
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1643592692}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 387106080}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1725683825
 GameObject:
   m_ObjectHideFlags: 0
@@ -6280,6 +6371,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5417006688672934089, guid: aa8da92fcaceb47ff9cf5cf1d0acf989, type: 3}
+      propertyPath: inventoryLimit
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5417006688672934089, guid: aa8da92fcaceb47ff9cf5cf1d0acf989, type: 3}
+      propertyPath: items.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5417006688672934089, guid: aa8da92fcaceb47ff9cf5cf1d0acf989, type: 3}
+      propertyPath: items.Array.data[0]
+      value: 
+      objectReference: {fileID: 11400000, guid: 20d0c9229fde145b39e86613da6d64b4, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: aa8da92fcaceb47ff9cf5cf1d0acf989, type: 3}
 --- !u!1001 &1686144975237166292
@@ -6361,10 +6464,6 @@ PrefabInstance:
     - target: {fileID: 8859287753773887148, guid: 00d94b8659af845ac895c311a45a26ad, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8859287753947828786, guid: 00d94b8659af845ac895c311a45a26ad, type: 3}
-      propertyPath: m_text
-      value: All Port
       objectReference: {fileID: 0}
     - target: {fileID: 8859287753947828787, guid: 00d94b8659af845ac895c311a45a26ad, type: 3}
       propertyPath: m_AnchorMax.y

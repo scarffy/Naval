@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "Naval Ship", menuName = "Mini Game/Ship", order = 1)]
+[CreateAssetMenu(fileName = "Naval Ship", menuName = "Mini Game/Ship", order = 3)]
 public class NavalShipSO : ScriptableObject
 {
     [Header("Basic Information")]
@@ -16,6 +16,4 @@ public class NavalShipSO : ScriptableObject
 
     [Header("Inventory")]
     public int maximumInventory = 0;
-    [Space]
-    public List<Items> shipInventory;
 }

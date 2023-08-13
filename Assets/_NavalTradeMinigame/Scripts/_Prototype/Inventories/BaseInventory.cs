@@ -8,14 +8,27 @@ namespace MiniGame.Inventory
     {
         public NavalGoodSO baseInventory;
 
-        public virtual void AddItem()
-        {
+        [Space]
+        public int inventoryLimit = 0;
+        public List<NavalItem> items;
 
+        public virtual void AddItem(NavalItem item)
+        {
+            if (items.Count < inventoryLimit)
+                items.Add(item);
         }
 
-        public virtual void RemoveItem()
+        public virtual void RemoveItem(NavalItem item)
         {
+            if (items.Contains(item))
+            {
+                items.Remove(item);
+            }
+        }
 
+        public virtual void SetInventoryLimit(int value)
+        {
+            inventoryLimit = value;
         }
     }
 }
