@@ -15,5 +15,8 @@ MonoBehaviour:
   id: 9
   portName: Bridgetown
   portDescription: Port Description
-  portSpecialty: []
-  portDemands: []
+  portSpecialty:
+  - {fileID: 11400000, guid: ba1e9653c05ea2343830bd9bc2cf1c76, type: 2}
+  - {fileID: 11400000, guid: c1f629955041c174785236d9cfea7f98, type: 2}
+  portDemands:
+  - {fileID: 11400000, guid: 9807cfbb3db8d094da0ab1f3c784f4f4, type: 2}
