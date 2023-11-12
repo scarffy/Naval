@@ -12,4 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4871aaeb4db3de64983ed07095883c72, type: 3}
   m_Name: TODO List
   m_EditorClassIdentifier: 
-  priorities: []
+  priorities:
+  - Add shop system

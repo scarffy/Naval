@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9b3a7a5b985584a28849cb12caa3d6ab, type: 3}
-  m_Name: Orange
+  m_Name: Base Item
   m_EditorClassIdentifier: 
   id: -1
   goodName: Good's Name

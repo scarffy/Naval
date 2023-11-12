@@ -22,16 +22,7 @@ namespace MiniGame.Manager
 
         public int playerMoney = 1500;
 
-        //! ToDO: Remove this
-        [Space]
-        public UI.UIPort currentSelectedPort;
 
-
-        public List<NavalShip> TotalShips;
-
-        // === Port Management === //
-
-        // === Ship Management == //
 
 
         #region Accessor
