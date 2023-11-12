@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,6 +7,8 @@ namespace MiniGame
 {
     public class MoneyManager : MonoBehaviour
     {
+        public Action <int>OnMoneyUpdated;
+        
         public static MoneyManager Instance
         {
             get
@@ -24,11 +27,13 @@ namespace MiniGame
         public void AddMoney(int value)
         {
             _money += value;
+            OnMoneyUpdated?.Invoke(_money);
         }
 
         public void ReduceMoney(int value)
         {
             _money -= value;
+            OnMoneyUpdated?.Invoke(_money);
         }
 
         public bool CanReduceMoney(int value)

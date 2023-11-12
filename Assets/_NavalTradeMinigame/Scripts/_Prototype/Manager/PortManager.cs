@@ -20,7 +20,7 @@ namespace MiniGame.Manager
 
         public void Initialized()
         {
-            
+            Debug.Log($"[Core]: Port Initialized");
         }
     }
 }
