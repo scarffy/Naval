@@ -4,6 +4,10 @@ using UnityEngine;
 
 namespace MiniGame.Manager
 {
+    /// <summary>
+    /// This handle higher level game events
+    /// Let appropriate manager handles the lower level game events
+    /// </summary>
     public class GameManager : MonoBehaviour
     {
         public static GameManager Instance
@@ -27,17 +31,10 @@ namespace MiniGame.Manager
         {
             PortManager.Instance.Initialized();
         }
-        
-        
-        //! ToDO: Remove this
-        [Space]
-        public UI.UIPort currentSelectedPort;
-
 
         public List<NavalShip> TotalShips;
 
         // === Port Management === //
-
         // === Ship Management == //
     }
 }

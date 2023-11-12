@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using MiniGame.Manager;
 using UnityEngine;
 using TMPro;
 
@@ -9,26 +10,27 @@ namespace MiniGame.UI
     {
         public int portId;
         public string portName;
+        public NavalPortSO port;
 
-        TextMeshProUGUI portNameText;
+        [SerializeField] private TextMeshProUGUI portNameText;
 
-        [Header("Ship")]
-        public List<NavalShip> DockedShips;
-        public List<NavalShip> ExpectingShips;
-
-        private void Awake()
+        public void Initialize()
         {
-            // Debugging
-            gameObject.name = portName;
-
+            gameObject.name = port.PortName;
+            
             if (portNameText == null)
                 portNameText = GetComponentInChildren<TextMeshProUGUI>();
-            portNameText.SetText(portName);
+            
+            portNameText.SetText(port.PortName);
+            portName = port.PortName;
+            portId = port.ID;
+            
+            Debug.Log($"[Core]: UI Port Initialized {portName}");
         }
 
         public void SetPort()
         {
-            //Manager.Instance.currentSelectedPort = this;
+            PortManager.Instance.SetCurrentPort(this);
         }
     }
 }

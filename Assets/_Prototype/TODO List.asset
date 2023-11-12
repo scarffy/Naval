@@ -15,3 +15,7 @@ MonoBehaviour:
   priorities:
   - Add shop system
   - Refining Ship Navigation system (Is it possible to use ESC?)
+  - Add Item Data
+  - Port Manager
+  - Port Children
+  - Move Port Logic in Port UI to Port Children

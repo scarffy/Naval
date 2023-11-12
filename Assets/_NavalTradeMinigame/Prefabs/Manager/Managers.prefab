@@ -44,6 +44,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9afcea41c96f04196b8c620ecfdc3c98, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _port: {fileID: 0}
+  _currentSelectedPort: {fileID: 0}
+  _uiPortList:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1 &37552361723106396
 GameObject:
   m_ObjectHideFlags: 0
@@ -123,7 +138,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2040ee89a5d9c4e48a05537927060b38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentSelectedPort: {fileID: 0}
   TotalShips: []
 --- !u!1 &37552362009610312
 GameObject:
@@ -217,3 +231,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 133085916ecd3bb42a5dd9a19b1e1c8b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _money: 1500

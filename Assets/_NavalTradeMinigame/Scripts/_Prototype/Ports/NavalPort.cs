@@ -4,5 +4,7 @@ using UnityEngine;
 
 public class NavalPort : MonoBehaviour
 {
-    [SerializeField] private NavalPortSO ports;
+    [SerializeField] private List<NavalPortSO> portList;
+
+    public List<NavalPortSO> PortList => portList;
 }
