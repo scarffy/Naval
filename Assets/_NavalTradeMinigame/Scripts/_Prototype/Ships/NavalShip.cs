@@ -10,30 +10,20 @@ public class NavalShip : MonoBehaviour
 {
     public NavalShipSO defaultShip;
 
-    [Space]
+    [Header("Ship Details")]
     public string shipName;
     public int shipId;  // For saving
 
-    [Space]
+    [Header("Navigation")]
+    private NavMeshAgent agent;
     public float speed;
     public float distance;
     public float timeArrival;
 
-    [Header("Navigation")]
-    //! UIs
-    //! TODO
-    // TO No get things from UI side but get it from manager
-    public MiniGame.UI.UIPort startPort;
-    public MiniGame.UI.UIPort EndPort;
-
     [Space]
-    public Transform startPortTransform;
-    public Transform endPortTransform;
-
     public Transform destination;
-
-    NavMeshAgent agent;
-
+    
+    
     public bool isOnSail = false;
 
     private void Awake()
@@ -48,9 +38,30 @@ public class NavalShip : MonoBehaviour
         agent.SetDestination(destination.position);
     }
 
-    // Update is called once per frame
-    void Update()
+    public void SetSail()
     {
+        agent.SetDestination(destination.position);
+    }
+
+    public void ResetSail()
+    {
+        if (agent.isStopped)
+        {
+            agent.autoRepath = true;
+            agent.SetDestination(destination.position);
+            agent.isStopped = false;
+        }
+    }
+
+    public void StopSail()
+    {
+        agent.isStopped = true;
+    }
+
+    // Update is called once per frame
+    private void Update()
+    {
+        //! TODO: To gather all details in one place. As in to follow ECS pattern
         if (isOnSail)
         {
             //distance = Vector3.Distance(startPortTransform.position, endPortTransform.position);

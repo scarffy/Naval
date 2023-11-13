@@ -6,5 +6,10 @@ public class NavalPort : MonoBehaviour
 {
     [SerializeField] private List<NavalPortSO> portList;
 
+    
+    
+    #region Accessor
     public List<NavalPortSO> PortList => portList;
+    #endregion
+    
 }

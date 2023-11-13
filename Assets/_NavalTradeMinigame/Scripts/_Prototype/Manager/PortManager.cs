@@ -25,6 +25,7 @@ namespace MiniGame.Manager
         [Header("UI")]
         [SerializeField] private UIPort _currentSelectedPort = null;
 
+        [Space]
         [SerializeField] private List<UIPort> _uiPortList = new List<UIPort>();
 
         public void Initialized()
