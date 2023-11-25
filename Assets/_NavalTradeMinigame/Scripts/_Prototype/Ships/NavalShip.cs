@@ -35,7 +35,8 @@ public class NavalShip : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        agent.SetDestination(destination.position);
+        if(destination != null)
+            agent.SetDestination(destination.position);
     }
 
     public void SetSail()

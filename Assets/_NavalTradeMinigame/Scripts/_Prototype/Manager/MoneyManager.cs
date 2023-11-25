@@ -7,7 +7,7 @@ namespace MiniGame
 {
     public class MoneyManager : MonoBehaviour
     {
-        public Action <int>OnMoneyUpdated;
+        public Action<int> OnMoneyUpdated;
         
         public static MoneyManager Instance
         {
@@ -46,6 +46,11 @@ namespace MiniGame
         public int GetMoney()
         {
             return _money;
+        }
+
+        public string GetMoneyString()
+        {
+            return _money.ToString();
         }
     }
 }

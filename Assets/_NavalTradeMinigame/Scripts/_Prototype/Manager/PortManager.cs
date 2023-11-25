@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using MiniGame.UI;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace MiniGame.Manager
 {
@@ -20,13 +21,16 @@ namespace MiniGame.Manager
         private static PortManager _instance;
 
         [Header("Port")] 
-        [SerializeField] private NavalPort _port;
+        [SerializeField] private DataManager _port;
         
         [Header("UI")]
         [SerializeField] private UIPort _currentSelectedPort = null;
 
         [Space]
         [SerializeField] private List<UIPort> _uiPortList = new List<UIPort>();
+
+        [Header("Events")] 
+        public UnityEvent<UIPort> OnSetPort;
 
         public void Initialized()
         {
@@ -50,6 +54,10 @@ namespace MiniGame.Manager
         public void SetCurrentPort(UIPort port)
         {
             _currentSelectedPort = port;
+            OnSetPort?.Invoke(port);
         }
+
+        public UIPort CurrentPort => _currentSelectedPort;
+        public List<UIPort> GetPortList => _uiPortList;
     }
 }

@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using MiniGame.UI;
 using UnityEngine;
 
 namespace MiniGame.Manager
@@ -30,6 +32,12 @@ namespace MiniGame.Manager
         private void Initialized()
         {
             PortManager.Instance.Initialized();
+            UIManager.Instance.Initialize();
+        }
+
+        private void OnDestroy()
+        {
+            UIManager.Instance.DeInitialize();
         }
 
         public List<NavalShip> TotalShips;

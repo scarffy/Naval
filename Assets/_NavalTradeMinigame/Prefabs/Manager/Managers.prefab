@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9afcea41c96f04196b8c620ecfdc3c98, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _port: {fileID: 0}
+  _port: {fileID: 7594698634653733577}
   _currentSelectedPort: {fileID: 0}
   _uiPortList:
   - {fileID: 0}
@@ -59,6 +59,21 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  OnSetPort:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 3402040888419022417}
+        m_TargetAssemblyTypeName: MiniGame.UI.UIManager, Assembly-CSharp
+        m_MethodName: SetCurrentPort
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &37552361723106396
 GameObject:
   m_ObjectHideFlags: 0
@@ -91,6 +106,8 @@ Transform:
   - {fileID: 37552362009610315}
   - {fileID: 6927826984658023013}
   - {fileID: 13027564}
+  - {fileID: 6901453191341023067}
+  - {fileID: 424323496058180995}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -183,6 +200,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe9d1f7bd97c14c6db5a87178f5b2f68, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _navalShipPrefab: {fileID: 299697029782651529, guid: aa8da92fcaceb47ff9cf5cf1d0acf989, type: 3}
   NavalSlowShip: {fileID: 11400000, guid: 5002f4ff879cf4b2295dd0e9ef7d374b, type: 2}
   NavalMediumShip: {fileID: 11400000, guid: 69d2a46c0c1d14e16a6f88fda2d2325d, type: 2}
   NavalFastShip: {fileID: 11400000, guid: d6e18c80170894b6a8e7db9ad96c1d25, type: 2}
@@ -232,3 +250,108 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _money: 1500
+--- !u!1 &8027370931347820441
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6901453191341023067}
+  - component: {fileID: 3402040888419022417}
+  m_Layer: 0
+  m_Name: UI Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6901453191341023067
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8027370931347820441}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 37552361723106399}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3402040888419022417
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8027370931347820441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05b79b321dd784e40a0771a083826011, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  UiState: 0
+  _singlePort: {fileID: 0}
+  _portPanelList: {fileID: 0}
+  _individualPortPanel: {fileID: 0}
+--- !u!1 &8631902110143439064
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 424323496058180995}
+  - component: {fileID: 7594698634653733577}
+  m_Layer: 0
+  m_Name: Data Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &424323496058180995
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8631902110143439064}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 37552361723106399}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7594698634653733577
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8631902110143439064}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d88a6e66462f784bb997660523ae1f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  portList:
+  - {fileID: 11400000, guid: 562606961e5359b4d8cce1b392fd9f23, type: 2}
+  - {fileID: 11400000, guid: e881ac243c23b6146911d73189f2c3f4, type: 2}
+  - {fileID: 11400000, guid: 25aa84a046752964499fde023582c6c1, type: 2}
+  - {fileID: 11400000, guid: 347f3405c1c93c746bb2eb05dde50609, type: 2}
+  - {fileID: 11400000, guid: 403da3cbf1b63ae4594e99c2af27c5a0, type: 2}
+  - {fileID: 11400000, guid: 878749181662f564b8821b81eea94271, type: 2}
+  - {fileID: 11400000, guid: 57dbf4e9e41e91c49ad549df7a8d4247, type: 2}
+  - {fileID: 11400000, guid: 272a7662f786fe54e8cea172d27a9794, type: 2}
+  - {fileID: 11400000, guid: 0da69f9a0cdc9be48a0dc928c0f3081a, type: 2}
+  - {fileID: 11400000, guid: 4e37d4930d3c6a04189cee5dabd07ea1, type: 2}
+  - {fileID: 11400000, guid: ed8127e45c3086e4783b6d576d58d5b3, type: 2}
+  - {fileID: 11400000, guid: c73512d6c45cda3478b10e27398a2789, type: 2}
