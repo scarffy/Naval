@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using MiniGame.Manager;
 using UnityEngine;
 
 public class ShopManager : MonoBehaviour
@@ -32,6 +33,10 @@ public class ShopManager : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// This is debugging
+    /// TODO: Refactor this
+    /// </summary>
     public void PurchaseShipSlow()
     {
         GameObject slowShip = Instantiate(_navalShipPrefab);
@@ -40,6 +45,7 @@ public class ShopManager : MonoBehaviour
         ship.shipId = 1;
         ship.shipName = "Jupiter";
         ship.speed = NavalSlowShip.shipSpeed;
+        GameManager.Instance.TotalShips.Add(ship);
         
         Debug.Log($"[Core] Shop: Buying Slow Ship {ship.shipName}. Placing ship at {slowShip.transform.position}");
     }

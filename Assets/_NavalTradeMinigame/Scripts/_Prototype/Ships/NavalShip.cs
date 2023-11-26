@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -22,7 +23,9 @@ public class NavalShip : MonoBehaviour
 
     [Space]
     public Transform destination;
-    
+
+    [SerializeField] private bool _hasArrive = false;
+    [SerializeField] private NavalPortSO _expectedPort;
     
     public bool isOnSail = false;
 
@@ -71,4 +74,17 @@ public class NavalShip : MonoBehaviour
             timeArrival = distance / speed;
         }
     }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        //! Probably can do when it collide with collider do some event
+        
+    }
+
+    public void SetDestinationPort(NavalPortSO port)
+    {
+        _expectedPort = port;
+    }
+
+    public NavalPortSO GetPort => _expectedPort;
 }

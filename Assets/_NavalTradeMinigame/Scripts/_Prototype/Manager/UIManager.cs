@@ -74,9 +74,5 @@ namespace MiniGame.UI
                     break;
             }
         }
-
-        public virtual void SetCurrentPort(UIPort uiPort)
-        {
-        }
     }
 }

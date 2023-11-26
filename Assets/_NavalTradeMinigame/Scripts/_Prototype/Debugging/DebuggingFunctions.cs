@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using MiniGame.Manager;
 using MiniGame.UI;
 using UnityEngine;
@@ -11,6 +8,7 @@ namespace MiniGame
     public class DebuggingFunctions : MonoBehaviour
     {
         public bool bIsDebugging = false;
+        public NavalPortSO PortSo;
 
         private void Awake()
         {
@@ -38,9 +36,16 @@ namespace MiniGame
             int index = Random.Range(1, PortManager.Instance.GetPortList.Count);
             UIPort uiport = PortManager.Instance.GetPortList[index];
 
-            NavalShip ship = FindObjectOfType<NavalShip>();
-           
+            NavalShip[] ship = FindObjectsOfType<NavalShip>();
+            ship[1].SetDestinationPort(uiport.port);
+            
             Debug.Log("Ship docked at " + uiport.portName);
+        }
+
+        public void GetPortSpecialty()
+        {
+            Debug.Log(PortSo.PortSpecialty.Count);
+            
         }
     }
 }

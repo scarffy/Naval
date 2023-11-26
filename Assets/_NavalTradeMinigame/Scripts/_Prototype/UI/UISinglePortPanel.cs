@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using MiniGame.Manager;
 using UnityEngine;
 
@@ -37,6 +38,7 @@ namespace MiniGame.UI
         //! Need to get data. Maybe from data manager?
 
         [SerializeField] private NavalShip _selectedShip;
+        private List<NavalShip> shipList = new List<NavalShip>();
 
         public void Initialize()
         {
@@ -61,24 +63,40 @@ namespace MiniGame.UI
             // Set Port Name
             _portText.text = _portInformations.PortName;
 
-            // Set Provides
-            if(_portInformations.PortSpecialty.Count == 0)
-                return;
+            // Causing stack overflow
+            // // Set Provides
+            // if(_portInformations.PortSpecialty.Count == 0)
+            //     return;
+            // else
+            // {
+            //     
+            // }
+            //
+            // // Set Demands
+            // if(_portInformations.PortDemands.Count == 0)
+            //     return;
+            // else
+            // {
+            //     
+            // }
+            if (_portInformations.PortSpecialty.Any())
+            {
+                Debug.Log($"[UI] Single Port: Port Specialty is not empty");
+            }
             else
             {
-                
+                Debug.Log($"[UI] Single Port: Port Specialty is empty");
             }
-            
-            // Set Demands
-            if(_portInformations.PortDemands.Count == 0)
-                return;
-            else
+
+                //! Get current list. Not the best way to get the ship list
+            shipList = new List<NavalShip>(GameManager.Instance.TotalShips);
+            for (int i = shipList.Count - 1; i >= 0 ; i--)
             {
-                
+                if (shipList[i].GetPort != _portInformations)
+                {
+                    shipList.RemoveAt(i);
+                }
             }
-            
-            // Set Ship docked
-            
         }
 
         private void SelectShip()

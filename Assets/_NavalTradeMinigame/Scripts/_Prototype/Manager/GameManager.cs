@@ -12,6 +12,7 @@ namespace MiniGame.Manager
     /// </summary>
     public class GameManager : MonoBehaviour
     {
+        #region Instance
         public static GameManager Instance
         {
             get
@@ -23,6 +24,7 @@ namespace MiniGame.Manager
             }
         }
         private static GameManager _instance;
+        #endregion
         
         private void Start()
         {
@@ -40,9 +42,9 @@ namespace MiniGame.Manager
             UIManager.Instance.DeInitialize();
         }
 
-        public List<NavalShip> TotalShips;
-
         // === Port Management === //
         // === Ship Management == //
+        //! TODO: Put this in Ship Management script
+        public List<NavalShip> TotalShips;
     }
 }

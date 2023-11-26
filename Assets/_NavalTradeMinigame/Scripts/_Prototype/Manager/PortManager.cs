@@ -28,10 +28,7 @@ namespace MiniGame.Manager
 
         [Space]
         [SerializeField] private List<UIPort> _uiPortList = new List<UIPort>();
-
-        [Header("Events")] 
-        public UnityEvent<UIPort> OnSetPort;
-
+        
         public void Initialized()
         {
             SetPort();
@@ -54,7 +51,6 @@ namespace MiniGame.Manager
         public void SetCurrentPort(UIPort port)
         {
             _currentSelectedPort = port;
-            OnSetPort?.Invoke(port);
         }
 
         public UIPort CurrentPort => _currentSelectedPort;
