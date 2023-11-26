@@ -27,16 +27,19 @@ namespace MiniGame.UI
         [SerializeField] private Button _buyGoodsButton;
         [SerializeField] private Button _sendShipButton;
         
-        [Header("Provides")] public GameObject _providesPrefab;
+        [Header("Provides")] 
+        public GameObject _providesPrefab;
 
         // =========== Provides =============== //
         //! Need to get data. Maybe from data manager?
 
+        [Header("Demands")]
         [SerializeField] private GameObject _demandsPrefab;
 
         // =========== Demands =============== //
         //! Need to get data. Maybe from data manager?
 
+        [Header("Docked Ships")]
         [SerializeField] private NavalShip _selectedShip;
         private List<NavalShip> shipList = new List<NavalShip>();
 
@@ -62,23 +65,7 @@ namespace MiniGame.UI
 
             // Set Port Name
             _portText.text = _portInformations.PortName;
-
-            // Causing stack overflow
-            // // Set Provides
-            // if(_portInformations.PortSpecialty.Count == 0)
-            //     return;
-            // else
-            // {
-            //     
-            // }
-            //
-            // // Set Demands
-            // if(_portInformations.PortDemands.Count == 0)
-            //     return;
-            // else
-            // {
-            //     
-            // }
+            
             if (_portInformations.PortSpecialty.Any())
             {
                 Debug.Log($"[UI] Single Port: Port Specialty is not empty");
@@ -88,7 +75,16 @@ namespace MiniGame.UI
                 Debug.Log($"[UI] Single Port: Port Specialty is empty");
             }
 
-                //! Get current list. Not the best way to get the ship list
+            if (_portInformations.PortDemands.Any())
+            {
+                
+            }
+            else
+            {
+                
+            }
+
+            //! Get current list. Not the best way to get the ship list
             shipList = new List<NavalShip>(GameManager.Instance.TotalShips);
             for (int i = shipList.Count - 1; i >= 0 ; i--)
             {
