@@ -31,6 +31,7 @@ namespace MiniGame.UI
         public void SetPort()
         {
             PortManager.Instance.SetCurrentPort(this);
+            UIManager.Instance.SetCurrentUIState(UIManager.UIState.singlePort);
         }
     }
 }

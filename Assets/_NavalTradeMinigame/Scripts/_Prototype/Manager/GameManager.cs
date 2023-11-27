@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using MiniGame.UI;
 using UnityEngine;
 
 namespace MiniGame.Manager
@@ -10,6 +12,7 @@ namespace MiniGame.Manager
     /// </summary>
     public class GameManager : MonoBehaviour
     {
+        #region Instance
         public static GameManager Instance
         {
             get
@@ -21,6 +24,7 @@ namespace MiniGame.Manager
             }
         }
         private static GameManager _instance;
+        #endregion
         
         private void Start()
         {
@@ -30,11 +34,17 @@ namespace MiniGame.Manager
         private void Initialized()
         {
             PortManager.Instance.Initialized();
+            UIManager.Instance.Initialize();
         }
 
-        public List<NavalShip> TotalShips;
+        private void OnDestroy()
+        {
+            UIManager.Instance.DeInitialize();
+        }
 
         // === Port Management === //
         // === Ship Management == //
+        //! TODO: Put this in Ship Management script
+        public List<NavalShip> TotalShips;
     }
 }
