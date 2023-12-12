@@ -19,6 +19,7 @@ GameObject:
   - component: {fileID: 5417006688672934089}
   - component: {fileID: 2611145253892467121}
   - component: {fileID: 3104970208088096536}
+  - component: {fileID: 8671215792679424653}
   m_Layer: 0
   m_Name: Naval Prefab
   m_TagString: Untagged
@@ -160,6 +161,7 @@ MonoBehaviour:
   _navalNavigation: {fileID: 8113610785006474531}
   _navalExperience: {fileID: 2611145253892467121}
   _navalInteractor: {fileID: 3104970208088096536}
+  _navalHealth: {fileID: 8671215792679424653}
 --- !u!114 &8113610785006474531
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -295,3 +297,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &8671215792679424653
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 299697029782651529}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1403c8ad36155643acb9cc55d15ffc8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _defaultShip: {fileID: 0}
+  _currentHealth: 0
+  _maxHealth: 0

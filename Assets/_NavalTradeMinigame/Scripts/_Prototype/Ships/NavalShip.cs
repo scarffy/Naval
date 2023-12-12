@@ -14,10 +14,10 @@ namespace MiniGame
 
         [Header("Dependant Script")] 
         [SerializeField] private NavalNavigation _navalNavigation;
-
         [SerializeField] private Experience _navalExperience;
         [SerializeField] private NavalInteractor _navalInteractor;
-
+        [SerializeField] private NavalHealth _navalHealth;
+        
         private void Start()
         {
             //! This need to be set from ship purchase
@@ -25,9 +25,14 @@ namespace MiniGame
             _shipId = _defaultShip.shipId;
             
             _navalNavigation.SetDefaultShip(_defaultShip);
-            _navalNavigation.Initialize();
+            _navalHealth.SetDefaultShip(_defaultShip);
             
-            _navalNavigation.SetSail();
+            _navalNavigation.Initialize();
+            _navalHealth.Initialize();
+
+#if UNITY_EDITOR
+                _navalNavigation.SetSail();
+            #endif
         }
 
         public void SetShipId(int id) => _shipId = id;
