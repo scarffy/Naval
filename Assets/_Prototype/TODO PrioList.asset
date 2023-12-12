@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: TODO PrioList
   m_EditorClassIdentifier: 
   priorities:
-  - Add shop system
-  - Refining Ship Navigation system (Is it possible to use ESC?)
-  - Port Manager
-  - Port Children
-  - Move Port Logic in Port UI to Port Children
+  - 'Shop System: purchase ships'
+  - 'Shop System: purchase goods to ships'
+  - 'Port Manager: ??'
+  - 'Port Children: ??'
