@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shipId: -1
   shipName: Marikh
-  shipHP: 0
+  shipHP: 30
   shipPrice: 5000
   shipImage: {fileID: 0}
   shipSpeed: 3
