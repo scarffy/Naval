@@ -10,7 +10,7 @@ namespace MiniGame.Audio
         {
             get
             {
-                if (_instance == _instance)
+                if (_instance == null)
                     _instance = FindObjectOfType<AudioManager>();
                 return _instance;
             }

@@ -37,7 +37,7 @@ namespace MiniGame
             UIPort uiport = PortManager.Instance.GetPortList[index];
 
             NavalShip[] ship = FindObjectsOfType<NavalShip>();
-            ship[1].SetDestinationPort(uiport.port);
+            // ship[1].SetDestinationPort(uiport.port);
             
             Debug.Log("Ship docked at " + uiport.portName);
         }
