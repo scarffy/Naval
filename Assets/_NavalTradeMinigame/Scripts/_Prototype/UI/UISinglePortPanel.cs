@@ -77,11 +77,11 @@ namespace MiniGame.UI
 
             if (_portInformations.PortDemands.Any())
             {
-                
+                Debug.Log($"[UI] Single Port: Port Demands is not empty");
             }
             else
             {
-                
+                Debug.Log($"[UI] Single Port: Port Demands is empty");
             }
 
             //! Get current list. Not the best way to get the ship list
