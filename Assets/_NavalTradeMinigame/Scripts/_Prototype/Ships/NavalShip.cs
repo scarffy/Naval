@@ -1,90 +1,43 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
 
-//! TODO: Remove/Rewrite this script.
-//! Only to have NavMeshAgent
-[RequireComponent(typeof(NavMeshAgent))]
-public class NavalShip : MonoBehaviour
+namespace MiniGame
 {
-    public NavalShipSO defaultShip;
-
-    [Header("Ship Details")]
-    public string shipName;
-    public int shipId;  // For saving
-
-    [Header("Navigation")]
-    private NavMeshAgent agent;
-    public float speed;
-    public float distance;
-    public float timeArrival;
-
-    [Space]
-    public Transform destination;
-
-    [SerializeField] private bool _hasArrive = false;
-    [SerializeField] private NavalPortSO _expectedPort;
-    
-    public bool isOnSail = false;
-
-    private void Awake()
+    public class NavalShip : MonoBehaviour
     {
-        agent = GetComponent<NavMeshAgent>();
-        agent.speed = speed = defaultShip.shipSpeed;
-    }
+        public NavalShipSO _defaultShip;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        if(destination != null)
-            agent.SetDestination(destination.position);
-    }
+        [Header("Ship Details")] 
+        [SerializeField] private string _shipName;
+        [SerializeField] private int _shipId; // For saving
 
-    public void SetSail()
-    {
-        agent.SetDestination(destination.position);
-    }
+        [Header("Dependant Script")] 
+        [SerializeField] private NavalNavigation _navalNavigation;
 
-    public void ResetSail()
-    {
-        if (agent.isStopped)
+        private void Start()
         {
-            agent.autoRepath = true;
-            agent.SetDestination(destination.position);
-            agent.isStopped = false;
+            _shipName = _defaultShip.shipName;
+            _shipId = _defaultShip.shipId;
+            
+            _navalNavigation.SetDefaultShip(_defaultShip);
+            _navalNavigation.Initialize();
+            
+            _navalNavigation.SetSail();
         }
-    }
 
-    public void StopSail()
-    {
-        agent.isStopped = true;
-    }
-
-    // Update is called once per frame
-    private void Update()
-    {
-        //! TODO: To gather all details in one place. As in to follow ECS pattern
-        if (isOnSail)
+        private void OnTriggerEnter(Collider other)
         {
-            //distance = Vector3.Distance(startPortTransform.position, endPortTransform.position);
-            distance = agent.remainingDistance;
+            //! Probably can do when it collide with collider do some event
 
-            timeArrival = distance / speed;
         }
-    }
 
-    private void OnTriggerEnter(Collider other)
-    {
-        //! Probably can do when it collide with collider do some event
-        
-    }
+        public void SetShipId(int id) => _shipId = id;
+        public void SetShipName(string shipName) => _shipName = shipName;
 
-    public void SetDestinationPort(NavalPortSO port)
-    {
-        _expectedPort = port;
+        #region  Accessor
+        public string GetShipName => _shipName;
+        public NavalPortSO GetPort => _navalNavigation.GetPortInformation;
+        #endregion
     }
-
-    public NavalPortSO GetPort => _expectedPort;
 }

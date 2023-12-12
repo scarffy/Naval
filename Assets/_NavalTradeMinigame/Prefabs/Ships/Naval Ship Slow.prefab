@@ -14,7 +14,9 @@ GameObject:
   - component: {fileID: 299697029782651530}
   - component: {fileID: 299697029782651531}
   - component: {fileID: 299697029782651528}
+  - component: {fileID: 8113610785006474531}
   - component: {fileID: 5417006688672934089}
+  - component: {fileID: 2611145253892467121}
   m_Layer: 0
   m_Name: Naval Ship Slow
   m_TagString: Untagged
@@ -140,12 +142,30 @@ MonoBehaviour:
   speed: 0
   distance: 0
   timeArrival: 0
-  startPort: {fileID: 0}
-  EndPort: {fileID: 0}
-  startPortTransform: {fileID: 0}
-  endPortTransform: {fileID: 0}
   destination: {fileID: 0}
+  _hasArrive: 0
+  _expectedPort: {fileID: 0}
   isOnSail: 0
+--- !u!114 &8113610785006474531
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 299697029782651529}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9473f912ba74b5547b0ee55895cedf5d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _destination: {fileID: 0}
+  _expectedPort: {fileID: 0}
+  _isOnSail: 0
+  _agent: {fileID: 299697029782651531}
+  _speed: 0
+  _distance: 0
+  _arrivalTime: 0
+  _defaultShip: {fileID: 0}
 --- !u!114 &5417006688672934089
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -159,3 +179,51 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   baseInventory: {fileID: 11400000, guid: 39e90b9afc590447689b02707a817aba, type: 2}
+  inventoryLimit: 0
+  items: []
+--- !u!114 &2611145253892467121
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 299697029782651529}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4bb6186ed37b474d883432e271f38d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _level: 1
+  _maxLevel: 100
+  _experienceAmount: 0
+  _nextExperience: 100
+  animationCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  OnLevelUp:
+    m_PersistentCalls:
+      m_Calls: []
+  OnLevelMaxReach:
+    m_PersistentCalls:
+      m_Calls: []
