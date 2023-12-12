@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace MiniGame
 {
@@ -25,6 +26,9 @@ namespace MiniGame
         [Header("Ship List")]
         public List<NavalShip> TotalShips;
 
+        [Header("Events")] 
+        public UnityEvent OnUpdate;
+
         public void Initialize()
         {
             NavalShip[] shipList = FindObjectsOfType<NavalShip>();
@@ -33,7 +37,8 @@ namespace MiniGame
         
         private void Update()
         {
-            
+            if(OnUpdate != null)
+                OnUpdate?.Invoke();
         }
     }
 }

@@ -1595,7 +1595,7 @@ GameObject:
   - component: {fileID: 425292046}
   m_Layer: 0
   m_Name: Hurricane Event_1
-  m_TagString: Untagged
+  m_TagString: VoyageEvent
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1852,7 +1852,7 @@ GameObject:
   - component: {fileID: 534135231}
   m_Layer: 0
   m_Name: Pirate Event
-  m_TagString: Untagged
+  m_TagString: VoyageEvent
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2223,7 +2223,7 @@ GameObject:
   - component: {fileID: 696187403}
   m_Layer: 0
   m_Name: Storm Event_1
-  m_TagString: Untagged
+  m_TagString: VoyageEvent
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3511,7 +3511,7 @@ GameObject:
   - component: {fileID: 905129972}
   m_Layer: 0
   m_Name: Hurricane Event
-  m_TagString: Untagged
+  m_TagString: VoyageEvent
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3762,7 +3762,7 @@ GameObject:
   - component: {fileID: 1057340468}
   m_Layer: 0
   m_Name: Storm Event
-  m_TagString: Untagged
+  m_TagString: VoyageEvent
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3873,7 +3873,7 @@ GameObject:
   - component: {fileID: 1093031204}
   m_Layer: 0
   m_Name: Pirate Event_1
-  m_TagString: Untagged
+  m_TagString: VoyageEvent
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -6569,7 +6569,7 @@ GameObject:
   - component: {fileID: 1829141457}
   m_Layer: 0
   m_Name: Pirate Event_2
-  m_TagString: Untagged
+  m_TagString: VoyageEvent
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -8345,10 +8345,6 @@ PrefabInstance:
       propertyPath: _uiPortList.Array.data[11]
       value: 
       objectReference: {fileID: 1980227354}
-    - target: {fileID: 13027565, guid: e91fb3ecf3912964e8e0ae72c1f04c0a, type: 3}
-      propertyPath: OnSetPort.m_PersistentCalls.m_Calls.Array.size
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 37552361723106396, guid: e91fb3ecf3912964e8e0ae72c1f04c0a, type: 3}
       propertyPath: m_Name
       value: Script
@@ -8397,22 +8393,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 37552361762539385, guid: e91fb3ecf3912964e8e0ae72c1f04c0a, type: 3}
-      propertyPath: TotalShips.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 37552361762539385, guid: e91fb3ecf3912964e8e0ae72c1f04c0a, type: 3}
-      propertyPath: TotalShips.Array.data[0]
-      value: 
-      objectReference: {fileID: 899094782}
-    - target: {fileID: 361886577206056751, guid: e91fb3ecf3912964e8e0ae72c1f04c0a, type: 3}
-      propertyPath: TotalShips.Array.size
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 361886577206056751, guid: e91fb3ecf3912964e8e0ae72c1f04c0a, type: 3}
-      propertyPath: TotalShips.Array.data[0]
-      value: 
-      objectReference: {fileID: 899094782}
     - target: {fileID: 3402040888419022417, guid: e91fb3ecf3912964e8e0ae72c1f04c0a, type: 3}
       propertyPath: _singlePort
       value: 
@@ -8498,6 +8478,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3104970208088096536, guid: aa8da92fcaceb47ff9cf5cf1d0acf989, type: 3}
+      propertyPath: OnInteract.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3104970208088096536, guid: aa8da92fcaceb47ff9cf5cf1d0acf989, type: 3}
+      propertyPath: OnInteract.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3104970208088096536, guid: aa8da92fcaceb47ff9cf5cf1d0acf989, type: 3}
+      propertyPath: OnInteract.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 5417006688672934089, guid: aa8da92fcaceb47ff9cf5cf1d0acf989, type: 3}
       propertyPath: inventoryLimit
       value: 8
@@ -8510,6 +8502,10 @@ PrefabInstance:
       propertyPath: items.Array.data[0]
       value: 
       objectReference: {fileID: 11400000, guid: 20d0c9229fde145b39e86613da6d64b4, type: 2}
+    - target: {fileID: 8113610785006474531, guid: aa8da92fcaceb47ff9cf5cf1d0acf989, type: 3}
+      propertyPath: _isOnSail
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8113610785006474531, guid: aa8da92fcaceb47ff9cf5cf1d0acf989, type: 3}
       propertyPath: _defaultShip
       value: 
@@ -8527,6 +8523,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1483479804379579129, guid: 74bd916d0609e4caea6514b8753f991a, type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1686144975204475591, guid: 74bd916d0609e4caea6514b8753f991a, type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1686144975268524166, guid: 74bd916d0609e4caea6514b8753f991a, type: 3}
       propertyPath: m_Name
       value: Port Destinations
@@ -8574,6 +8578,46 @@ PrefabInstance:
     - target: {fileID: 1686144975268524167, guid: 74bd916d0609e4caea6514b8753f991a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1937092286497331032, guid: 74bd916d0609e4caea6514b8753f991a, type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2535271333544900779, guid: 74bd916d0609e4caea6514b8753f991a, type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3191374057077455100, guid: 74bd916d0609e4caea6514b8753f991a, type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4109033338299599061, guid: 74bd916d0609e4caea6514b8753f991a, type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5131363324692459923, guid: 74bd916d0609e4caea6514b8753f991a, type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5660463131813327798, guid: 74bd916d0609e4caea6514b8753f991a, type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5833253281754536607, guid: 74bd916d0609e4caea6514b8753f991a, type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6394517792379353502, guid: 74bd916d0609e4caea6514b8753f991a, type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7083286664959705895, guid: 74bd916d0609e4caea6514b8753f991a, type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7647848571669775659, guid: 74bd916d0609e4caea6514b8753f991a, type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 74bd916d0609e4caea6514b8753f991a, type: 3}

@@ -17,3 +17,4 @@ MonoBehaviour:
   - 'Shop System: purchase goods to ships'
   - 'Port Manager: ??'
   - 'Port Children: ??'
+  - 'Ship Manager: refactor sail update'

@@ -27,14 +27,20 @@ namespace MiniGame
                 _agent = GetComponent<NavMeshAgent>();
 
             _speed = _defaultShip.shipSpeed;
+            _agent.speed = _speed;
         }
 
         public void SetDefaultShip(NavalShipSO ship) => _defaultShip = ship;
         
         public void SetDestination(Transform destination) => _destination = destination;
         public void SetDestinationPort(NavalPortSO port) => _expectedPort = port;
-        
-        public void SetSail() => _agent.SetDestination(_destination.position);
+
+        public void SetSail()
+        {
+            _agent.SetDestination(_destination.position);
+            _isOnSail = true;
+            ShipManager.Instance.OnUpdate.AddListener(UpdateSail);
+        } 
 
         public void ResetSail()
         {
@@ -49,6 +55,8 @@ namespace MiniGame
         public void StopSail()
         {
             _agent.isStopped = true;
+            _isOnSail = false;
+            ShipManager.Instance.OnUpdate.RemoveListener(UpdateSail);
         }
         
         //! Experiment until I found the best way to go forward
@@ -63,5 +71,6 @@ namespace MiniGame
         }
 
         public NavalPortSO GetPortInformation => _expectedPort;
+        public bool IsOnSail => _isOnSail;
     }
 }

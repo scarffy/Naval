@@ -16,6 +16,7 @@ namespace MiniGame
         [SerializeField] private NavalNavigation _navalNavigation;
 
         [SerializeField] private Experience _navalExperience;
+        [SerializeField] private NavalInteractor _navalInteractor;
 
         private void Start()
         {
@@ -29,18 +30,14 @@ namespace MiniGame
             _navalNavigation.SetSail();
         }
 
-        private void OnTriggerEnter(Collider other)
-        {
-            //! Probably can do when it collide with collider do some event
-
-        }
-
         public void SetShipId(int id) => _shipId = id;
         public void SetShipName(string shipName) => _shipName = shipName;
 
         #region  Accessor
         public string GetShipName => _shipName;
         public NavalPortSO GetPort => _navalNavigation.GetPortInformation;
+        public NavalNavigation GetNavigation => _navalNavigation;
+
         #endregion
     }
 }
