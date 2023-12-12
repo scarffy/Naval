@@ -15,8 +15,11 @@ namespace MiniGame
         [Header("Dependant Script")] 
         [SerializeField] private NavalNavigation _navalNavigation;
 
+        [SerializeField] private Experience _navalExperience;
+
         private void Start()
         {
+            //! This need to be set from ship purchase
             _shipName = _defaultShip.shipName;
             _shipId = _defaultShip.shipId;
             

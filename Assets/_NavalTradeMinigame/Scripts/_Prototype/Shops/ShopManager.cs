@@ -46,7 +46,7 @@ namespace MiniGame
 
         ship.SetShipId(1);
         ship.SetShipName("Jupiter");
-        GameManager.Instance.TotalShips.Add(ship);
+        ShipManager.Instance.TotalShips.Add(ship);
         
         Debug.Log($"[Core] Shop: Buying Slow Ship {ship.GetShipName}. Placing ship at {slowShip.transform.position}");
     }

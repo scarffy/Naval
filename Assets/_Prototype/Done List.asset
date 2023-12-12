@@ -16,3 +16,4 @@ MonoBehaviour:
   - 'Ship exp:'
   - 'Item Data: add information'
   - 'Ship Navigation: refactor and moved to separate script'
+  - 'Ship Manager: add ship manager'

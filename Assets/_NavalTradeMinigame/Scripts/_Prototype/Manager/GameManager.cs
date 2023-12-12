@@ -35,6 +35,7 @@ namespace MiniGame.Manager
         {
             PortManager.Instance.Initialized();
             UIManager.Instance.Initialize();
+            ShipManager.Instance.Initialize();
         }
 
         private void OnDestroy()
@@ -44,7 +45,6 @@ namespace MiniGame.Manager
 
         // === Port Management === //
         // === Ship Management == //
-        //! TODO: Put this in Ship Management script
-        public List<NavalShip> TotalShips;
+        
     }
 }

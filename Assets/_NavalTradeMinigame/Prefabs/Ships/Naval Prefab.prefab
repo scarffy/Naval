@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 5417006688672934089}
   - component: {fileID: 2611145253892467121}
   m_Layer: 0
-  m_Name: Naval Ship Slow
+  m_Name: Naval Prefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -136,16 +136,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f71433d84bf14e70ba018d505e16def, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultShip: {fileID: 11400000, guid: 5002f4ff879cf4b2295dd0e9ef7d374b, type: 2}
-  shipName: 
-  shipId: -1
-  speed: 0
-  distance: 0
-  timeArrival: 0
-  destination: {fileID: 0}
-  _hasArrive: 0
-  _expectedPort: {fileID: 0}
-  isOnSail: 0
+  _defaultShip: {fileID: 0}
+  _shipName: 
+  _shipId: 0
+  _navalNavigation: {fileID: 8113610785006474531}
+  _navalExperience: {fileID: 2611145253892467121}
 --- !u!114 &8113610785006474531
 MonoBehaviour:
   m_ObjectHideFlags: 0
