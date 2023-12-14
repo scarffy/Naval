@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using MiniGame.Manager;
 using UnityEngine;
 
-public class ShopManager : MonoBehaviour
+namespace MiniGame
+{
+    public class ShopManager : MonoBehaviour
 {
     public static ShopManager Instance
     {
@@ -42,12 +44,11 @@ public class ShopManager : MonoBehaviour
         GameObject slowShip = Instantiate(_navalShipPrefab);
         NavalShip ship = slowShip.GetComponent<NavalShip>();
 
-        ship.shipId = 1;
-        ship.shipName = "Jupiter";
-        ship.speed = NavalSlowShip.shipSpeed;
-        GameManager.Instance.TotalShips.Add(ship);
+        ship.SetShipId(1);
+        ship.SetShipName("Jupiter");
+        ShipManager.Instance.TotalShips.Add(ship);
         
-        Debug.Log($"[Core] Shop: Buying Slow Ship {ship.shipName}. Placing ship at {slowShip.transform.position}");
+        Debug.Log($"[Core] Shop: Buying Slow Ship {ship.GetShipName}. Placing ship at {slowShip.transform.position}");
     }
 
     public void SellShip()
@@ -66,4 +67,5 @@ public class ShopManager : MonoBehaviour
     {
 
     }
+}
 }

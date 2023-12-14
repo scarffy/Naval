@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/_NavalTradeMinigame/Scenes/SampleScene.unity
-    guid: d1c3109bdb54ad54c8a2b2838528e640
+    path: Assets/_NavalTradeMinigame/Scenes/Game.unity
+    guid: f0b6177725c7a4b3e9a24769bcb3e2ad
   m_configObjects: {}

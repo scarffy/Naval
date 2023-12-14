@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shipId: -1
   shipName: Neptune
-  shipHP: 0
+  shipHP: 50
   shipPrice: 2000
   shipImage: {fileID: 0}
   shipSpeed: 2

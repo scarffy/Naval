@@ -9,13 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce58119bccee644ce826974c0514fe3e, type: 3}
-  m_Name: Slow
+  m_Script: {fileID: 11500000, guid: 4871aaeb4db3de64983ed07095883c72, type: 3}
+  m_Name: Done List
   m_EditorClassIdentifier: 
-  shipId: -1
-  shipName: Jupiter
-  shipHP: 80
-  shipPrice: 1000
-  shipImage: {fileID: 0}
-  shipSpeed: 1
-  maximumInventory: 8
+  priorities:
+  - 'Ship exp:'
+  - 'Item Data: add information'
+  - 'Ship Navigation: refactor and moved to separate script'
+  - 'Ship Manager: add ship manager'
+  - 'Ship Health: Ship IDamageable'
