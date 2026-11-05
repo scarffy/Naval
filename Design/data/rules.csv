@@ -1,0 +1,23 @@
+key,value,notes
+start_port,Havana,Where the player's first ship starts
+start_ship,Sloop,The player's first ship
+start_gold,1500,Gold on day 1
+goal_gold,25000,Win when gold on hand reaches this
+day_limit,60,Lose if the goal is not reached by the end of this day
+spread,0.10,Gap between buy and sell price at the same port (fraction of the mid price)
+pressure_per_crate_bought,0.010,Each crate bought raises that good's price at that port by this fraction
+pressure_per_crate_sold,0.012,Each crate sold lowers that good's price at that port by this fraction
+pressure_min,-0.50,Lowest a price can be pushed (fraction below normal)
+pressure_max,0.50,Highest a price can be pushed (fraction above normal)
+pressure_recovery_per_day,0.15,Fraction of the push that fades each day
+market_noise_per_day,0.02,Random daily drift in every price (standard deviation)
+repair_cost_per_hull,10,Gold per hull point repaired in port
+storm_delay_min,1,Days added by a storm
+storm_delay_max,2,
+storm_damage_min,8,Hull damage from a storm
+storm_damage_max,20,
+pirate_loss_min,0.20,Fraction of each cargo good taken by pirates
+pirate_loss_max,0.40,
+pirate_damage_min,5,Hull damage from a pirate attack
+pirate_damage_max,12,
+ship_resale_fraction,0.50,Fraction of a ship's price returned when sold
