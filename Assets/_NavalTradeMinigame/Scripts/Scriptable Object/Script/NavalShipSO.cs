@@ -9,7 +9,7 @@ public class NavalShipSO : ScriptableObject
     public int shipId = -1;
     public string shipName;
     public int shipHP;
-    public string shipPrice;
+    public int shipPrice;
     public Sprite shipImage;
 
     public float shipSpeed;

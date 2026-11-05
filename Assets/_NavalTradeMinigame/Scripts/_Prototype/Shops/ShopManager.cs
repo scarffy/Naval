@@ -28,7 +28,7 @@ namespace MiniGame
     public NavalShipSO NavalFastShip;
 
     [Header("Goods")]
-    public NavalShipSO NavalGood;
+    public NavalGoodSO NavalGood;
 
     public void PurchaseShip()
     {

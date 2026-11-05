@@ -39,8 +39,12 @@ namespace MiniGame.Manager
         {
             if (_uiPortList.Count == 0)
                 Debug.LogWarning($"[Core](Warning): UI Port list is empty");
+
+            int count = Mathf.Min(_uiPortList.Count, _port.PortList.Count);
+            if (_uiPortList.Count != _port.PortList.Count)
+                Debug.LogWarning($"[Core](Warning): {_uiPortList.Count} UI ports but {_port.PortList.Count} ports in the data. Only the first {count} are set up");
             
-            for (int i = 0; i < _uiPortList.Count; i++)
+            for (int i = 0; i < count; i++)
             {
                 _uiPortList[i].port = _port.PortList[i];
                 

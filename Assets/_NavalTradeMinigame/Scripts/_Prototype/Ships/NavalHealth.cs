@@ -25,8 +25,7 @@ namespace MiniGame
         
         public void Damage(int amount)
         {
-            if (_currentHealth > 0)
-                _currentHealth -= amount;
+            _currentHealth = Mathf.Max(0, _currentHealth - amount);
         }
 
         public void Repair(int amount)

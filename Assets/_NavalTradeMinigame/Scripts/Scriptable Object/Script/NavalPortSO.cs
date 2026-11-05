@@ -15,9 +15,8 @@ public class NavalPortSO : ScriptableObject
     #region Accessor
     public int ID => id;
     public string PortName => portName;
-    public string PortDescription => PortDescription;
+    public string PortDescription => portDescription;
 
-    [SerializeField]
     public List<NavalItem> PortSpecialty => portSpecialty;
     public List<NavalItem> PortDemands => portDemands;
     

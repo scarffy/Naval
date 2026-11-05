@@ -33,8 +33,11 @@ namespace MiniGame
         {
             //! Get Random UIPort
             //! Get Random? ship to random UIPort
-            int index = Random.Range(1, PortManager.Instance.GetPortList.Count);
-            UIPort uiport = PortManager.Instance.GetPortList[index];
+            var ports = PortManager.Instance.GetPortList;
+            if (ports.Count == 0)
+                return;
+
+            UIPort uiport = ports[Random.Range(0, ports.Count)];
 
             NavalShip[] ship = FindObjectsOfType<NavalShip>();
             // ship[1].SetDestinationPort(uiport.port);
