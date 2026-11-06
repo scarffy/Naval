@@ -133,3 +133,50 @@ Built in the simulator and balanced: all required targets pass on seeds 1 and 2 
 3. **Hurricanes may now be too punishing:** about 3 ships lost per session for a Brig fleet, and about 10 for a Sloop fleet.
 4. **Beginner plays as a one-route game.** With fixed prices and no stock, every ship runs the single best pair (Havana–New York), so buying routes and seasons don't matter there.
 5. Smaller: free-route openings barely matter (bots buy about 4 routes on day 1); hub ports often decline early in Veteran; most building value comes from Market Halls.
+
+## 8. Decided for the next pass (overrides earlier sections where they differ)
+
+**Inspiration.** The source is Assassin's Creed III's trade convoys (`Research/AC-Trading-Minigames.md`). Black Flag is background only.
+
+**Starting fleet: you start with gold, not ships.**
+- Starting gold buys exactly one great ship, *or* two good ships, *or* three poor ships. The player's first decision is what kind of fleet to build.
+- Ship tiers (prices are starting points; the 1 : 2 : 3 relationship must hold):
+
+| Tier | Ship | Price | Notes |
+|---|---|---|---|
+| Great | Merchantman (replaces Fluyt) | 6,000 | Large, sturdy, ocean-going |
+| Good | Brig | 3,000 | Mid-size, ocean-going |
+| Poor | Sloop | 2,000 | Small, fast, coastal only, fragile |
+
+- Starting gold: 6,000. All three openings must be real choices, and none should be clearly best.
+
+**Warships and route danger (the Assassin's Creed III-style risk model).**
+- Trading ships carry no guns. The Guns upgrade track is removed from trading ships. Their upgrades are Sails, Hull and Hold.
+- **Warship:** a new ship type (an armed brig, letter-of-marque style) that carries no cargo and can be upgraded with Guns (swivel guns, then carriage guns).
+- **Route danger:** each route has a pirate and privateer danger shown as a percentage, the chance of being attacked on a voyage along it.
+  - It starts high on dangerous routes (Caribbean routes the highest) and low on safe ones.
+  - **Clearing:** a warship sent on a patrol along a route lowers that route's danger by a fixed step (25 points to start) when the patrol succeeds, down to a minimum of 5%. Patrols are risky too. Guns upgrades raise the patrol's success chance and its survival.
+- **Weather is fixed.** Storms are ordinary weather. Hurricanes are seasonal, and neither can be cleared.
+- **What happens when things go wrong (unchanged from version 1):**
+  - pirates take part of the cargo and damage the hull
+  - storms and hurricanes delay the ship and damage the hull (hurricanes can also wash cargo overboard)
+  - repairs cost gold
+- **A ship whose hull reaches 0 is simply gone, with its cargo.** No insurance, no compensation.
+- **Route preview:** before sailing, show the pirate danger, the hurricane danger (in season), and the chance of losing this ship given its current hull. Sailing a damaged ship is a visible gamble.
+
+**Hurricane-season price premium: Beginner only.**
+- During hurricane season, Gulf and Caribbean export goods sell for more at ports outside the hurricane zone, and ports inside the zone pay more for imports. Braving the season pays.
+- These are scheduled seasonal prices, never a reaction to the player's own trading.
+- In Veteran there's no premium. The danger is the same, and you take it or you don't.
+
+**No fleet limit.** Players can keep buying ships and snowball. A mission is won by reaching its goal. The simulator may keep a high safety cap so runs finish, but the cap must not bind before a good player reaches the goal; report it if it does.
+
+**Difficulty and the yardstick.**
+- "A good player" means a bot that buys ships, routes, upgrades and buildings, and patrols routes when that pays. That bot's median win must land between 65% and 90% of the mission, in each mode.
+- **Veteran must never be easier than Beginner.** The same good play wins at least 15% later in Veteran, or wins clearly less often.
+- Upgrades were far too strong (about +160% in Veteran). Retune them so they help without halving the mission.
+
+**New targets:**
+- **Opening choice:** 1 great, 2 good and 3 poor ships each win at least 80% of sessions for a good player, with average gold within 15% of each other.
+- **Clearing routes matters:** a good player who patrols earns at least 5% more than one who never does.
+- **Seasons matter:** in Beginner, the season premium draws ships into hurricane routes at least sometimes. In Veteran, ships avoid them more in season.
