@@ -1,6 +1,6 @@
 # Naval: UI/UX review and design spec
 
-**Status: proposal, waiting for the owner's approval.** Nothing here is built yet. Read it with `SliceScope.md` (what the slice contains) and `Status.md` (what exists now).
+**Status: approved by the owner,** with the decisions in §0.1. Nothing here is built yet. Read it with `SliceScope.md` (what the slice contains) and `Status.md` (what exists now).
 
 **What this covers:**
 
@@ -8,9 +8,9 @@
 2. A proposed design for every screen, with layout sketches at 1920×1080.
 3. A small design system: type, colours, spacing, buttons, panels, icons, accessibility.
 4. How to build it in Unity so a designer can open, read and change it.
-5. A phased plan, the placeholder art it needs, and open questions.
+5. A phased plan, the placeholder art it needs, and the one open question left.
 
-**Labels:** anything marked *(optional)* is nice to have and can be cut without hurting the slice.
+**Labels:** anything marked *(optional)* is nice to have and can be cut without hurting the slice. Keep the scope lean: build the optional items only when everything else in a step is done.
 
 ---
 
@@ -28,10 +28,21 @@
 6. **The map has no geography.** A blue rectangle inside a blue rectangle. Coastal versus ocean routes, the core rule for sloops, can't be seen because there is no coast and no ocean.
 7. **The route colours mean things nobody is told.** Cream vs blue, faint vs half-bright vs bright, thin vs thick, with no legend.
 8. **Decisions need comparison, but the UI shows one thing at a time.** The send panel lists destinations as bare names; to compare arrival times or risks the player must click each one and remember the numbers.
-9. **The port market is a wall of 56 identical buttons** (14 goods × Buy 1 / Buy 10 / Sell 1 / Sell all), with no hint of what is cheap here or what sells well elsewhere.
+9. **The port market is a wall of 56 identical buttons** (14 goods × Buy 1 / Buy 10 / Sell 1 / Sell all).
 10. **Feedback is text-only and fleeting.** Notifications are coloured sentences that fade after 10 seconds, with no icon, no log and no way to jump to the ship.
 
 **The direction:** a period chart table. Parchment panels with ink text over a painted sea-and-land chart; gold as the accent colour; numbers shown as bars and meters, with the exact figure beside them; one consistent top bar; panels that dock so the map stays visible when the map matters (route buying, sending); and every row built from a prefab a designer can open and edit.
+
+### 0.1 The owner's decisions
+
+1. **Engine:** the project runs on **Unity 6.3**. TextMeshPro is part of the uGUI package there (com.unity.ugui 2.0).
+2. **Art:** every icon and placeholder sprite is drawn in-house. No third-party icon sets.
+3. **No trading hints.** The market shows prices and nothing else: no CHEAP or PAYS tags, no "sells well here" lines, no "cheap here" tooltips. Players read the prices and remember them; that is the game.
+4. **Main menu and Quit:** a main menu (New Game, Replay tutorial, Quit) in its own scene, `MainMenu.unity`, first in Build Settings (§3.0). The pause menu also has Main menu and Quit. Quit calls `Application.Quit()` and stops play mode in the editor.
+5. **Map positions:** ports are placed by hand in the scene, on top of the map art (§3.5).
+6. **Fonts:** a free period serif for headings and a body font whose digits are all the same width (§4.1).
+7. **End screen:** the stat tiles are approved, with the small counters they need in `Naval.Core` (§3.13).
+8. **Risk bands:** Low below 5%, Moderate 5 to 20%, High above 20%. For the chance of losing the ship: Low below 2%, Moderate 2 to 10%, High above 10%.
 
 ---
 
@@ -118,7 +129,6 @@ The screenshot reviewed shows the opening at 1920×1080. Everything is drawn wit
 
 **Problems:**
 - **56 buttons** in the market at a 14-good port, all identical grey, at 100×40.
-- **No trading guidance.** Prices are fixed per port, so the whole game is "buy where cheap, sell where dear", yet nothing marks a cheap good or a good that pays well somewhere else.
 - **Hold and hull are text** ("Hold 12/90 crates"), so the player can't see at a glance how full the ship is or how damaged.
 - **The stepper hides the fleet**: "Ship 1 of 3 here" doesn't say *which* ships are here until you step through them.
 - **Shipyard and market are mixed in one view**, and buying a ship and upgrading the selected ship are styled the same.
@@ -178,6 +188,7 @@ The screenshot reviewed shows the opening at 1920×1080. Everything is drawn wit
 - Win and loss look identical apart from the title text.
 - No summary of the run (voyages, best trade, ships lost), which is the reward moment of a strategy game.
 - Restart is the only action; there's no "Main menu" or "Quit".
+- There is no main menu at all: the game starts straight into the fleet choice, and there's no way to quit from inside the game.
 
 ---
 
@@ -220,6 +231,28 @@ All sizes are for the Canvas reference resolution, **1920×1080** (Canvas Scaler
 
 Sketches use ASCII. `[ Button ]` is a button; `[*Button*]` is the primary action; `(icon)` is a placeholder icon from §4.6; `▓▓▓░░` is a bar or meter.
 
+### 3.0 Main menu
+
+```
+ ┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+ │                                                                                              │
+ │                                        NAVAL                                                 │  Display
+ │                              Atlantic trade, 1770                                            │  Body, InkSoft
+ │                                                                                              │
+ │                              [*      New Game      *]                                        │  primary
+ │                              [   Replay tutorial    ]                                        │  secondary
+ │                              [        Quit          ]                                        │  secondary
+ │                                                                                              │
+ └──────────────────────────────────────────────────────────────────────────────────────────────┘
+          SeaDeep background (the map art later), a Parchment card 520 wide in the centre
+```
+
+- **Its own scene,** `MainMenu.unity`, first in Build Settings, so a player build opens on it. `Slice.unity` comes second; the prototype `Game.unity` stays in the list after them. A separate scene is the usual Unity way: the menu has no game running behind it, and New Game is simply loading `Slice.unity`.
+- **New Game** loads the game scene (a scene name in the Inspector). The tutorial runs on the first play as before.
+- **Replay tutorial** forgets that the tutorial was seen, then starts a new game.
+- **Quit** calls `Application.Quit()`; in the editor it stops play mode (the usual `#if UNITY_EDITOR` pattern). No confirm here: nothing is lost.
+- *(optional)* Continue, once games can be saved (not in the slice).
+
 ### 3.1 Top bar (HUD)
 
 ```
@@ -247,6 +280,7 @@ Sketches use ASCII. `[ Button ]` is a button; `[*Button*]` is the primary action
 - **Days left:** number in Heading, "days left" in Caption. Under 90 days it turns Warning; under 30, Bad.
 - **Speed control:** see 3.2.
 - **Menu button:** a 44×44 icon button at the far right, at least 48 px from the speed control and behind a divider. It opens the pause menu (3.3).
+- **Numbers that change** (gold, days left, the goal) use the body font at Heading size (the *Figures* style, §4.1), so their digits don't jitter.
 
 ### 3.2 Speed control
 
@@ -255,12 +289,13 @@ Sketches use ASCII. `[ Button ]` is a button; `[*Button*]` is the primary action
  ┌────┬────┬─────┬──────┐     ┌────┬────┬─────┬──────┐          ┌────┬────┬─────┬──────┐
  │ ❚❚ │ ▶  │ ▶▶  │ ▶▶▶  │     │ ❚❚ │ ▶  │ ▶▶  │ ▶▶▶  │          │▓❚❚▓│ ▶  │ ▶▶  │ ▶▶▶  │
  └────┴▓▓▓▓┴─────┴──────┘     └────┴────┴─────┴──────┘          └────┴────┴─────┴──────┘
-   1× selected                 "Paused while you trade"            "Paused" (Space)
+   1× selected                 "Paused while you decide"           "Paused" (Space)
 ```
 
 - One grouped control, 4 segments of 52×40, shared border, no gaps. The selected segment is filled Ink with a Parchment icon.
 - Icons, not "1×/2×/4×" text; the tooltip gives the name and key: Pause (Space), Normal (1), Fast (2), Fastest (3).
-- **When the clock is held by a panel**, all segments dim and a caption under the control reads "Paused while you trade". This makes the existing hold rule visible instead of mysterious.
+- **When the clock is held** (a panel or the pause menu is open, or the opening is being chosen), all segments dim and a caption under the control reads "Paused while you decide" (the wording is a text in the scene). This makes the existing hold rule visible instead of mysterious.
+- The tooltips come with `TooltipView` (step 4); until then the keys are listed in the pause menu.
 - Keyboard: Space toggles pause and the last speed; 1, 2, 3 pick a speed.
 
 ### 3.3 Pause menu and confirm dialog
@@ -272,25 +307,30 @@ Sketches use ASCII. `[ Button ]` is a button; `[*Button*]` is the primary action
             │      [*      Resume       *]     │   primary, Esc also resumes
             │      [  Replay tutorial     ]    │   secondary
             │      [  Restart voyage      ]    │   secondary
+            │      [  Main menu           ]    │   secondary
             │  ──────────────────────────────  │
-            │      [  Quit to desktop     ]    │   danger (optional: builds only)
+            │      [  Quit                ]    │   danger
+            │  Space pause · 1 2 3 speed       │   Caption, InkSoft
             └──────────────────────────────────┘
-                        480 × ~460, centred
+                        480 × ~540, centred
 
             ┌──────────────────────────────────────────┐
             │  Restart the voyage?                     │
             │  Your fleet, gold and routes will be     │
-            │  lost. The game starts again on          │
-            │  1 Jul 1770.                             │
+            │  lost. The game starts again from the    │
+            │  beginning.                              │
             │                                          │
-            │              [ Cancel ]  [!Restart!]     │   Cancel is the default (Enter/Esc)
+            │              [ Cancel ]  [!Restart!]     │   Esc cancels
             └──────────────────────────────────────────┘
 ```
 
 - Opens from the Menu button or Esc. Pauses the game while open.
-- Restart and Replay tutorial each open the confirm dialog, which replaces the current "Sure?" label trick. One reusable `ConfirmDialog` (title, body, confirm label, danger or not).
-- Quit is only shown in a player build (`Application.isEditor` false) *(optional)*.
+- Replay tutorial, Restart, Main menu and Quit each open the confirm dialog first, since each one ends the current game. This replaces the "Sure?" label trick.
+- One reusable `ConfirmDialog`: title, body, confirm label and the action. Every current use loses the game, so its confirm button is always the Danger style; a non-danger variant can be added when something needs it.
+- The wording of the four confirmations is set on the pause menu in the Inspector, not in code.
+- Quit is shown in the editor too, where it stops play mode.
 - *(optional)* Settings: music and sound volume once phase 5 adds sound.
+- *(optional)* Enter for the confirm button.
 
 ### 3.4 Fleet choice
 
@@ -357,7 +397,7 @@ Sketches use ASCII. `[ Button ]` is a button; `[*Button*]` is the primary action
 **Sea and land:**
 - **Sea:** a single painted texture (or a simple gradient with a faint paper grain) covering the whole camera view, so there is no "rectangle inside a rectangle". Colours: Sea / SeaDeep tokens.
 - **Land:** one placeholder sprite, `MapLand.png`, on top of the sea, in the same 100×60 space as `ports.csv` (so 4096×2458 px fits exactly). Flat Land colour with a darker coast line and a faint inner shade. Region names (Gulf of Mexico, Caribbean Sea, North America, Europe, Atlantic Ocean) as large, light, letter-spaced text in the art or as world-space TMP labels.
-- **The map art and the port positions must agree.** The art is drawn over a guide image of the port dots, or ports are moved to fit the art; see open question Q2.
+- **Ports are placed by hand** in the scene, on top of the art: each `PortMarker` instance is moved to its harbour in the editor, and the route lines are drawn between them. The `map_x`/`map_y` columns in `ports.csv` are only used for drawing, so step 4 removes them from the CSV and from `Naval.Core`'s port data.
 - *(optional)* A compass rose and a cartouche with "1770" in an empty corner; a soft vignette at the edges.
 
 **Port markers** (one `PortMarker` prefab):
@@ -380,7 +420,6 @@ Sketches use ASCII. `[ Button ]` is a button; `[*Button*]` is the primary action
 
 - Labels sit above the marker by default. Each `PortMarker` has a **label offset** field so the designer can nudge crowded names (New York and Boston, Natchez and New Orleans) without code.
 - Labels are screen-readable at all supported aspects: at least 20 px tall at 1080p.
-- *(optional)* Hover shows a tooltip with "Cheap here: Sugar, Tobacco · Pays well: Hardware, Cloth" from `market.csv`.
 
 **Routes** (one `RouteLine` prefab with a `LineRenderer`):
 
@@ -396,7 +435,7 @@ Sketches use ASCII. `[ Button ]` is a button; `[*Button*]` is the primary action
 - **Routes follow the sea:** each route can have bend points so it goes around Florida, the Yucatán and so on. The `RouteLine` prefab instance holds its points (see §5.6); ships follow the drawn line.
 - During the free-routes phase, buyable routes pulse gently.
 
-**Legend** (bottom left, collapsible, 280 px wide):
+**Legend** (bottom left, 280 px wide; collapsing it is *(optional)*):
 
 ```
  ┌ Legend ───────────── (–) ┐
@@ -407,7 +446,7 @@ Sketches use ASCII. `[ Button ]` is a button; `[*Button*]` is the primary action
  │ ◉ Reachable  ○ Not yet    │
  │ (crane) Shipyard          │
  ├───────────────────────────┤
- │ (scroll) Log (3 new)      │   opens the notification log
+ │ (scroll) Log (3 new)      │   optional: opens the log
  └───────────────────────────┘
 ```
 
@@ -487,26 +526,24 @@ A centred modal, 1440 × 860. Two tabs at shipyards (**Market**, **Shipyard**), 
 │                                       │ ┌──────────────────┬───────┬───────┬────────┬──────────────────────┐ │
 │ (crate) Hold   ▓▓▓▓▓▓▓▓░░░░  22 / 34  │ │ Good             │  Buy  │  Sell │ Aboard │ Actions              │ │ header
 │ (hull)  Hull   ▓▓▓▓▓▓▓▓▓▓░░  52 / 70  │ ├──────────────────┼───────┼───────┼────────┼──────────────────────┤ │
-│         [ (hammer) Repair · 180 ]     │ │ (i) Sugar  CHEAP │    41 │    37 │     12 │ [ Buy 10 ] [ Sell 10]│ │ row
-│                                       │ │ (i) Tobacco CHEAP│    38 │    34 │     10 │ [ Buy 10 ] [ Sell 10]│ │
+│         [ (hammer) Repair · 180 ]     │ │ (i) Sugar        │    41 │    37 │     12 │ [ Buy 10 ] [ Sell 10]│ │ row
+│                                       │ │ (i) Tobacco      │    38 │    34 │     10 │ [ Buy 10 ] [ Sell 10]│ │
 │ Cargo                                 │ │ (i) Coffee       │   118 │   106 │      — │ [ Buy 10 ] [  Sell  ]│ │ Sell disabled
-│   Sugar ×12  · Tobacco ×10            │ │ (i) Hardware PAYS│   190 │   171 │      — │ [ Buy 10 ] [  Sell  ]│ │
-│                                       │ │ (i) Cloth   PAYS │   176 │   158 │      — │ [ Buy 10 ] [  Sell  ]│ │
+│   Sugar ×12  · Tobacco ×10            │ │ (i) Hardware     │   190 │   171 │      — │ [ Buy 10 ] [  Sell  ]│ │
+│                                       │ │ (i) Cloth        │   176 │   158 │      — │ [ Buy 10 ] [  Sell  ]│ │
 │ Aboard, not traded here:              │ │ …                │       │       │        │                      │ │
 │   Furs ×4                             │ │                  │       │       │        │                      │ │ scrolls if
 │                                       │ └──────────────────┴───────┴───────┴────────┴──────────────────────┘ │ more than 10
-│                                       │  CHEAP = sells below the usual price here.                           │
-│                                       │  PAYS  = this port pays above the usual price. (season) +25% in season │ caption
 ├───────────────────────────────────────┴──────────────────────────────────────────────────────────────────────┤
 │  Bought 10 Sugar for 410 gold.                                  [ Close ]   [*  Send Brig 1…  *]             │ result + actions
 └──────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
     left column 400 px                      market table ~1000 px; row height 44
-    (prices in the sketches are illustrative; tags follow Havana's real multipliers in market.csv)
+    (prices in the sketches are illustrative)
 ```
 
 - **Ship chips** replace the `< Ship 1 of 3 >` stepper: every ship in port is visible with its name and two mini-bars (hull, hold). The selected chip is filled Ink. More than five ships scroll sideways.
 - **Left column, the selected ship:**
-  - **Hold bar** (crates / capacity), segmented every 10 crates *(optional)*. While hovering a Buy button, the bar shows a ghost of the crates that would be added.
+  - **Hold bar** (crates / capacity), segmented every 10 crates *(optional)*. *(optional)* While hovering a Buy button, the bar shows a ghost of the crates that would be added.
   - **Hull bar**, coloured Good above 60%, Warning 30 to 60%, Bad below 30%, plus the number.
   - **Repair** with the cost on the button; disabled (not hidden) at full hull, with "Hull is full" as tooltip, so the layout doesn't jump.
   - A plain cargo list and, if any, "Aboard, not traded here".
@@ -514,7 +551,7 @@ A centred modal, 1440 × 860. Two tabs at shipyards (**Market**, **Shipyard**), 
   - Columns: **Good | Buy | Sell | Aboard | Actions**, as asked.
   - **Quantity is chosen once** in the table header with a segmented control: 1, 5, 10, Max (Max = as many as the hold and gold allow when buying, everything aboard when selling). Each row then needs only two buttons, **Buy N** and **Sell N**, instead of four. That halves the buttons and keeps the numbers in the labels honest.
   - *(optional)* Shift-click on Buy or Sell uses Max for that one click.
-  - **Tags** from data the game already has: CHEAP when this port's buy multiplier is at or below `zone_export_max_multiplier` (0.65); PAYS when its sell multiplier is high (threshold in the theme asset, e.g. 1.5); a small (season) icon when the season premium applies. Tag = word + colour, never colour alone.
+  - **No hints on the rows:** prices only, no tags or "sells well" marks (§0.1).
   - Numbers right-aligned, tabular figures, no "gold" suffix in cells (the column header has the coin icon).
   - Buttons disabled when they can't work (no gold, no space, nothing aboard), with the reason in a tooltip. A refused command still shows its reason in the result line.
   - **Feedback:** the clicked row flashes Good (or Bad if refused) for 0.3 s, and the result line at the bottom repeats the message next to the action buttons.
@@ -570,9 +607,8 @@ A centred modal, 1440 × 860. Two tabs at shipyards (**Market**, **Shipyard**), 
  │             in season                    │  "Out of season" greyed when 0
  │ (sink)      Loss of     ▓░░░░░░░░░   2%  │  loss chance, from hull
  │             this ship                    │
- │   Hull 52/70. [ Repair first · 180 ]     │  shown when repair would help
+ │   Hull 52/70. [ Repair first · 180 ]     │  optional, when repair would help
  │                                          │
- │ (i) Sugar and Tobacco sell well here.        │  optional sale hint
  │──────────────────────────────────────────│
  │ [ Back ]           [*   Set sail   *]    │  disabled until a destination
  └──────────────────────────────────────────┘  is picked, never hidden
@@ -580,11 +616,10 @@ A centred modal, 1440 × 860. Two tabs at shipyards (**Market**, **Shipyard**), 
 
 - **The destination list is comparable:** each `DestinationRow` shows the port, days, and a three-pip risk summary for *this ship*, from `GameState.Preview` per destination (12 ports, cheap to compute when the panel opens). Rows the ship can't use (a sloop and an ocean route) are shown locked with the reason instead of hidden, so the player learns the rule.
 - **Route on the map:** the chosen path is drawn Gold with numbered stop badges (1, 2, …) and the destination marker pulses. The map camera shrinks to the area left of the drawer so every port stays visible.
-- **Risk meters** (one `RiskMeter` prefab, used here and in the route drawer): icon, label, bar, percentage. Band colours: Low (Good), Moderate (Warning), High (Bad), with the band word in the tooltip. Thresholds live in the theme asset (open question Q5).
-- **Repair first** appears when the ship is damaged and repairing would cut the loss chance; it repairs in place and refreshes the preview.
-- **Empty ship warning:** if nothing is aboard, a Warning line "The hold is empty." above Set sail (sending is still allowed).
+- **Risk meters** (one `RiskMeter` prefab, used here and in the route drawer): icon, label, bar, percentage. Band colours: Low (Good), Moderate (Warning), High (Bad), with the band word in the tooltip. Thresholds live in the theme asset (§0.1: Low below 5%, Moderate 5 to 20%, High above 20%; loss of the ship 2% and 10%).
+- *(optional)* **Repair first** appears when the ship is damaged and repairing would cut the loss chance; it repairs in place and refreshes the preview.
+- *(optional)* **Empty ship warning:** if nothing is aboard, a Warning line "The hold is empty." above Set sail (sending is still allowed).
 - **Set sail** is the primary button; disabled with a tooltip until a destination is chosen.
-- *(optional)* **Sale hint:** the best one or two goods aboard by sell price at the destination.
 
 ### 3.10 Notifications: toasts and log
 
@@ -616,7 +651,7 @@ A centred modal, 1440 × 860. Two tabs at shipyards (**Market**, **Shipyard**), 
 - Clicking a toast (or View) selects the ship, or opens the port for an arrival.
 - Toast timers pause while a panel holds the clock, so nothing is missed while trading.
 - When more than three are queued, the oldest Info toast goes first; Bad toasts are never dropped.
-- **Log:** the Log button under the legend opens a small scrolling list of the last 50 events with the date, icon and text (one `LogEntry` prefab). The button shows "(3 new)" since it was last opened.
+- *(optional)* **Log:** the Log button under the legend opens a small scrolling list of the last 50 events with the date, icon and text (one `LogEntry` prefab). The button shows "(3 new)" since it was last opened.
 
 ### 3.11 Fleet list (bottom right)
 
@@ -635,7 +670,7 @@ A centred modal, 1440 × 860. Two tabs at shipyards (**Market**, **Shipyard**), 
 - **IDLE** tag on ships sitting in port with an empty hold, since an idle ship earns nothing (it pays wages in port only if `docked_wage_fraction` is above 0).
 - Hover highlights the ship on the map; click selects it (and opens the port if it's in one).
 - The selected ship's row is filled Parchment with a Gold left bar, matching the ring on the map.
-- Collapsible to a header.
+- *(optional)* Collapsible to a header.
 
 ### 3.12 Tutorial: objective card and highlight
 
@@ -670,13 +705,13 @@ A centred modal, 1440 × 860. Two tabs at shipyards (**Market**, **Shipyard**), 
  │     │ 512,340        │ 41             │ trade +8,210   │ lost 2         │    │
  │     └────────────────┴────────────────┴────────────────┴────────────────┘    │
  │                                                                              │
- │                    [ Main menu ]   [*  Play again  *]                        │  Main menu only if one exists
+ │                    [ Main menu ]   [*  Play again  *]                        │  Main menu loads MainMenu.unity
  └──────────────────────────────────────────────────────────────────────────────┘
 ```
 
 - **Win:** warm palette, Gold title rule, short fanfare (phase 5).
 - **Lose:** cooler palette (SeaDeep backdrop), Ink title, the reason in plain words: "The two years are up. You ended with 212,400 of 500,000 gold." or "Your last ship is gone and you can't afford another."
-- **Stat tiles:** gold, days taken (win) or gold short (lose), voyages completed, ships lost. *(optional)* best single trade, needs a counter in Core or the presentation.
+- **Stat tiles** (approved): gold, days taken (win) or gold short (lose), voyages completed, ships lost. Voyages completed and ships lost are small counters on `GameState`, with tests. *(optional)* best single trade, also a counter.
 - Play again is the existing Restart; no confirm needed here.
 
 ---
@@ -689,21 +724,22 @@ All values below are first proposals; they live in the theme asset (§5.2) so th
 
 Two fonts, both free for commercial use (SIL Open Font License), imported as TextMeshPro font assets:
 
-- **Display / headings:** a period serif with small caps, e.g. *IM Fell English SC* or *Cormorant SC*. Used only at 28 px and above.
-- **Body / numbers:** a sturdy, readable serif or humanist sans with **lining, tabular figures**, e.g. *Alegreya Sans* or *Source Serif 4*. Tables need digits of equal width so columns line up.
+- **Display / headings:** *IM Fell English SC* (Igino Marini), a period serif in small caps. Used only at 28 px and above. Its digits are different widths, so it never shows numbers that change.
+- **Body / numbers:** *Spectral* Regular (Production Type), a readable book serif whose digits are all the same width by default. That matters because TextMeshPro doesn't switch on a font's optional tabular figures, so the default digits must already be even. (Alegreya Sans and Source Serif 4 were checked too: Alegreya Sans's default digits are proportional; Source Serif 4 is even but only ships as a variable font.)
 
-Final choice is open question Q3.
+Both go in `Arts/Fonts/` with their `OFL.txt` licences. Their TMP font assets are made in the editor; until then the theme points at TMP's LiberationSans SDF.
 
 | Style | Size (at 1080p) | Font | Use |
 |---|---|---|---|
 | Display | 64 | Display | End screen title |
 | Title | 40 | Display | Panel titles, fleet choice title |
-| Heading | 28 | Display | Section headings, card names, HUD numbers |
+| Heading | 28 | Display | Section headings, card names |
+| Figures | 28 | Body | Numbers that change at Heading size: gold, days left, the goal |
 | Body | 22 | Body | Most text, table cells, buttons |
 | Caption | 18 | Body | Labels under numbers, tooltips, legend. **Nothing smaller than 18.** |
 | Map label | 20 (screen-equivalent) | Body, semibold | Port names |
 
-Line height 1.25. Buttons use Body in semibold, no ALL CAPS except short tags (CHEAP, PAYS, IDLE), which use Caption with +8% letter spacing.
+Line height 1.25. Buttons use Body in semibold, no ALL CAPS except short tags (IDLE), which use Caption with +8% letter spacing.
 
 ### 4.2 Colour tokens
 
@@ -737,7 +773,7 @@ Line height 1.25. Buttons use Body in semibold, no ALL CAPS except short tags (C
 - Ink on Gold 6.0; Parchment on Bad 6.5; Ink on WarningFill 6.1.
 - On the map: Parchment on SeaDeep 10.7; RouteCoast on Sea 5.9; RouteOcean on Sea 4.8; Land against Sea 3.9 (enough for a large shape).
 
-**Theme thresholds** (also in the theme asset): risk bands (Low below 5%, Moderate 5 to 20%, High above 20%; loss chance Low below 2%, Moderate 2 to 10%, High above 10%), hull colour bands (60%, 30%), the PAYS sell-multiplier threshold, days-left warning (90, 30).
+**Theme thresholds** (also in the theme asset): risk bands (Low below 5%, Moderate 5 to 20%, High above 20%; loss chance Low below 2%, Moderate 2 to 10%, High above 10%), hull colour bands (60%, 30%), days-left warning (90, 30). Each value is added to the theme asset with the step that first uses it.
 
 ### 4.3 Spacing and shape
 
@@ -760,7 +796,7 @@ Line height 1.25. Buttons use Body in semibold, no ALL CAPS except short tags (C
 - **States:** normal; hover (fill 8% lighter, border Gold); pressed (fill 8% darker, content 1 px down); disabled (60% opacity, Disabled text, no hover, tooltip says why); selected (segmented only).
 - Heights: 52 primary, 44 secondary, 36 small (rows), 40 segmented.
 - **One primary button per panel.** Destructive actions are never next to frequent actions, and always confirm.
-- Built as button prefabs (§5.1) using Unity's `Button` with Color Tint transitions and a 9-slice sprite.
+- Built as button prefabs (§5.1) using Unity's `Button` with Color Tint transitions and a 9-slice sprite. The sprites are white with the Ink border baked in, so one sprite takes any fill colour. The hover state is a slight darkening for now (a tint can't lighten); a Gold hover border is *(optional)*.
 
 ### 4.5 Panels
 
@@ -772,7 +808,7 @@ Line height 1.25. Buttons use Body in semibold, no ALL CAPS except short tags (C
 
 ### 4.6 Icons
 
-One set of single-colour icons, 64×64 PNG, white on transparent so Unity can tint them. Placeholder art is fine; sources are open question Q4.
+One set of single-colour icons, 64×64 PNG, white on transparent so Unity can tint them. All of them are drawn in-house (§0.1); placeholders are fine until phase 5. Each is drawn with the step that first needs it.
 
 | Group | Icons |
 |---|---|
@@ -809,7 +845,7 @@ The rule: **what a designer sees in the editor is what the player sees.** Every 
 
 **In `Slice.unity`** (as now, rearranged):
 - `Main Camera`, `EventSystem`, `Game` (bootstrap, clock, map, ships).
-- `Map` under `Game`: the sea and land sprites, 12 `PortMarker` instances, 17 `RouteLine` instances and the region labels, placed by hand on the art (see Q2).
+- `Map` under `Game`: the sea and land sprites, 12 `PortMarker` instances, 17 `RouteLine` instances and the region labels, placed by hand on the art (§0.1).
 - `Canvas` with children: `Top Bar`, `Legend`, `Toasts`, `Fleet List`, `Objective Card`, `Tutorial Frame`, and the panels: `Fleet Choice`, `Route Drawer`, `Send Drawer`, `Port Panel`, `Pause Menu`, `Confirm Dialog`, `Log`, `End Screen`.
 - **Each panel is a prefab instance** (`Prefabs/UI/Panels/PortPanel.prefab` and so on). The designer edits it in Prefab Mode, and two people can change different panels without scene merge conflicts.
 - **Each controller sits on the object it controls**, not all on the Canvas as now (all 12 UI controllers are currently on `Canvas`):
@@ -823,8 +859,9 @@ The rule: **what a designer sees in the editor is what the player sees.** Every 
 
 | Prefab | Script on it | Where it's used |
 |---|---|---|
-| `Button Primary`, `Button Secondary`, `Button Danger`, `Button Icon` | none (Unity `Button`) | Everywhere; variants of one base button prefab |
-| `Segmented Control` | `SegmentedControl` | Speed, quantity, port tabs |
+| `Button` (secondary look), and its variants `Button Primary` and `Button Danger` | none (Unity `Button`; `ThemedGraphic`/`ThemedText` for the colours) | Everywhere |
+| `Button Icon` | the same | Menu, close ×, collapse (its own prefab: an icon instead of a label) |
+| `Segmented Control` | `SegmentedControl` | Quantity and port tabs (step 6). The top bar's speed control uses the same script, built in the scene with icon segments. |
 | `Tooltip` | `TooltipView` | One instance on the Canvas |
 | `Fleet Card` | `FleetCardView` | Fleet choice (3) |
 | `Ship Chip` | `ShipChipView` | Port panel |
@@ -850,7 +887,7 @@ It holds:
 - **Colours:** every token from §4.2, as named `Color` fields with tooltips.
 - **Fonts:** `TMP_FontAsset displayFont`, `TMP_FontAsset bodyFont`.
 - **Type sizes:** display, title, heading, body, caption, map label.
-- **Thresholds:** risk bands, hull bands, the PAYS threshold, days-left warnings.
+- **Thresholds:** risk bands, hull bands, days-left warnings.
 - **Timings and limits:** toast durations, the number of toasts shown, pulse speed, the tutorial frame padding.
 - **Map settings:** port marker and label sizes, route widths and dash styles per state, ship marker size. (These are currently `const`/`static readonly` values in `SliceMap`, `SliceShips`, `SliceNotifications` and `SliceTutorial`.)
 
@@ -871,7 +908,6 @@ public sealed class MarketRowView : MonoBehaviour
 {
     [SerializeField] Image goodIcon;
     [SerializeField] TMP_Text goodName;
-    [SerializeField] TMP_Text tag;
     [SerializeField] TMP_Text buyPrice;
     [SerializeField] TMP_Text sellPrice;
     [SerializeField] TMP_Text aboard;
@@ -883,7 +919,7 @@ public sealed class MarketRowView : MonoBehaviour
     public event Action<Good> BuyClicked;
     public event Action<Good> SellClicked;
 
-    public void Bind(Good good, int buy, int sell, int aboardCount, int quantity, MarketTag marketTag, bool canBuy, bool canSell) { … }
+    public void Bind(Good good, int buy, int sell, int aboardCount, int quantity, bool canBuy, bool canSell) { … }
 }
 ```
 
@@ -893,7 +929,7 @@ public sealed class MarketRowView : MonoBehaviour
 
 ### 5.4 TextMeshPro
 
-- TMP Essentials are already imported (`Assets/TextMesh Pro`). The two fonts are added under `Art/Fonts/`, and their TMP font assets are made once with the Font Asset Creator by the designer and committed.
+- TMP Essentials are already imported (`Assets/TextMesh Pro`). The two fonts go in `Arts/Fonts/` with their licences. Their TMP font assets are made once with the Font Asset Creator in the editor and committed. Until then the theme uses TMP's LiberationSans SDF.
 - The font assets are assigned in the theme asset and on the prefabs' TMP components in the Inspector.
 - All UI text moves from legacy `Text` to `TextMeshProUGUI`; port and region labels on the map use world-space `TextMeshPro`, replacing `TextMesh`.
 - **Note:** the cloud compile check only has small stand-ins for TextMeshPro, so TMP code is checked by hand and needs a compile in the Unity editor.
@@ -910,14 +946,15 @@ public sealed class MarketRowView : MonoBehaviour
 |---|---|
 | `SliceUi` | Becomes `SliceFormat` (text helpers only). Widget methods and colours removed. |
 | `SliceHud` | Top bar: date, season indicator from `GameState.Season`, goal bar, days left with warning bands, speed segmented control with a "held" state from `SliceClock.Held`, keyboard shortcuts, Menu button. Restart and Tutorial buttons and the "Sure?" logic move out. |
-| **new** `SlicePauseMenu` | Esc handling (closes the top panel via `SliceScreens`, else opens the menu), Resume, Replay tutorial, Restart, Quit. |
+| **new** `SlicePauseMenu` | Resume, Replay tutorial, Restart, Main menu, Quit, each but Resume behind the confirm dialog. Esc is handled by `SliceScreens`. |
+| **new** `SliceMainMenu`, `SliceScenes` | The main menu scene's buttons; loading a scene by the name set in the Inspector, and Quit. |
 | **new** `SliceConfirmDialog` | Reusable confirm: title, body, confirm label, danger flag, callback. |
 | `SliceScreens` | Knows the drawer vs modal panels; tells `SliceMap` how much screen the drawer takes; owns the selected ship; routes Esc. |
 | `SliceFleetChoice` | Binds three `FleetCardView`s (placed in its prefab); reads pictures and pitches from `ShipPresentation`. |
 | `SliceMap` | Uses the scene's `PortMarkerView` and `RouteLineView` instances instead of making sprites and lines; sets port states (reachable, buyable next, unreachable, ships here) and route styles from the theme; highlights a path; fits the camera to the free area (`Camera.rect`) when a drawer is open. |
 | `SliceShips` | Spawns `ShipMarker` prefabs; follows the route's drawn points (from `RouteLineView`) instead of a straight line; shows selection; fans out ships in port. |
 | `SliceRoutePanel` | Becomes a drawer: badge, days, per-crossing risk meters, "brings into reach", state-specific button. |
-| `SlicePortPanel` | Ship chips, hold and hull bars, quantity control, `MarketRowView` rows with tags, tabs, shipyard cards and upgrade rows with level pips, reused row instances. |
+| `SlicePortPanel` | Ship chips, hold and hull bars, quantity control, `MarketRowView` rows, tabs, shipyard cards and upgrade rows with level pips, reused row instances. |
 | `SliceSendPanel` | Drawer with `DestinationRowView`s (days and risk per destination), `RiskMeterView`s, path drawn on the map, Repair first, empty-hold warning, Set sail disabled rather than hidden. |
 | `SliceNotifications` | `ToastView`s with severity and icons, sticky Bad toasts, click to select or open, timers paused while held; keeps the last 50 events for the log. |
 | **new** `SliceLog` | The log panel and the "(n new)" count. |
@@ -925,7 +962,7 @@ public sealed class MarketRowView : MonoBehaviour
 | `SliceTutorial` | Objective card prefab (objective, explanation, step counter); two card anchor positions; restyled frame; legacy `Text` to TMP. Step logic unchanged. |
 | `SliceEndScreen` | Win and lose variants, stat tiles, Play again. |
 | **new** `UiTheme`, `ThemedText`, `ThemedGraphic`, `ShipPresentation`, `SegmentedControl`, `TooltipView`, and the row view scripts in §5.1 | As described above. |
-| `Naval.Core` | No rule changes. *(optional)* counters for the end screen (voyages completed, ships lost, best trade) on `GameState`, with tests. |
+| `Naval.Core` | No rule changes. Counters for the end screen (voyages completed, ships lost; *(optional)* best trade) on `GameState`, with tests (step 9). Step 4 drops `map_x`/`map_y` from the port data. |
 
 ---
 
@@ -935,22 +972,22 @@ Small steps, each one reviewable on its own and each ending with the usual revie
 
 | Step | What | Done when |
 |---|---|---|
-| **1. Foundations** | `UiTheme` asset, `ThemedText`/`ThemedGraphic`, the two TMP font assets, the button prefabs, `SegmentedControl`, `TooltipView`, the placeholder icon set. `SliceUi` split into `SliceFormat`. | The theme asset exists and recolours a test button in the editor. |
-| **2. Top bar and menu** | `SliceHud` rebuilt as the top bar with season indicator, goal bar and speed control (with the held state); `SlicePauseMenu`; `SliceConfirmDialog`; Restart and Tutorial moved into the menu; keyboard shortcuts. | Esc opens the menu, Restart asks in a dialog, and opening a port shows "Paused while you trade". |
+| **1. Foundations** | `UiTheme` asset, `ThemedText`/`ThemedGraphic`, the two font files (their TMP font assets are made in the editor), the button prefabs, `SegmentedControl`, the HUD icons and UI sprites. `SliceUi`'s text helpers move to `SliceFormat`; `SliceUi` keeps `IsAssigned` and the old colours and helpers the not-yet-rebuilt screens use, which go as each screen is rebuilt. `TooltipView` moves to step 4, the first step with hover detail. | The theme asset exists and recolours a test button in the editor. |
+| **2. Top bar and menus** | `SliceHud` rebuilt as the top bar with season indicator, goal bar and speed control (with the held state); `SlicePauseMenu` and `SliceConfirmDialog` as panel prefabs; Restart and Tutorial moved into the menu; keyboard shortcuts; the main menu scene and Quit. | The game opens on the main menu; Esc opens the pause menu; Restart asks in a dialog; opening a port shows "Paused while you decide". |
 | **3. Fleet choice** | `Fleet Card` prefab, `ShipPresentation` asset, `SliceFleetChoice` rebuilt. | The opening shows three cards; only Choose commits. |
 | **4. Map art and markers** | Placeholder sea and land, `Port Marker`, `Route Line` and `Ship Marker` prefabs placed in the scene; port states; route styles; legend; ships following route points; selection. `SliceSprites` removed. | The map reads as a chart; every route style is in the legend; ships go around land. |
 | **5. Route drawer and free routes** | Drawer layout, camera fit, risk meters, "brings into reach", objective card for the free routes. | Buying a route shows what it gives before clicking. |
-| **6. Port panel** | Ship chips, bars, quantity control, `Market Row` with tags, tabs, shipyard cards and upgrade rows. | A 14-good port fits; buying 10 Sugar is one click; upgrades show their level. |
-| **7. Send drawer** | Destination rows, preview meters, path on the map, Repair first, empty-hold warning. | Destinations can be compared without clicking each. |
-| **8. Toasts, log, fleet list** | `Toast`, `Log Entry`, `Fleet List Entry` prefabs and their scripts. | A sinking stays until dismissed; clicking it selects the ship. |
-| **9. Tutorial and end screen** | Objective card, restyled frame, step counter; win and lose screens with stat tiles. | The tutorial reads as an advisor card; the end screen summarises the run. |
+| **6. Port panel** | Ship chips, bars, quantity control, `Market Row`, tabs, shipyard cards and upgrade rows. | A 14-good port fits; buying 10 Sugar is one click; upgrades show their level. |
+| **7. Send drawer** | Destination rows, preview meters, path on the map; *(optional)* Repair first and the empty-hold warning. | Destinations can be compared without clicking each. |
+| **8. Toasts, fleet list** | `Toast` and `Fleet List Entry` prefabs and their scripts; *(optional)* the log. | A sinking stays until dismissed; clicking it selects the ship. |
+| **9. Tutorial and end screen** | Objective card, restyled frame, step counter; win and lose screens with stat tiles and their `GameState` counters. | The tutorial reads as an advisor card; the end screen summarises the run. |
 | **10. Accessibility pass** | Check every screen at 16:9, 16:10, 21:9 and 4:3; contrast; minimum sizes; colour-blind check (a simulator on screenshots). | All four aspects look right; nothing relies on colour alone. |
 
 Steps 2 to 9 are mostly independent once step 1 is in; steps 4 and 5 go together because the drawer needs the camera fit.
 
 ### 6.1 Placeholder art needed
 
-All placeholders can be simple flat shapes; final art comes in phase 5.
+All placeholders are drawn in-house and can be simple flat shapes; final art comes in phase 5.
 
 | Asset | Size | Notes |
 |---|---|---|
@@ -960,22 +997,16 @@ All placeholders can be simple flat shapes; final art comes in phase 5.
 | Port marker sprites | 64×64 | Filled circle, hollow circle, shipyard badge, count badge |
 | Ship marker sprite | 64×64 | Top-down hull pointing up; selection ring |
 | Route dash and dot textures | 64×16 | For `LineRenderer` texture mode Tile |
-| Panel 9-slice | 64×64 | Parchment with Ink border, radius 6 |
-| Button 9-slices | 64×64 | One white sprite tinted per style |
+| Panel 9-slice | 64×64 | White with Ink border, radius 6, tinted Parchment (2 px and 1 px border versions, one without a border) |
+| Button 9-slices | 64×64 | The same sprites, tinted per style |
 | Icons | 64×64 each, ~30 | §4.6; white on transparent |
 | Fleet card pictures | 512×512, 3 | Merchantman, two Brigs, three Sloops (silhouettes are fine) |
 | Shipyard card pictures | 256×256, 3 | Can reuse the above, cropped |
 | End screen illustrations | 1280×480, 2 | Win and lose |
-| Fonts | 2 TTF/OTF | OFL-licensed, §4.1 |
+| Fonts | 2 TTF | IM Fell English SC and Spectral, OFL, §4.1 |
 
-### 6.2 Open questions for the owner
+### 6.2 Open question for the owner
 
-1. **Scope check:** is everything not marked *(optional)* the right amount for the slice, or should some of it move to *(optional)*? The biggest items are the route drawer's "brings into reach", the destination comparison and the route bend points.
-2. **Map positions:** should the 12 port markers and route lines be placed by hand in the scene on top of the art (the usual way, and it lets routes bend around land), with `ports.csv` `map_x`/`map_y` dropped, or kept only as a check? Or should the CSV stay the source and the art be drawn to fit it?
-3. **Fonts:** happy with an OFL period serif for headings (e.g. IM Fell English SC) and a clean serif or sans with tabular figures for body text (e.g. Alegreya Sans)? Any fonts you already own?
-4. **Icons and placeholder art:** draw simple placeholders in-house, or use a free set (for example game-icons.net, which is CC BY 3.0 and needs a credit line)?
-5. **Risk bands:** are Low below 5%, Moderate 5 to 20%, High above 20% (and for loss of the ship: 2% and 10%) the right cut-offs?
-6. **Market tags:** is showing CHEAP and PAYS on the market rows too much help? It makes the core trading loop easier to read; without it the player has to remember prices across 12 ports.
-7. **Port panel and time:** the clock still stops while the port panel is open (the existing open item). This spec makes the hold visible ("Paused while you trade"); does that settle it, or should time keep running?
-8. **Quit and main menu:** does the slice need a Quit button and a main menu, or is the pause menu (Resume, Replay tutorial, Restart) enough?
-9. **End-screen stats:** OK to add small counters to `GameState` (voyages completed, ships lost, best trade) for the end screen? It's the only change this spec suggests in `Naval.Core`.
+The other questions were answered (§0.1). One is left:
+
+1. **Port panel and time:** the clock still stops while the port panel is open. This spec makes the hold visible ("Paused while you decide"); does that settle it, or should time keep running? Decide by playing.
