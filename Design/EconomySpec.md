@@ -113,3 +113,23 @@ The numbers may need rescaling for a 2-year mission.
 - **Ports grow:** a good player's network has at least 4 ports at level 2 or above by the end. Informational to start with.
 - **Seasons matter every year:** time on hurricane routes drops by at least 20% in each hurricane season compared with the calm months.
 - **Veteran's cargo rules matter:** Flour is carried less by slow ships, and big ships carry more bulk goods than small ships. Informational.
+
+## 7. Status after the first balance pass
+
+Built in the simulator and balanced: all required targets pass on seeds 1 and 2 (Veteran 19 of 19, Beginner 9 required plus 2 information-only). Run `python3 Design/sim/simulate.py --mode veteran` (about 4 minutes) or `--mode beginner` (about 40 seconds). Add `--tracks` to Veteran to test each upgrade track on its own.
+
+**Numbers that ended up far from the starting values above:**
+- Goal: 900,000 gold in 730 days, the same in both modes. A good player (a Brig fleet in Veteran, a Fluyt fleet in Beginner) wins around day 530–570.
+- Veteran stock at level 1: cheap goods 16 crates, restocking 2 a day (the spec said 80 and 8; at that size fleets never ran short).
+- Port levels multiply capacity ×1.0 / 1.4 / 1.8 / 2.3 / 2.8. Supply needed to grow: 40% / 50% / 60% / 70% by level.
+- Beginner buy/sell gap: 0.60 at level 1, narrowing to 0.10 at level 5.
+- Buildings cost 10 times the spec's values (20,000–30,000 gold, 400–600 a month). Warehouse is Veteran-only.
+- Flour starts spoiling after 3 days aboard, losing 12% a day (at 14 days nothing ever spoiled).
+- Hurricanes are much harsher: 10–16 days' delay, 25–45 hull damage, 25–45% of cargo lost. Milder storms didn't change routes enough.
+
+**Open issues for the next pass:**
+1. **Beginner has no fleet limit in the game.** The simulator stops Beginner bots at 6 ships, and that cap is what sets Beginner's pace. A real player could keep buying ships and win far sooner. The game needs a rule that limits fleet size, or Beginner's pace is untested.
+2. **Upgrades are too strong in Veteran.** All upgrades together add about 160%, so an upgrading player wins at about 46% of the mission. The targets measure a player who doesn't upgrade.
+3. **Hurricanes may now be too punishing:** about 3 ships lost per session for a Brig fleet, and about 10 for a Sloop fleet.
+4. **Beginner plays as a one-route game.** With fixed prices and no stock, every ship runs the single best pair (Havana–New York), so buying routes and seasons don't matter there.
+5. Smaller: free-route openings barely matter (bots buy about 4 routes on day 1); hub ports often decline early in Veteran; most building value comes from Market Halls.

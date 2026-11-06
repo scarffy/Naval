@@ -1,0 +1,4 @@
+building,cost,upkeep_per_month,capacity_mult,recovery_mult,spread_steps,dues_mult,time_mult,modes,description
+Warehouse,30000,600,1.5,1.0,0,1.0,1.0,veteran,Veteran only. Stock and demand +50% for every good and price movement per crate divided by a further 1.5.
+Market Hall,25000,500,1.0,2.0,1,1.0,1.0,both,Veteran: stock and demand refill twice as fast and prices recover twice as fast. Beginner: the buy/sell gap here narrows by one more port-level step.
+Customs House,20000,400,1.0,1.0,0,0.5,0.5,both,Harbour dues here are halved and so is the time in port (both modes).

@@ -1,5 +1,13 @@
 mode,key,value,notes
-#veteran,,,Veteran uses rules.csv unchanged (no rows)
+veteran,port_stock_limits,1,Ports hold limited stock and demand that restock daily
+veteran,hold_space_matters,1,Bulky and compact crates take different hold space
+veteran,perishable_goods,1,Flour spoils aboard
+veteran,port_decline_below,0.05,A badly undersupplied port drops a level
+veteran,bot_max_fleet,32,Safety cap on bot fleet size
 beginner,pressure_per_crate_bought,0,Fixed market: the player's buying never moves prices
 beginner,pressure_per_crate_sold,0,Fixed market: the player's selling never moves prices
-beginner,spread,0.35,Wider buy/sell gap: with a fixed market a ship can repeat its best trade forever so profits are slowed to keep the win near day 55-60
+beginner,spread,0.60,Wide buy/sell gap at a level 1 port
+beginner,spread_level_step,0.125,Each port level above 1 narrows the gap: 0.60 at level 1 down to 0.10 at level 5
+beginner,bot_max_fleet,6,Safety cap on bot fleet size: nothing else limits a fleet in a fixed market
+beginner,bot_ship_payback_days,25,Beginner profits are lower per ship at first so bots wait longer for a ship to repay
+beginner,growth_demand_per_good,6,No stock limits in Beginner so a port is expected to absorb more before it grows

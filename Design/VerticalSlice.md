@@ -1,5 +1,7 @@
 # Naval: vertical slice design
 
+> **Note:** the goods, time scale and port rules in this doc are economy version 1 (12 goods, a 90-day mission). Version 2 (14 goods, 2-year missions, 5-level ports, buildings) is described in `Design/EconomySpec.md`. This doc will be updated once version 2's balance settles.
+
 This is the plan for the vertical slice: one complete mission of the trading game at near-final quality. It's Chapter 1, Mission 1 of the campaign in `Design/Campaign.md`. The numbers live in `Design/data/*.csv`, and `Design/sim/simulate.py` plays thousands of sessions with bot players to check them. When this doc and the CSVs disagree, the CSVs win.
 
 ## The slice in one paragraph

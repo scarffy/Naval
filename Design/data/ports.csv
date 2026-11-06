@@ -1,13 +1,13 @@
-port,region,shipyard
-Natchez,Gulf,no
-New Orleans,Gulf,no
-Campeche,Gulf,no
-Veracruz,Gulf,no
-Havana,Caribbean,yes
-Port-au-Prince,Caribbean,no
-Bridgetown,Caribbean,no
-New York,North America,no
-Boston,North America,yes
-Liverpool,Europe,yes
-Bordeaux,Europe,yes
-Seville,Europe,no
+port,region,shipyard,start_level
+Natchez,Gulf,no,1
+New Orleans,Gulf,no,1
+Campeche,Gulf,no,1
+Veracruz,Gulf,no,1
+Havana,Caribbean,yes,3
+Port-au-Prince,Caribbean,no,1
+Bridgetown,Caribbean,no,1
+New York,North America,no,3
+Boston,North America,yes,1
+Liverpool,Europe,yes,3
+Bordeaux,Europe,yes,3
+Seville,Europe,no,1

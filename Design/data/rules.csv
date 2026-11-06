@@ -3,8 +3,8 @@ start_port,Havana,Where the player's first ship starts
 start_ship,Sloop,The player's first ship
 start_gold,2500,Gold on day 1
 free_routes,2,How many routes the player opens for free. Every later route costs its price in lanes.csv
-goal_gold,50000,Win when gold on hand reaches this
-day_limit,90,Lose if the goal is not reached by the end of this day
+goal_gold,900000,Win when gold on hand reaches this
+day_limit,730,Lose if the goal is not reached by the end of this day (2 years: Jul 1 1770 to Jun 30 1772)
 spread,0.10,Gap between buy and sell price at the same port (fraction of the mid price)
 pressure_per_crate_bought,0.007,Each crate bought raises that good's price at that port by this fraction
 pressure_per_crate_sold,0.008,Each crate sold lowers that good's price at that port by this fraction
@@ -26,12 +26,56 @@ pirate_loss_min,0.25,Fraction of each cargo good taken by pirates
 pirate_loss_max,0.50,
 pirate_damage_min,5,Hull damage from a pirate attack (halved if driven off)
 pirate_damage_max,12,
-hurricane_delay_min,3,Days added by a hurricane
-hurricane_delay_max,5,
-hurricane_damage_min,18,Hull damage from a hurricane
-hurricane_damage_max,35,
-hurricane_loss_min,0.10,Fraction of each cargo good washed overboard
-hurricane_loss_max,0.25,
-hurricane_season_start,25,Hurricanes start on this day
-hurricane_season_peak,55,Hurricane chance reaches the lanes' full value on this day and stays there
+hurricane_delay_min,10,Days added by a hurricane
+hurricane_delay_max,16,
+hurricane_damage_min,25,Hull damage from a hurricane
+hurricane_damage_max,45,
+hurricane_loss_min,0.25,Fraction of each cargo good washed overboard
+hurricane_loss_max,0.45,
 ship_resale_fraction,0.50,Fraction of a ship's price returned when sold
+start_day_of_year,182,Day of the year the mission starts on (July 1 in a 365-day year)
+year_days,365,Days in a year (no leap days)
+hurricane_rise_day,152,Hurricane chance starts to rise on this day of the year (June 1)
+hurricane_peak_start_day,227,Chance reaches the lanes' full value on this day of the year (August 15)
+hurricane_peak_end_day,288,Chance stays at full value until this day of the year (October 15)
+hurricane_end_day,334,Chance falls to zero by this day of the year (November 30)
+port_level_multiplier_1,1.0,Multiplier on a level 1 port's stock demand restock and refill (and the divisor on price movement per crate)
+port_level_multiplier_2,1.4,Level 2
+port_level_multiplier_3,1.8,Level 3
+port_level_multiplier_4,2.3,Level 4
+port_level_multiplier_5,2.8,Level 5
+port_stock_limits,0,1 = ports hold limited stock and demand that restock daily (Veteran only: see modes.csv)
+cheap_multiplier_max,0.65,A good whose market multiplier is at or below this is cheap at that port (deep stock)
+wanted_multiplier_min,1.5,A good whose market multiplier is at or above this is wanted at that port (deep demand)
+stock_cheap,16,Crates in stock of a cheap good at a level 1 port
+restock_cheap,2,Crates restocked per day for a cheap good at level 1
+demand_wanted,16,Crates a level 1 port will buy of a wanted good
+refill_wanted,2,Crates of demand refilled per day for a wanted good at level 1
+stock_other,8,Stock or demand for every other traded good at level 1
+restock_other,1,Daily restock or refill for every other traded good at level 1
+spread_level_step,0,Each port level above 1 narrows the buy/sell gap at that port by this much (Beginner only)
+spread_floor,0.10,The buy/sell gap never narrows below this
+hold_space_matters,0,1 = crates take the hold space listed in goods.csv (Veteran only). 0 = every crate takes 1
+perishable_goods,0,1 = goods marked perishable in goods.csv spoil aboard (Veteran only)
+spoil_after_days,3,Days aboard before a perishable cargo starts to spoil
+spoil_per_day,0.12,Fraction of a spoiling cargo lost each further day
+growth_demand_per_good,2,Crates per day a level 1 port is expected to absorb of each good it wants: the yardstick for growth
+growth_window_days,90,A port is judged on the supply of its wanted goods over this many days
+growth_supply_level_1,0.40,Share of demand delivered over the window for a level 1 port to grow to level 2
+growth_supply_level_2,0.50,Level 2 to 3
+growth_supply_level_3,0.60,Level 3 to 4
+growth_supply_level_4,0.70,Level 4 to 5
+port_decline_below,0,A port drops a level if less than this share of its demand was delivered over the window (0 = never; Veteran only)
+building_slots_level_1,1,Building slots at levels 1 and 2
+building_slots_level_3,2,Building slots at levels 3 and 4
+building_slots_level_5,3,Building slots at level 5
+days_per_month,30,Building upkeep is charged per day as monthly upkeep divided by this
+bot_reserve_per_space,20,Bots keep this much gold per unit of fleet hold space in reserve
+bot_route_payback_days,12,Bots open a route if its extra income repays the price within this many days
+bot_route_check_days,4,Bots look for a route to buy at most this often
+bot_ship_payback_days,12,Bots buy a ship only while its price would be repaid within this many days at the recent marginal rate
+bot_building_payback_days,150,Bots build only if the building repays its cost within this many days
+bot_max_fleet,40,Safety cap on fleet size so runs finish
+bot_end_buy_days,60,Bots stop buying ships upgrades and buildings this many days before the end
+sim_side_run_share,0.6,Simulator only: bots used for side comparisons (hull only and the opening and no-hurricane runs) play this share of the sessions to save time
+bot_hurricane_caution,1.5,Bots plan as if the hurricane chance were this many times the real one (cautious captains)

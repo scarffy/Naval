@@ -1,13 +1,15 @@
-good,base_price
-Oranges,40
-Sugar,45
-Pitch,50
-Cotton,60
-Tobacco,90
-Iron,100
-Rum,105
-Furs,120
-Coffee,135
-Steel,150
-Spices,170
-Guns,190
+good,base_price,hold_space,perishable
+Lumber & Naval Stores,30,2,
+Salt Cod,35,1,
+Flour,40,2,yes
+Logwood,45,2,
+Sugar,60,2,
+Tobacco,85,1,
+Rum,90,1,
+Wine,100,1,
+Hardware,110,1,
+Furs & Deerskins,120,1,
+Cloth,130,1,
+Coffee,140,1,
+Indigo,150,0.5,
+Cochineal,220,0.5,
