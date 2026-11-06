@@ -172,6 +172,63 @@ namespace Naval.Tests
             }
             Assert.IsFalse(Hazards.Roll(rng, new DayOdds(), r).Storm);
         }
+
+        [Test]
+        public void ShelteredVoyage_HasNoOddsButTakesTheSameTime()
+        {
+            var legs = new List<Route> { data.FindRoute("Havana", "Port-au-Prince") };
+            var plain = new Voyage(data.FindPort("Havana"), legs, 1.0, data.Rules.PortTimeDays);
+            var sheltered = new Voyage(data.FindPort("Havana"), legs, 1.0, data.Rules.PortTimeDays, true);
+            Assert.IsFalse(plain.Sheltered);
+            Assert.IsTrue(sheltered.Sheltered);
+            int days = 0;
+            while (!sheltered.Arrived)
+            {
+                DayOdds odds = sheltered.NextDay(1);
+                Assert.AreEqual(0, odds.Storm + odds.Pirates + odds.Hurricane);
+                days++;
+                Assert.Less(days, 1000);
+            }
+            Assert.AreEqual(Days(plain), days);
+            Assert.AreEqual(1.0, sheltered.Progress, 1e-9);
+        }
+
+        [Test]
+        public void ShelterNewVoyages_DefaultsToFalse_AndLeavesVoyagesUnsheltered()
+        {
+            GameState game = TestData.NewGame(TestData.Forced(1, 1, 1, 10));
+            Assert.IsFalse(game.ShelterNewVoyages);
+            TestData.Open(game, "Havana", "Port-au-Prince");
+            Ship ship = TestData.Buy(game, "Brig");
+            Assert.IsTrue(game.Send(ship, "Port-au-Prince").Ok);
+            Assert.IsFalse(ship.Voyage.Sheltered);
+        }
+
+        [Test]
+        public void ShelterNewVoyages_MeansNoHazardsAndNoLosses_EvenWhenTurnedOffOnTheWay()
+        {
+            foreach (bool turnOffOnTheWay in new[] { false, true })
+            {
+                GameState game = TestData.NewGame(TestData.Forced(1, 1, 1, 10, "1770-09-01"));
+                TestData.Open(game, "Havana", "Port-au-Prince");
+                Ship ship = TestData.Buy(game, "Brig");
+                game.BuyGoods(ship, "Sugar", 20);
+                int hull = ship.Hull;
+                game.ShelterNewVoyages = true;
+                Assert.IsTrue(game.Send(ship, "Port-au-Prince").Ok);
+                Assert.IsTrue(ship.Voyage.Sheltered);
+                if (turnOffOnTheWay) game.ShelterNewVoyages = false;
+
+                List<GameEvent> events = TestData.SailToPort(game, ship);
+
+                Assert.IsNotNull(ship.Port, "the ship arrived");
+                Assert.IsTrue(events.Any(e => e.Type == EventType.ShipArrived));
+                Assert.IsFalse(events.Any(e => e.Type == EventType.Storm || e.Type == EventType.PirateAttack
+                    || e.Type == EventType.Hurricane || e.Type == EventType.ShipSunk));
+                Assert.AreEqual(hull, ship.Hull);
+                Assert.AreEqual(20, ship.CargoOf(data.FindGood("Sugar")));
+            }
+        }
     }
 
     public class SailingTests

@@ -85,8 +85,12 @@ namespace Naval.Core
         public IReadOnlyList<Port> Stops { get; private set; }
         public double Distance { get; private set; }
 
-        public Voyage(Port from, List<Route> legs, double speed, double portTimeDays)
+        /// <summary>A sheltered voyage meets no hazards (the tutorial's first voyage). It still takes the same time.</summary>
+        public bool Sheltered { get; private set; }
+
+        public Voyage(Port from, List<Route> legs, double speed, double portTimeDays, bool sheltered = false)
         {
+            Sheltered = sheltered;
             this.legs = legs;
             this.speed = speed;
             var stops = new List<Port> { from };
@@ -154,9 +158,12 @@ namespace Naval.Core
             if (sea > 0)
             {
                 Route leg = LegAt((totalSeaDays - seaDaysLeft + sea / 2) * speed);
-                odds.Storm = leg.Storm * sea;
-                odds.Pirates = leg.Pirates * sea;
-                odds.Hurricane = leg.Hurricanes * season * sea;
+                if (!Sheltered)
+                {
+                    odds.Storm = leg.Storm * sea;
+                    odds.Pirates = leg.Pirates * sea;
+                    odds.Hurricane = leg.Hurricanes * season * sea;
+                }
             }
             seaDaysLeft -= sea;
             if (seaDaysLeft < Epsilon) seaDaysLeft = 0;

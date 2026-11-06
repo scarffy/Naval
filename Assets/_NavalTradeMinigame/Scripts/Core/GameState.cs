@@ -33,6 +33,12 @@ namespace Naval.Core
         /// <summary>Why the mission was lost, or null while it is not lost.</summary>
         public FailReason? LostBecause { get; private set; }
 
+        /// <summary>
+        /// While true, voyages started by Send are sheltered (they meet no hazards) for their whole trip,
+        /// even if this is turned off on the way. Preview is not affected.
+        /// </summary>
+        public bool ShelterNewVoyages { get; set; }
+
         public GameState(GameData data) : this(data, data.Rules.DefaultSeed) { }
 
         public GameState(GameData data, int seed)
@@ -265,7 +271,7 @@ namespace Naval.Core
             List<Route> legs;
             CommandResult bad = PlanVoyage(ship, destinationName, out destination, out legs);
             if (bad != null) return bad;
-            ship.Voyage = NewVoyage(ship, legs);
+            ship.Voyage = NewVoyage(ship, legs, ShelterNewVoyages);
             ship.Port = null;
             return CommandResult.Success("Set sail for " + destination.Name + ".");
         }
@@ -370,9 +376,9 @@ namespace Naval.Core
             return cache[offset];
         }
 
-        Voyage NewVoyage(Ship ship, List<Route> legs)
+        Voyage NewVoyage(Ship ship, List<Route> legs, bool sheltered = false)
         {
-            return new Voyage(ship.Port, legs, ship.Speed, Data.Rules.PortTimeDays);
+            return new Voyage(ship.Port, legs, ship.Speed, Data.Rules.PortTimeDays, sheltered);
         }
 
         /// <summary>Null if the cost can be paid. In debt (gold below 0) nothing can be bought, even for free.</summary>
