@@ -185,10 +185,12 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
 
 ## Next
 
+**Where things stand:** phases 1–4 are built and reviewed. `Slice.unity` is a real committed scene. The font crash and the input module are fixed for Unity 6.3, docked ships pay no wages, and a day takes 3 seconds. The owner has played the prototype in Unity. Before the UI build, the owner should push the project files Unity 6.3 rewrote on upgrade (`ProjectSettings/`, `Packages/manifest.json`, `packages-lock.json`, `ProjectVersion.txt`).
+
 **Phase 5: polish.**
 - original map art (it replaces `Map.png`)
 - ships moving along their routes
-- the UI style: proposed in `Design/UISpec.md` (UX review, screen designs, design system and build plan), waiting for the owner's approval
+- the UI style: `Design/UISpec.md` is approved, with the owner's decisions in §0.1. **The next step is the UI build, starting with plan step 1 (foundations) and step 2 (top bar, pause menu, main menu and Quit)** in §6. Nothing of it is built yet.
 - sound and music
 - arrival and sale feedback
 
