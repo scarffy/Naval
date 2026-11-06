@@ -34,7 +34,7 @@ namespace Naval.Slice
         {
             if (!CanRestart)
             {
-                Debug.LogError("Cannot restart: the scene is not in Build Settings. Run Naval > Build Slice Scene, which adds it.");
+                Debug.LogError("Cannot restart: the scene is not in Build Settings. Add Slice.unity under File > Build Settings.");
                 return;
             }
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);

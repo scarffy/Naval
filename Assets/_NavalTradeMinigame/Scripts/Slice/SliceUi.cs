@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace Naval.Slice
 {
-    /// <summary>Widget factory and text helpers shared by the scene builder and the screens' runtime rows.</summary>
+    /// <summary>Widget factory and text helpers for the rows the screens build at runtime.</summary>
     public static class SliceUi
     {
         public static readonly Color PanelColor = new Color(0.07f, 0.11f, 0.17f, 0.96f);

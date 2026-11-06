@@ -9,7 +9,7 @@ namespace Naval.Slice
     /// <summary>
     /// Date, days left, gold against the goal, the speed buttons, and the Restart and Tutorial buttons (both need a second click;
     /// Tutorial calls <see cref="SliceTutorial.Replay"/>, which clears the saved tutorial-seen flag and restarts).
-    /// If the data failed to load it shows the error in the status text. The scene builder creates the widgets.
+    /// If the data failed to load it shows the error in the status text. Its widgets are set up in Slice.unity.
     /// </summary>
     public sealed class SliceHud : MonoBehaviour
     {
