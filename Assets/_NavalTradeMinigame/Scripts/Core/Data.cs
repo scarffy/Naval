@@ -216,6 +216,12 @@ namespace Naval.Core
         public double ZoneExportMaxMultiplier { get; internal set; }
 
         public int DefaultSeed { get; internal set; }
+
+        /// <summary>What a ship with this daily wage pays per day in port, rounded.</summary>
+        public int DockedWage(int wagePerDay)
+        {
+            return Num.Round(wagePerDay * DockedWageFraction);
+        }
     }
 
     /// <summary>All loaded data. Immutable after loading.</summary>

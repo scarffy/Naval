@@ -120,6 +120,14 @@ namespace Naval.Tests
         }
 
         [Test]
+        public void DockedWage_RoundsHalvesUp()
+        {
+            var rules = new Rules { DockedWageFraction = 0.25 };
+            Assert.AreEqual(5, rules.DockedWage(18), "4.5 rounds up, as Num.Round does");
+            Assert.AreEqual(4, rules.DockedWage(16));
+        }
+
+        [Test]
         public void UnknownPort_InRoutes()
         {
             SliceCsv csv = TestData.Csv();

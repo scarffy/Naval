@@ -71,7 +71,7 @@ namespace Naval.Slice
         static string DockedWageText(ShipTier tier, Rules rules)
         {
             if (rules.DockedWageFraction <= 0) return "";
-            return " (" + MoneyManager.Format(Num.Round(tier.WagePerDay * rules.DockedWageFraction)) + " in port)";
+            return " (" + MoneyManager.Format(rules.DockedWage(tier.WagePerDay)) + " in port)";
         }
 
         void Choose(ShipTier tier)

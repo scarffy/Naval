@@ -121,7 +121,7 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
 - **Wages are paid only while sailing.** A ship pays its full `wage_per_day` for each day at sea, the day it arrives included. In port it pays `wage_per_day × docked_wage_fraction` (new key in `rules.csv`, 0 to 1, now 0), so ships waiting in port no longer drain a new player's gold. A ship lost at sea pays nothing that day, as before. The fleet choice now reads "wages X/day at sea".
 - **Days are slower:** 3 real seconds per day at 1× (was 1.5), so the mission takes about 36 minutes at 1×. It's `SliceClock`'s **Seconds Per Day** field on Game in `Slice.unity`; 2× and 4× scale from it.
 - **Still holds:** losing for having no ships (no ships and too little gold for the cheapest) is unchanged, and the tutorial's first voyage is still sheltered from hazards; docked wages only make it easier.
-- **Tests:** 116 edit-mode tests pass in the Mono runner (6 new: docked at 0, a rounded fraction, small fractions added up across the fleet, sailing in full, sailing and docked on the same day, and the new key failing loudly).
+- **Tests:** 117 edit-mode tests pass in the Mono runner (7 new: `Rules.DockedWage`, docked at 0, a rounded fraction, small fractions added up across the fleet, sailing in full, sailing and docked on the same day, and the new key failing loudly).
 - **Review:** 7 findings. Fixed: an arriving ship paid the port rate for its last day at sea; the fleet choice ignored a docked fraction above 0 (it now adds "(N in port)"); the docked share was rounded per ship, so small fractions came to 0 (now rounded once for the fleet); a test relied on the shipped value without saying so; a mixed sailing-and-docked day was untested; a per-day set allocation was folded into one loop; VerticalSlice.md, UISpec.md and GameModes.md still said docked ships pay wages.
 
 ## To check in Unity (designer)
@@ -178,7 +178,7 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
    - Game → `Slice Clock` → Seconds Per Day reads 3, and a day at 1× takes about 3 seconds (2× about 1.5, 4× about 0.75).
    - A ship waiting in port costs nothing: with every ship docked, gold doesn't move as days pass. A ship at sea costs its full wages each day.
    - The fleet choice shows "wages X/day at sea".
-6. Window → General → Test Runner → EditMode → Run All. Expect 116 passing.
+6. Window → General → Test Runner → EditMode → Run All. Expect 117 passing.
 7. Report anything that looks wrong or is hard to read, and how the opening and the first voyages feel.
 
 ## Next
@@ -196,6 +196,8 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
 - **The tutorial runs only on the first play.** Completing or skipping it is remembered; the HUD Tutorial button replays it.
 
 ## Open items
+
+- **The compile check builds all runtime scripts as one assembly,** so it can't catch a Slice script using something `internal` to `Naval.Core`. That slipped through once (`Num.Round` in the fleet choice) and was fixed. Until the check builds `Naval.Core` separately, reviews must look for this by hand.
 
 - **The clock stops while the port panel is open.** That keeps trading calm, but ships at sea also wait. Decide by playing.
 - **The tutorial's preview shows the real risks** while the voyage itself is sheltered. The step text says it sails under escort. The alternative is showing 0%, which teaches less.
