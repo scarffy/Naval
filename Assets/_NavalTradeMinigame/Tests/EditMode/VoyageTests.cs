@@ -281,7 +281,7 @@ namespace Naval.Tests
             Assert.AreEqual("Port-au-Prince", ship.Port.Name);
             Assert.IsNull(ship.Voyage);
             Assert.AreEqual(40, events[0].Dues);
-            Assert.AreEqual(gold - 4 * 12 - 40, game.Gold, "four days of wages and the harbour dues");
+            Assert.AreEqual(gold - 4 * 12 - 40, game.Gold, "four days of wages at sea, the arrival day included, and the harbour dues");
         }
 
         [Test]
@@ -309,15 +309,79 @@ namespace Naval.Tests
         }
 
         [Test]
-        public void Wages_ArePaidEveryDay_SailingOrDocked()
+        public void DockedShips_PayNoWages_AtFractionZero()
         {
-            GameState game = TestData.NewGame();
+            SliceCsv csv = TestData.Csv();
+            csv.Rules = TestData.Replace(csv.Rules, "docked_wage_fraction,0,", "docked_wage_fraction,0,");   // the shipped value, made explicit
+            GameState game = TestData.NewGame(csv);
             TestData.Buy(game, "Sloop");
             TestData.Buy(game, "Brig");
             int gold = game.Gold;
             game.AdvanceDay();
             game.AdvanceDay();
-            Assert.AreEqual(gold - 2 * (12 + 18), game.Gold);
+            Assert.AreEqual(gold, game.Gold);
+        }
+
+        [Test]
+        public void DockedShips_PayTheRoundedFractionOfWages()
+        {
+            SliceCsv csv = TestData.Csv();
+            csv.Rules = TestData.Replace(csv.Rules, "docked_wage_fraction,0,", "docked_wage_fraction,0.5,");
+            GameState game = TestData.NewGame(csv);
+            TestData.Buy(game, "Sloop");   // 12 x 0.5 = 6
+            TestData.Buy(game, "Brig");    // 18 x 0.5 = 9
+            int gold = game.Gold;
+            game.AdvanceDay();
+            Assert.AreEqual(gold - 6 - 9, game.Gold);
+
+            csv.Rules = TestData.Replace(csv.Rules, "docked_wage_fraction,0.5,", "docked_wage_fraction,0.4,");
+            game = TestData.NewGame(csv);
+            TestData.Buy(game, "Sloop");   // 12 x 0.4 = 4.8, rounds to 5
+            gold = game.Gold;
+            game.AdvanceDay();
+            Assert.AreEqual(gold - 5, game.Gold);
+        }
+
+        [Test]
+        public void SmallDockedFractions_AddUpAcrossTheFleet()
+        {
+            SliceCsv csv = TestData.Csv();
+            csv.Rules = TestData.Replace(csv.Rules, "docked_wage_fraction,0,", "docked_wage_fraction,0.04,");
+            GameState game = TestData.NewGame(csv);
+            for (int i = 0; i < 4; i++) TestData.Buy(game, "Sloop");   // 4 x 12 x 0.04 = 1.92; each alone would round to 0
+            int gold = game.Gold;
+            game.AdvanceDay();
+            Assert.AreEqual(gold - 2, game.Gold, "rounded once for the fleet, not to 0 per ship");
+        }
+
+        [Test]
+        public void OnTheSameDay_SailingAndArrivingShipsPayInFull_DockedShipsPayTheFraction()
+        {
+            SliceCsv csv = TestData.Forced(0, 0, 0);
+            csv.Rules = TestData.Replace(csv.Rules, "docked_wage_fraction,0,", "docked_wage_fraction,0.5,");
+            GameState game = TestData.NewGame(csv);
+            TestData.Open(game, "Havana", "Port-au-Prince");
+            Ship sailing = TestData.Buy(game, "Sloop");
+            TestData.Buy(game, "Brig");   // stays in Havana
+            game.Send(sailing, "Port-au-Prince");   // 4 days, arrives on the fourth
+            int gold = game.Gold;
+            for (int day = 0; day < 4; day++) game.AdvanceDay();
+            Assert.IsNull(sailing.Voyage, "arrived");
+            Assert.AreEqual(gold - 4 * 12 - 4 * 9 - 40, game.Gold, "four full days for the Sloop, half wages for the Brig, and the dues");
+        }
+
+        [Test]
+        public void SailingShips_PayFullWages()
+        {
+            GameState game = TestData.NewGame(TestData.Forced(0, 0, 0));
+            TestData.Open(game, "Havana", "Port-au-Prince");
+            Ship ship = TestData.Buy(game, "Sloop");
+            game.Send(ship, "Port-au-Prince");
+            Assert.IsNotNull(ship.Voyage);
+            int gold = game.Gold;
+            game.AdvanceDay();
+            Assert.IsNotNull(ship.Voyage, "still at sea after one day");
+            Assert.AreEqual(gold - 12, game.Gold);
         }
 
         [Test]

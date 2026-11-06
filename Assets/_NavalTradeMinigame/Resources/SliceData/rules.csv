@@ -9,6 +9,7 @@ spread,0.10,Gap between buy and sell price (fraction of the mid price)
 port_fee,40,Harbour dues paid on every arrival
 port_time_days,0.5,Time spent unloading and loading on every arrival
 repair_cost_per_hull,10,Gold per hull point repaired in port
+docked_wage_fraction,0,Fraction of wage_per_day a ship pays while in port; sailing ships pay in full
 ship_resale_fraction,0.50,Fraction of a ship's price returned when sold
 storm_delay_min,1,Days added by a storm
 storm_delay_max,2,

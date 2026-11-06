@@ -18,7 +18,8 @@ namespace Naval.Slice
         const int MaxDaysPerFrame = 1;
 
         [SerializeField] SliceBootstrap bootstrap;
-        [SerializeField] float secondsPerDay = 1.5f;
+        [Tooltip("Real seconds per game day at 1× speed. 2× and 4× scale from this.")]
+        [SerializeField] float secondsPerDay = 3f;
 
         float elapsed;   // days of progress into the current day, 0 to 1
 

@@ -273,7 +273,9 @@ namespace Naval.Tests
         [Test]
         public void InDebt_NothingCanBeBought_NotEvenAFreeRoute()
         {
-            game = TestData.NewGame(TestData.ExactFleetGold(TestData.Csv()));
+            SliceCsv csv = TestData.ExactFleetGold(TestData.Csv());
+            csv.Rules = TestData.Replace(csv.Rules, "docked_wage_fraction,0,", "docked_wage_fraction,1,");   // so wages are due in port
+            game = TestData.NewGame(csv);
             Ship ship = TestData.Buy(game, "Merchantman");   // 0 gold: free things are still allowed
             Assert.IsTrue(game.OpenRoute(game.Data.FindRoute("Havana", "Port-au-Prince")).Ok);
 

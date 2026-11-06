@@ -45,7 +45,7 @@ The screenshot reviewed shows the opening at 1920×1080. Everything is drawn wit
 |---|---|
 | Default grey Unity buttons with dark grey text | Reads as a debug tool, not a game. Grey on grey also gives no idea which button is the main action. |
 | Built-in Arial everywhere, white on blue | No period feel; Arial at 20 to 26 px on a saturated blue is tiring to read in long tables. |
-| Information as sentences ("Each: 34 crates of hold, speed 1.3, hull 70, wages 18 gold/day, ocean-going") | Sentences are easy to generate and parse, but people scan; they look for a number in a known place, an icon or a bar. This is the main reason the UI "feels made for an AI". |
+| Information as sentences ("Each: 34 crates of hold, speed 1.3, hull 70, wages 18 gold/day at sea, ocean-going") | Sentences are easy to generate and parse, but people scan; they look for a number in a known place, an icon or a bar. This is the main reason the UI "feels made for an AI". |
 | Unitless numbers ("speed 1.15", "Distance 12") | The player can't tell if 1.15 is good. Speed only matters as days on a route; distance only matters as days. |
 | No hover state, no tooltips, no icons | Nothing teaches by itself; every rule has to be written out in a sentence. |
 | Results shown in a small coloured message line at the bottom of each panel | The feedback appears far from the button that caused it, often off the player's focus. |
@@ -92,7 +92,7 @@ The screenshot reviewed shows the opening at 1920×1080. Everything is drawn wit
 
 *The empty grey box in the screenshot is a runtime bug being fixed separately; this reviews the intended screen.*
 
-**What the code builds:** a title, "Start gold: 8,500 gold   Start port: Havana", and three 1000×130 grey buttons, each with three lines: "2 Brigs / Each: 34 crates of hold, speed 1.3, hull 70, wages 18 gold/day, ocean-going / Total cost 6,000 gold".
+**What the code builds:** a title, "Start gold: 8,500 gold   Start port: Havana", and three 1000×130 grey buttons, each with three lines: "2 Brigs / Each: 34 crates of hold, speed 1.3, hull 70, wages 18 gold/day at sea, ocean-going / Total cost 6,000 gold".
 
 **Problems:**
 - This is the most important decision in the game, and it's presented as three paragraphs on three identical buttons. The whole button is the "choose" action, so a curious click commits the player.
@@ -632,7 +632,7 @@ A centred modal, 1440 × 860. Two tabs at shipyards (**Market**, **Shipyard**), 
 
 - One `FleetListEntry` prefab for every ship, in port or at sea: same look, the icon and text change.
 - Columns: state icon, name, place (port, or "→ destination"), then hull mini-bar or arrival date.
-- **IDLE** tag on ships sitting in port with an empty hold, since an idle ship costs wages and earns nothing.
+- **IDLE** tag on ships sitting in port with an empty hold, since an idle ship earns nothing (it pays wages in port only if `docked_wage_fraction` is above 0).
 - Hover highlights the ship on the map; click selects it (and opens the port if it's in one).
 - The selected ship's row is filled Parchment with a Gold left bar, matching the ring on the map.
 - Collapsible to a header.

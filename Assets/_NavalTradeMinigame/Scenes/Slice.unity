@@ -285,7 +285,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bootstrap: {fileID: 100000008}
-  secondsPerDay: 1.5
+  secondsPerDay: 3
 --- !u!114 &100000010
 MonoBehaviour:
   m_ObjectHideFlags: 0

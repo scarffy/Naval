@@ -168,6 +168,7 @@ namespace Naval.Core
                 PortFee = reader.Int("port_fee", 0),
                 PortTimeDays = reader.Number("port_time_days", 0, 100),
                 RepairCostPerHull = reader.Int("repair_cost_per_hull", 0),
+                DockedWageFraction = reader.Number("docked_wage_fraction", 0, 1),
                 ShipResaleFraction = reader.Number("ship_resale_fraction", 0, 1),
                 StormDelay = reader.IntsBetween("storm_delay"),
                 StormDamage = reader.IntsBetween("storm_damage"),

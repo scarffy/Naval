@@ -34,7 +34,7 @@ Money is called **gold** everywhere: UI, docs and data.
 ### Time
 - Time is continuous. Ships arrive whenever their voyage ends, and the player acts then. Wages, price recovery and market news happen once a day.
 - Suggested pacing: about 8 seconds per day at 1× speed, with pause, 2× and 4×, which makes a 90-day mission about 12 minutes at 1×.
-- Every ship costs wages every day, sailing or docked. Gold can go negative. You can't buy anything while it is.
+- Ships cost wages for every day at sea; docked ships pay nothing (`docked_wage_fraction` in `rules.csv`, 0 since the first playtest). Gold can go negative. You can't buy anything while it is.
 
 ### Routes
 - The map has 17 sea routes, each linking two neighbouring ports (`lanes.csv`). **Your ships can only sail on routes you own.** A voyage follows the shortest path along your routes and passes through ports on the way without stopping.

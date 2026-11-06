@@ -196,6 +196,7 @@ namespace Naval.Core
         public int PortFee { get; internal set; }
         public double PortTimeDays { get; internal set; }
         public int RepairCostPerHull { get; internal set; }
+        public double DockedWageFraction { get; internal set; }
         public double ShipResaleFraction { get; internal set; }
 
         public IntRange StormDelay { get; internal set; }

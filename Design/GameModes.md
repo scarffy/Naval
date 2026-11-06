@@ -74,7 +74,7 @@ The tutorial uses four ports from Chapter 1: Havana, Port-au-Prince, Bridgetown 
 | 5 | Bring Coffee back to Havana and sell it | Buy Coffee, sail back, sell | Round trips: carry something both ways |
 | 6 | Open your second free route | Choose New Orleans *or* Bridgetown (both highlighted) | Your first real choice, and that the map grows |
 | 7 | News: "Shortage of Tobacco in Bridgetown" | Deliver Tobacco there while the price is high (if the player picked New Orleans, the news is about Coffee in New Orleans instead) | Market news, and chasing opportunities |
-| 8 | Buy a second ship in Havana | Use Havana's shipyard | Shipyards, and that every ship costs wages |
+| 8 | Buy a second ship in Havana | Use Havana's shipyard | Shipyards, and that every ship costs wages at sea |
 | 9 | Fit Extra canvas to a ship | Buy the Sails level 1 upgrade | Upgrades. Only at shipyards. |
 | 10 | A storm damages a ship on its way. Repair it in port. | Pay for repairs on arrival | Hull damage and repairs. The factor mentions pirates, hurricane season and that sloops can't cross the Atlantic. |
 | 11 | Buy a new route | Open a third route with gold | Routes cost gold after the free ones, and must join your network |

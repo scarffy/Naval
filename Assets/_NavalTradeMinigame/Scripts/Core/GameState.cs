@@ -297,9 +297,20 @@ namespace Naval.Core
         {
             double season = Calendar.Season(Date);   // the day being sailed
             Day++;                                    // events are stamped with the day that ends
+            // Wages: full for a day at sea (the arrival day too), a fraction in port, nothing for a ship lost today.
+            // The docked share is rounded once for the whole fleet, so a small fraction still adds up.
+            double dockedWages = 0;
             foreach (Ship ship in fleet.ToArray())
-                if (ship.Voyage != null) SailDay(ship, season);
-            foreach (Ship ship in fleet) Gold -= ship.Tier.WagePerDay;
+            {
+                if (ship.Voyage == null)
+                {
+                    dockedWages += ship.Tier.WagePerDay * Data.Rules.DockedWageFraction;
+                    continue;
+                }
+                SailDay(ship, season);
+                if (fleet.Contains(ship)) Gold -= ship.Tier.WagePerDay;
+            }
+            Gold -= Num.Round(dockedWages);
 
             CheckGoal();
             if (Outcome != GameOutcome.InProgress) return;

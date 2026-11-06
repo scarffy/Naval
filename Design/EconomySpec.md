@@ -14,7 +14,7 @@ It's the brief for the next simulator pass. When it's built and balanced, `Verti
 ## 1. Time
 
 - **Chapter 1, Mission 1 runs 2 years:** July 1, 1770 to June 30, 1772 (730 days). The goal is still one objective: reach a gold target, to be tuned.
-- **Pacing:** about 1.5 real seconds per in-game day at 1× (about 18 minutes for the mission), plus pause, 2× and 4×.
+- **Pacing:** about 3 real seconds per in-game day at 1× (about 36 minutes for the mission), plus pause, 2× and 4×.
 - **Seasons repeat every year, by calendar date:**
   - Hurricanes: from June 1 the chance rises, reaching full strength on August 15. It stays at full strength until October 15, then falls to zero by November 30.
   - The rest of the year is calm.

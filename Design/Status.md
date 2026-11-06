@@ -40,7 +40,7 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
 - **Data:** `ports.csv` has `map_x,map_y` (x west to east 0 to 100, y south to north 0 to 60). `Voyage` exposes its `Legs` and `PositionAt(progress)` for drawing ships.
 - **Scene:** `Assets/_NavalTradeMinigame/Scenes/Slice.unity`, a committed scene (it used to be built by an editor menu; see "Real scene" below).
 - **Presentation** (`Scripts/Slice/`):
-  - `SliceClock`: 1.5 s per day at 1×, with pause, 2× and 4×
+  - `SliceClock`: 3 s per day at 1× (was 1.5), with pause, 2× and 4×
   - `SliceMap`: placeholder sea, port dots and names (shipyards are bigger and gold), and route lines (owned routes bright, the rest faint; ocean routes blue)
   - `SliceShips`: ship markers that glide along their routes and sit beside ports
   - `SliceHud`: date, days left, gold and goal, speed buttons, and a placeholder Won/Lost text. It shows the data error if the CSVs fail to load.
@@ -117,6 +117,13 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
   - Not seen in a 6.3 file: the `LayoutElement` and `Physics2DRaycaster` GUIDs (same uGUI package, so expected unchanged). Opening the scene in 6.3 is the real test.
 - **Second review:** 8 findings, none blocking. Fixed: the review rule against loading assets by name now names the CSV data as the exception. Left, because each case already logs a clear error naming the field and a designer fixes it in the Inspector: an empty Font leaves the runtime rows without text; an empty Label Font or Line Material stops the whole map, not just the names or lines; a screen whose setup failed (fleet choice, end screen) stays hidden, so the game waits at that step; the field names in the error messages are typed by hand. The prototype scripts still call `FindObjectOfType`, which Unity 6 marks obsolete (a warning, not an error); they're outside the slice.
 
+**Balance after the first playtest: docked ships pay no wages, slower days.**
+- **Wages are paid only while sailing.** A ship pays its full `wage_per_day` for each day at sea, the day it arrives included. In port it pays `wage_per_day × docked_wage_fraction` (new key in `rules.csv`, 0 to 1, now 0), so ships waiting in port no longer drain a new player's gold. A ship lost at sea pays nothing that day, as before. The fleet choice now reads "wages X/day at sea".
+- **Days are slower:** 3 real seconds per day at 1× (was 1.5), so the mission takes about 36 minutes at 1×. It's `SliceClock`'s **Seconds Per Day** field on Game in `Slice.unity`; 2× and 4× scale from it.
+- **Still holds:** losing for having no ships (no ships and too little gold for the cheapest) is unchanged, and the tutorial's first voyage is still sheltered from hazards; docked wages only make it easier.
+- **Tests:** 116 edit-mode tests pass in the Mono runner (6 new: docked at 0, a rounded fraction, small fractions added up across the fleet, sailing in full, sailing and docked on the same day, and the new key failing loudly).
+- **Review:** 7 findings. Fixed: an arriving ship paid the port rate for its last day at sea; the fleet choice ignored a docked fraction above 0 (it now adds "(N in port)"); the docked share was rounded per ship, so small fractions came to 0 (now rounded once for the fleet); a test relied on the shipped value without saying so; a mixed sailing-and-docked day was untested; a per-day set allocation was folded into one loop; VerticalSlice.md, UISpec.md and GameModes.md still said docked ships pay wages.
+
 ## To check in Unity (designer)
 
 1. Open the project and check the console for import or compile errors.
@@ -167,8 +174,12 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
      - the HUD Tutorial button (under 2×, left of Restart) shows "Sure?", goes back after about 3 seconds, and on a second click starts a new game with the tutorial
      - click Restart then Tutorial (or the reverse): only the second shows "Sure?", and nothing restarts
      - at 16:9, 16:10 and 4:3 the Tutorial button doesn't overlap the tutorial box, the gold text, the speed buttons or Restart
-5. Window → General → Test Runner → EditMode → Run All. Expect 110 passing.
-6. Report anything that looks wrong or is hard to read, and how the opening and the first voyages feel.
+5. **Wages and day length:**
+   - Game → `Slice Clock` → Seconds Per Day reads 3, and a day at 1× takes about 3 seconds (2× about 1.5, 4× about 0.75).
+   - A ship waiting in port costs nothing: with every ship docked, gold doesn't move as days pass. A ship at sea costs its full wages each day.
+   - The fleet choice shows "wages X/day at sea".
+6. Window → General → Test Runner → EditMode → Run All. Expect 116 passing.
+7. Report anything that looks wrong or is hard to read, and how the opening and the first voyages feel.
 
 ## Next
 

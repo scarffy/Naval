@@ -104,6 +104,22 @@ namespace Naval.Tests
         }
 
         [Test]
+        public void MissingDockedWageFraction_IsNamed()
+        {
+            SliceCsv csv = TestData.Csv();
+            csv.Rules = TestData.Replace(csv.Rules, "docked_wage_fraction", "docked_wages");
+            AssertFails(csv, "rules.csv", "docked_wage_fraction");
+        }
+
+        [Test]
+        public void DockedWageFraction_OutOfRange_IsNamed()
+        {
+            SliceCsv csv = TestData.Csv();
+            csv.Rules = TestData.Replace(csv.Rules, "docked_wage_fraction,0,", "docked_wage_fraction,1.5,");
+            AssertFails(csv, "rules.csv", "docked_wage_fraction", "1.5");
+        }
+
+        [Test]
         public void UnknownPort_InRoutes()
         {
             SliceCsv csv = TestData.Csv();

@@ -60,10 +60,18 @@ namespace Naval.Slice
                 string title = count == 1 ? "1 " + tier.Name : count + " " + tier.Name + "s";
                 string stats = "Each: " + SliceUi.Count(tier.Capacity, "crate") + " of hold, speed "
                     + tier.Speed.ToString("0.##", CultureInfo.InvariantCulture) + ", hull " + tier.Hull + ", wages "
-                    + MoneyManager.Format(tier.WagePerDay) + "/day, " + (tier.OceanGoing ? "ocean-going" : "coastal only");
+                    + MoneyManager.Format(tier.WagePerDay) + "/day at sea" + DockedWageText(tier, data.Rules) + ", "
+                    + (tier.OceanGoing ? "ocean-going" : "coastal only");
                 string label = title + "\n" + stats + "\nTotal cost " + MoneyManager.Format(count * tier.Price);
                 widgets.MakeButton(rows, label, new Vector2(1000f, 130f), () => Choose(chosen), 28);
             }
+        }
+
+        /// <summary>" (N in port)" when docked ships pay part of their wages, otherwise nothing.</summary>
+        static string DockedWageText(ShipTier tier, Rules rules)
+        {
+            if (rules.DockedWageFraction <= 0) return "";
+            return " (" + MoneyManager.Format(Num.Round(tier.WagePerDay * rules.DockedWageFraction)) + " in port)";
         }
 
         void Choose(ShipTier tier)
