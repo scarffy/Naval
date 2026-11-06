@@ -18,6 +18,8 @@ Every code change gets a review before it's committed: changes written in this s
    - Unity lifecycle and serialisation: Awake, OnEnable and Start ordering; event handlers unsubscribed in OnDisable or OnDestroy; renamed serialised fields losing their data (use `FormerlySerializedAs`); assets referenced by path or GUID.
    - Data: a missing or misspelled CSV row or column must fail loudly with a clear message, not silently use 0.
    - Randomness: game rules use a seeded random source so tests and bugs can be reproduced.
+   - Blind spots of the compile check: it has no reference library for the Input System package, and only small stand-ins for TextMeshPro and UnityEditor. Code that uses those, or looks types up by name (`Type.GetType`, reflection), is not really checked. Review it by hand, flag it to the user as unverified, and prefer plain typed code.
+   - Input: the project uses the old Input Manager (`activeInputHandler: 0`). UI uses `StandaloneInputModule`; don't add Input System code.
 2. **Pragmatism.** Is it the simplest thing that works for the vertical slice?
    - No speculative features, extra options or abstractions the slice doesn't need (see `Design/SliceScope.md` for what's in and what's parked).
    - Reuse what exists before adding something new.

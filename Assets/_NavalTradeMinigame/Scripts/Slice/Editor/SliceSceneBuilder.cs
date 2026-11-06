@@ -180,23 +180,14 @@ namespace Naval.SliceEditor
         }
 
         /// <summary>
-        /// The project uses the new Input System only (activeInputHandler 1), where StandaloneInputModule does not work.
-        /// The Input System's module has no reference assembly for the compile check, so it is added by name.
+        /// The slice uses the old Input Manager (Project Settings > Player > Active Input Handling = Input Manager),
+        /// so UI clicks go through StandaloneInputModule.
         /// </summary>
         static void BuildEventSystem()
         {
             var go = new GameObject("EventSystem");
             go.AddComponent<EventSystem>();
-            Type module = Type.GetType("UnityEngine.InputSystem.UI.InputSystemUIInputModule, Unity.InputSystem");
-            if (module == null)
-            {
-                go.AddComponent<StandaloneInputModule>();
-                Debug.LogWarning("Input System package not found: added StandaloneInputModule, which needs the old Input Manager.");
-                return;
-            }
-            Component added = go.AddComponent(module);
-            var assign = module.GetMethod("AssignDefaultActions", Type.EmptyTypes);
-            if (assign != null) assign.Invoke(added, null);
+            go.AddComponent<StandaloneInputModule>();
         }
 
         static readonly Vector2 TopCenter = new Vector2(0.5f, 1f);

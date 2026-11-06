@@ -117,7 +117,7 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
    - **Fleet list:** it sits at the bottom right, its lines fit, and it doesn't cover a port or the free-routes banner.
    - **Phase 2 checks:** the map fits the view, port names are readable, and ships glide along their routes and settle beside ports.
    - **Win and lose:** lower `goal_gold` in `rules.csv` (to 10,000, say) to see the win screen. Use 4× speed, or lower `mission_days`, to see the lose screen; it should give the number of days from `rules.csv`.
-3. If clicks on the map don't register, check the Main Camera's `Physics2DRaycaster` and the EventSystem's Input System UI module.
+3. If clicks on the map don't register, check the Main Camera's `Physics2DRaycaster` and the EventSystem's `StandaloneInputModule`. The project uses the old Input Manager (Project Settings → Player → Active Input Handling).
 4. **Phase 4** (build the scene again first):
    - **Build Settings:** after the menu command, `Slice.unity` is listed and enabled, and the scenes that were already there are unchanged.
    - **Restart:** the end screen's Restart starts a fresh game: fleet choice, 8,500 gold, the date back to 1 Jul 1770, no old notifications, markers or panels, speed 1×. The HUD Restart (under 4×) shows "Sure?", goes back to "Restart" after about 3 seconds, and restarts on a second click.
