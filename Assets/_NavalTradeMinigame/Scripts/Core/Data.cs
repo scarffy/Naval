@@ -24,14 +24,20 @@ namespace Naval.Core
         public string Region { get; private set; }
         public bool HasShipyard { get; private set; }
         public bool InHurricaneZone { get; private set; }
+        /// <summary>Position on the map: x runs west to east (0 to 100), y south to north (0 to 60).</summary>
+        public double MapX { get; private set; }
+        public double MapY { get; private set; }
 
-        public Port(int index, string name, string region, bool hasShipyard, bool inHurricaneZone)
+        public Port(int index, string name, string region, bool hasShipyard, bool inHurricaneZone,
+                    double mapX, double mapY)
         {
             Index = index;
             Name = name;
             Region = region;
             HasShipyard = hasShipyard;
             InHurricaneZone = inHurricaneZone;
+            MapX = mapX;
+            MapY = mapY;
         }
     }
 

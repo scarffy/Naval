@@ -1,13 +1,13 @@
-port,region,shipyard,hurricane_zone
-Natchez,Gulf,no,yes
-New Orleans,Gulf,no,yes
-Campeche,Gulf,no,yes
-Veracruz,Gulf,no,yes
-Havana,Caribbean,yes,yes
-Port-au-Prince,Caribbean,no,yes
-Bridgetown,Caribbean,no,yes
-New York,North America,no,no
-Boston,North America,yes,no
-Liverpool,Europe,yes,no
-Bordeaux,Europe,yes,no
-Seville,Europe,no,no
+port,region,shipyard,hurricane_zone,map_x,map_y
+Natchez,Gulf,no,yes,16,44
+New Orleans,Gulf,no,yes,17,38
+Campeche,Gulf,no,yes,10,22
+Veracruz,Gulf,no,yes,4,20
+Havana,Caribbean,yes,yes,26,28
+Port-au-Prince,Caribbean,no,yes,36,23
+Bridgetown,Caribbean,no,yes,48,16
+New York,North America,no,no,36,50
+Boston,North America,yes,no,41,54
+Liverpool,Europe,yes,no,88,56
+Bordeaux,Europe,yes,no,90,46
+Seville,Europe,no,no,86,36

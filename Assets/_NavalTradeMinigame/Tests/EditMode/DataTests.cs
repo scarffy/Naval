@@ -102,6 +102,24 @@ namespace Naval.Tests
         }
 
         [Test]
+        public void MapPositions_Load()
+        {
+            GameData data = TestData.Data();
+            Assert.AreEqual(16, data.FindPort("Natchez").MapX, 1e-9);
+            Assert.AreEqual(44, data.FindPort("Natchez").MapY, 1e-9);
+            Assert.AreEqual(90, data.FindPort("Bordeaux").MapX, 1e-9);
+            Assert.AreEqual(46, data.FindPort("Bordeaux").MapY, 1e-9);
+        }
+
+        [Test]
+        public void MissingMapColumn_IsNamed()
+        {
+            SliceCsv csv = TestData.Csv();
+            csv.Ports = TestData.Replace(csv.Ports, "map_y", "north");
+            AssertFails(csv, "ports.csv", "map_y");
+        }
+
+        [Test]
         public void BadYesNo()
         {
             SliceCsv csv = TestData.Csv();

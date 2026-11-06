@@ -34,21 +34,34 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
 - **Tests:** 95 edit-mode tests in `Assets/_NavalTradeMinigame/Tests/EditMode/`. They pass in a stand-in runner, but not yet in Unity's Test Runner.
 - **Review:** 10 findings were all fixed: a ship soft-lock, startup order, missing `.meta` files, a null crash, the debt message, duplicated sailing rules, a hard-coded track count, confusing method names, preview speed, and an invisible character.
 
+**Phase 2: the map** (code only, not yet run in Unity).
+- **Data:** `ports.csv` has `map_x,map_y` (x west to east 0 to 100, y south to north 0 to 60). `Voyage` exposes its `Legs` and `PositionAt(progress)` for drawing ships.
+- **Scene:** menu **Naval → Build Slice Scene** builds `Assets/_NavalTradeMinigame/Scenes/Slice.unity` (it asks before replacing it). It isn't added to Build Settings.
+- **Presentation** (`Scripts/Slice/`):
+  - `SliceClock`: 1.5 s per day at 1×, with pause, 2× and 4×
+  - `SliceMap`: placeholder sea, port dots and names (shipyards are bigger and gold), and route lines (owned routes bright, the rest faint; ocean routes blue)
+  - `SliceShips`: ship markers that glide along their routes and sit beside ports
+  - `SliceHud`: date, days left, gold and goal, speed buttons, and a placeholder Won/Lost text. It shows the data error if the CSVs fail to load.
+- **`SliceDemo` is temporary.** Until phase 3's screens exist, it opens the two free routes (Havana to New Orleans and Havana to Port-au-Prince), buys two Brigs and keeps sending them to random ports. The ships carry no cargo, so wages and dues push gold below zero. That's expected. Turn it off with its `Run Demo` box, and delete it in phase 3.
+- **Tests:** 98 edit-mode tests (3 new) pass in a stand-in runner.
+
 ## To check in Unity (designer)
 
-1. Open the project. The new `.meta` files are committed, so nothing should be regenerated.
-2. Window → General → Test Runner → EditMode → Run All. Expect 95 passing.
-3. Report any import errors or failing tests.
+1. Open the project and check the console for import or compile errors.
+2. Run **Naval → Build Slice Scene**, open `Slice.unity` and press Play. Check that:
+   - the whole map fits the Game view, including at other aspect ratios
+   - the port names are readable (the size is `Label Size` on `SliceMap`)
+   - two Brigs start beside Havana and sail along the owned routes, smoothly and facing their direction of travel
+   - they pass through Havana between New Orleans and Port-au-Prince, hold still during storm delays, and settle beside the port on arrival
+   - the date moves on about every 1.5 s, and Pause, 1×, 2× and 4× work and highlight
+   - days left and gold update
+3. The EventSystem gets the Input System's UI module, because the project uses the new Input System only. If the buttons don't respond to clicks, check that module.
+4. Window → General → Test Runner → EditMode → Run All. Expect 98 passing.
+5. Report anything that looks wrong, plus how the map and the ships' speed feel.
 
 ## Next
 
-**Phase 2: the map.**
-- A new `Slice.unity` scene built by an Editor menu command.
-- Ports placed on a map, routes drawn between them, ships moving along their routes.
-- The clock and calendar, with pause, 1×, 2× and 4×.
-- Gold and the goal shown on screen.
-
-Placeholder map art is fine for now; the final map comes in phase 5. Ports need map positions. Add them to `ports.csv`.
+**Phase 3: screens.** Fleet choice, port market, shipyard and upgrades, buying routes, route preview, notifications, win and lose. These replace `SliceDemo`.
 
 ## Open items
 

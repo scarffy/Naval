@@ -101,6 +101,33 @@ namespace Naval.Core
             portDaysLeft = portTimeDays;
         }
 
+        /// <summary>The routes of the trip, in order.</summary>
+        public IReadOnlyList<Route> Legs { get { return legs; } }
+
+        /// <summary>
+        /// Where a given sea progress (0 to 1) falls: on the leg from one stop to the next, and how far along
+        /// that leg (0 to 1). Legs are weighted by their distance. Out-of-range progress is clamped.
+        /// </summary>
+        public void PositionAt(double progress, out Port from, out Port to, out double t)
+        {
+            double along = Math.Max(0, Math.Min(1, progress)) * Distance;
+            double start = 0;
+            for (int i = 0; i < legs.Count; i++)
+            {
+                double end = start + legs[i].Distance;
+                if (along <= end || i == legs.Count - 1)
+                {
+                    from = Stops[i];
+                    to = Stops[i + 1];
+                    t = Math.Max(0, Math.Min(1, (along - start) / legs[i].Distance));
+                    return;
+                }
+                start = end;
+            }
+            from = to = Stops[0];
+            t = 0;
+        }
+
         public Port Destination { get { return Stops[Stops.Count - 1]; } }
 
         /// <summary>How far along the sea part is, 0 to 1. Stays put while the ship waits out a delay.</summary>

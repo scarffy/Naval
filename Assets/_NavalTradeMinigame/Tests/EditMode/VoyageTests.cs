@@ -37,6 +37,27 @@ namespace Naval.Tests
         }
 
         [Test]
+        public void PositionAt_StartMiddleOfSecondLegAndEnd()
+        {
+            Voyage trip = Trip(1.0, "Havana", "New York", "Boston");   // legs of 7 and 3
+            Assert.AreEqual(2, trip.Legs.Count);
+            Port from, to;
+            double t;
+            trip.PositionAt(0, out from, out to, out t);
+            Assert.AreEqual("Havana", from.Name);
+            Assert.AreEqual("New York", to.Name);
+            Assert.AreEqual(0, t, 1e-9);
+            trip.PositionAt(0.85, out from, out to, out t);
+            Assert.AreEqual("New York", from.Name);
+            Assert.AreEqual("Boston", to.Name);
+            Assert.AreEqual(0.5, t, 1e-9);
+            trip.PositionAt(1, out from, out to, out t);
+            Assert.AreEqual("New York", from.Name);
+            Assert.AreEqual("Boston", to.Name);
+            Assert.AreEqual(1, t, 1e-9);
+        }
+
+        [Test]
         public void Duration_IsDistanceOverSpeedPlusTimeInPort_InWholeDays()
         {
             // 4 / 1.5 = 2.67 days at sea + 0.5 in port = 3.17 -> 4

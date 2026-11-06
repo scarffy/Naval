@@ -18,6 +18,22 @@ namespace UnityEditor
     {
         public static void SetDirty(UnityEngine.Object target) { }
         public static bool DisplayDialog(string title, string message, string ok) { return true; }
+        public static bool DisplayDialog(string title, string message, string ok, string cancel) { return true; }
+    }
+    public class SerializedObject
+    {
+        public SerializedObject(UnityEngine.Object obj) { }
+        public SerializedProperty FindProperty(string propertyPath) { return null; }
+        public bool ApplyModifiedPropertiesWithoutUndo() { return true; }
+    }
+    public class SerializedProperty
+    {
+        public UnityEngine.Object objectReferenceValue { get; set; }
+        public int arraySize { get; set; }
+        public int intValue { get; set; }
+        public float floatValue { get; set; }
+        public UnityEngine.Vector2 vector2Value { get; set; }
+        public SerializedProperty GetArrayElementAtIndex(int index) { return null; }
     }
     public static class PrefabUtility
     {
@@ -31,6 +47,7 @@ namespace UnityEditor.SceneManagement
         public static UnityEngine.SceneManagement.Scene NewScene(NewSceneSetup setup, NewSceneMode mode) { return default(UnityEngine.SceneManagement.Scene); }
         public static bool SaveScene(UnityEngine.SceneManagement.Scene scene, string dstScenePath) { return true; }
         public static UnityEngine.SceneManagement.Scene OpenScene(string scenePath) { return default(UnityEngine.SceneManagement.Scene); }
+        public static bool SaveCurrentModifiedScenesIfUserWantsTo() { return true; }
         public static bool MarkSceneDirty(UnityEngine.SceneManagement.Scene scene) { return true; }
     }
     public enum NewSceneSetup { EmptyScene, DefaultGameObjects }
