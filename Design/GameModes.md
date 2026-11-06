@@ -19,7 +19,28 @@ There are three ways to play. **Tutorial** teaches the game. **Beginner** and **
 
 Beginner's settings are rows in `Design/data/modes.csv`, which override `rules.csv`. The simulator checks Beginner against its own targets (`python3 Design/sim/simulate.py --mode beginner`):
 
-BEGINNER_SETTINGS_PLACEHOLDER
+**Current Beginner settings** (everything else is the same as Veteran: 50,000 gold goal, 90 days, 2,500 starting gold, the same hazards):
+- `pressure_per_crate_bought` = 0 and `pressure_per_crate_sold` = 0: the fixed market.
+- `spread` = 0.35 (Veteran: 0.10): a wider gap between the buy and sell price at a port. In a fixed market a ship can repeat its best trade forever, so profits compound very fast: a good player would win around day 42. The wider gap puts the median win near day 59.
+
+**Beginner targets** (seed 1, 200 sessions per bot; seed 2 matches within about a point):
+
+| Target | Result |
+|---|---|
+| B1: a good player (best fleet bot) wins at least 95% | 99%: pass |
+| B2: their median win day is 50–75 | Day 59: pass |
+| B3: a simple plan works (one route, keep adding ships) wins at least 50% | 100%, median day 51: pass |
+| B4: ignoring prices still fails (random play) at most 5% | 0%: pass |
+| B5: growing the fleet still matters (one ship wins at most 80%) | 0%: pass |
+| B6: buying routes matters (free routes only earns at most 70% of an expanding fleet) | About 125%: **fail** |
+| B7: upgrades pay off (at least +10%) | Pass, by a wide margin |
+| B8: hull upgrades keep losses to at most 1 per session | Pass |
+
+**Open problem: in a fixed market, buying routes doesn't pay.** With no price impact, every ship can repeat the best trade it already has. The free trades around Havana earn about 25 gold per crate-day, and the best trades anywhere about 36. Expansion can gain at most about 1.4×, and the cost of the routes eats that. The fix being considered is **port stock**: prices stay fixed, but each port holds a limited, visible number of crates of each good and restocks over a few days. Stock is easy to understand, it naturally caps how much one route can earn (so new routes pay off again), and it would replace both the wider gap and the bots' 30-ship cap.
+
+**Simulator notes:**
+- In Beginner the bots stop buying ships at 30, because nothing else limits a fleet in a fixed market.
+- Gold figures after the win are not meaningful. In the game, the mission ends when you reach the goal.
 
 **UI differences:**
 - **Beginner:** show one price per crate.

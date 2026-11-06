@@ -37,7 +37,8 @@ def as_value(v):
 
 
 class Data:
-    def __init__(self):
+    def __init__(self, mode="veteran"):
+        self.mode = mode
         self.goods = {r["good"]: float(r["base_price"]) for r in read_csv("goods.csv")}
         self.ports = {r["port"]: {"region": r["region"], "shipyard": r["shipyard"].strip().lower() == "yes"}
                       for r in read_csv("ports.csv")}
@@ -53,11 +54,19 @@ class Data:
         for r in sorted(read_csv("upgrades.csv"), key=lambda r: (r["track"], int(r["level"]))):
             self.upgrades[r["track"]].append({k: as_value(v) for k, v in r.items()})
         self.rules = {r["key"]: as_value(r["value"]) for r in read_csv("rules.csv")}
+        for r in read_csv("modes.csv"):
+            if r["mode"].strip().startswith("#") or r["mode"].strip() != mode:
+                continue
+            if r["key"] not in self.rules:
+                raise SystemExit(f"modes.csv overrides unknown rule {r['key']}")
+            self.rules[r["key"]] = as_value(r["value"])
         self.lanes = [{"id": i, "a": r["from"], "b": r["to"], "distance": float(r["distance"]),
                        "storm": float(r["storm_per_day"]), "pirates": float(r["pirates_per_day"]),
                        "hurricanes": float(r["hurricanes_per_day"]), "price": float(r["price"]),
                        "ocean": r.get("ocean", "no").strip().lower() == "yes"}
                       for i, r in enumerate(read_csv("lanes.csv"))]
+        self.fixed_market = (self.rules["pressure_per_crate_bought"] == 0
+                             and self.rules["pressure_per_crate_sold"] == 0)
         if set(self.market) != set(self.ports):
             raise SystemExit("market.csv and ports.csv list different ports")
         self.routes = self._routes(self.lanes)            # every route open: used for reports
@@ -94,6 +103,8 @@ class Data:
     def network_rate(self, owned, ships, ocean=True):
         """Average of the best 2-per-ship trades: roughly what a fleet of this size earns per crate per day."""
         k = max(2, 2 * ships)
+        if self.fixed_market:
+            k = 1          # nothing saturates: every ship can run the single best trade
         return sum(self.trade_rates(owned, ocean)[:k]) / k
 
     def _routes(self, lanes, require_all=True):
@@ -502,6 +513,9 @@ def best_new_route(game, owned=None, free=None):
     return (None, 0.0, 0.0) if best is None else best[1:]
 
 
+MAX_FLEET = 30     # in a fixed market nothing else limits the fleet, so bots stop buying ships here
+
+
 class Greedy:
     """Picks the most profitable trip per day from where the ship is.
     Takes its free routes, then buys more when they pay back quickly (unless expand_routes is off).
@@ -533,7 +547,7 @@ class Greedy:
     def shop(self, game, ship):
         if not game.d.ports[ship.port]["shipyard"] or game.day > game.r["day_limit"] - 25:
             return
-        if self.expand_with:
+        if self.expand_with and (len(game.fleet) < MAX_FLEET or not game.d.fixed_market):
             kinds = list(game.d.ships) if self.expand_with == "Mixed" else [self.expand_with]
             affordable = [k for k in kinds
                           if game.gold >= game.d.ships[k]["price"] + reserve(game, game.d.ships[k]["capacity"])]
@@ -719,8 +733,12 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--runs", type=int, default=200)
     ap.add_argument("--seed", type=int, default=1)
+    ap.add_argument("--mode", choices=["veteran", "beginner"], default="veteran")
     args = ap.parse_args()
-    data = Data()
+    data = Data(args.mode)
+    print(f"Mode: {args.mode}  (goal {data.rules['goal_gold']:,.0f} gold, {data.rules['day_limit']} days, "
+          f"start gold {data.rules['start_gold']:,.0f})")
+    print()
     run = lambda name, make: summarize(name, simulate(data, make, args.runs, args.seed))
 
     print("Strongest trades before any trading (gold per crate, and per day for a ship of speed 1):")
@@ -776,7 +794,7 @@ def main():
     print(f"Upgrades bought per session by '{upgraded['bot']}': " +
           ", ".join(f"{k} {v:.1f}" for k, v in sorted(upgraded["upgrades"].items())))
     print()
-    check(results, best, upgraded, singles, data.rules, opening_results)
+    (check if args.mode == "veteran" else check_beginner)(results, best, upgraded, singles, data.rules, opening_results)
 
 
 def check(results, best, upgraded, singles, rules, opening_results):
@@ -820,6 +838,27 @@ def check(results, best, upgraded, singles, rules, opening_results):
     print("Upgrade gains vs no upgrades: " +
           ", ".join(f"{r['bot'].split('+ ')[1]} {100 * g:+.0f}%" for r, g in zip(singles, gains)) +
           f", all {100 * (upgraded['mean gold'] / base - 1):+.0f}%")
+
+
+def check_beginner(results, best, upgraded, singles, rules, opening_results):
+    by = {r["bot"]: r for r in results}
+    hull = next(r for r in singles if r["bot"].endswith("Hull only"))
+    stay = next(r for r in results if r["bot"].endswith("free routes only"))
+    base = best["mean gold"]
+    checks = [
+        ("B1: best fleet bot wins >= 95%", best["win %"] >= 95),
+        ("B2: its median win day is 50-75", best["win day"] is not None and 50 <= best["win day"] <= 75),
+        ("B3: fixed-route bot wins >= 50%", by["Fixed route"]["win %"] >= 50),
+        ("B4: random bot wins <= 5%", by["Random"]["win %"] <= 5),
+        ("B5: 1-ship greedy wins <= 80%", by["Greedy, 1 ship"]["win %"] <= 80),
+        ("B6: free-routes-only bot earns <= 70% of the best fleet bot's gold", stay["mean gold"] <= 0.7 * base),
+        ("B7: all upgrades give >= 10% more average gold", upgraded["mean gold"] >= 1.10 * base),
+        ("B8: Hull-only bot loses <= 1 ship per session", hull["sunk"] <= 1.0),
+    ]
+    print("Beginner balance targets:")
+    for text, ok in checks:
+        print(f"  [{'PASS' if ok else 'FAIL'}] {text}")
+    print("(Veteran targets not checked in beginner mode.)")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,5 @@
+mode,key,value,notes
+#veteran,,,Veteran uses rules.csv unchanged (no rows)
+beginner,pressure_per_crate_bought,0,Fixed market: the player's buying never moves prices
+beginner,pressure_per_crate_sold,0,Fixed market: the player's selling never moves prices
+beginner,spread,0.35,Wider buy/sell gap: with a fixed market a ship can repeat its best trade forever so profits are slowed to keep the win near day 55-60
