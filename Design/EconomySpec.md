@@ -3,7 +3,8 @@
 This spec combines the decisions made after the first vertical-slice balance:
 - 14 historically flavoured goods
 - missions that span years
-- port limits the player can upgrade
+- ports with 5 levels that grow, and buildings the player can add to them
+- port stock limits in Veteran only (Beginner has fixed prices and no stock limits)
 - bulky and perishable cargo in Veteran only
 
 It's the brief for the next simulator pass. When it's built and balanced, `VerticalSlice.md` will be updated to match. Background: `Research/TradeGoods-1770s.md` and `Research/Mechanics-References.md`.
@@ -47,38 +48,40 @@ It's the brief for the next simulator pass. When it's built and balanced, `Verti
   - every region has some short local trades for the early game
   - blank means not traded
 
-## 3. Port capacity (both modes)
+## 3. Port levels and capacity
 
-Every port has a **level** (1–3) that sets how much it trades.
+Every port has a **level from 1 to 5**.
+- The big hubs (Havana, New York, Liverpool, Bordeaux) start at level 3. Other ports start at level 1.
+- Level multipliers grow steadily to about ×2.5–3 at level 5.
 
-**Beginner (fixed prices): stock and demand.**
-- For each good a port sells, it holds a **stock** of crates and restocks a set amount each day.
-- For each good it wants, it will **buy** up to a set number of crates, and that number refills each day.
-- Prices never move.
-- Starting values to tune:
-  - cheap goods: stock 80, restock 8 a day
-  - wanted goods: buys 80, refills 8 a day
-  - other traded goods: 40 and 4
-- **Port level** multiplies all of these: ×1, ×1.5, ×2.
+**Beginner (fixed prices, no stock limits).**
+- Ports buy and sell any number of crates at fixed prices.
+- Beginner has a wider gap between a port's buy and sell price (`spread` around 0.35).
+- **Each port level narrows that gap at that port,** down to about Veteran's 0.10 at level 5. Growing a port makes its trade more profitable.
 
-**Veteran (reactive prices): market depth.**
-- Prices move per crate as now. There is no stock limit.
-- Port level divides the price movement per crate: ÷1, ÷1.5, ÷2. A bigger port absorbs bigger trades.
+**Veteran (reactive prices plus stock).**
+- Prices move per crate as before.
+- Each port also has **stock and demand with a daily restock**:
+  - For each good a port sells, it holds a stock of crates and restocks a set amount each day.
+  - For each good it wants, it buys up to a set number of crates, and that number refills each day.
+  - Starting values to tune: cheap goods stock 80 and restock 8 a day; wanted goods buy 80 and refill 8 a day; other traded goods 40 and 4.
+- Port level multiplies stock, demand and restock, and divides the price movement per crate.
 
 **Port growth (both modes):**
 - A port grows a level when its wanted goods have been well supplied over a season. Start with: at least 60% of its demand delivered over the last 90 days.
-- Ports start at level 1, except the big hubs, which start at level 2: Havana, New York, Liverpool and Bordeaux.
+- Each level needs more supply than the last.
 - **Veteran only:** a port drops a level if it's badly undersupplied for a whole season. In Beginner, levels never drop.
 
 ## 4. Port buildings (both modes)
 
-- The player can build in any port they've reached. There are **2 building slots per port, 3 at level 3**.
+- The player can build in any port they've reached.
+- Building slots: **1 at levels 1–2, 2 at levels 3–4, 3 at level 5.**
 - Each building has a cost and a monthly **upkeep**, so empty or unused buildings lose money. Starting values to tune:
 
 | Building | Cost | Upkeep/month | Effect in Beginner | Effect in Veteran |
 |---|---|---|---|---|
-| Warehouse | 3,000 | 60 | +50% stock and demand for every good | Price movement per crate ÷1.5 more |
-| Market Hall | 2,500 | 50 | Restock and refill twice as fast | Prices recover twice as fast |
+| Warehouse | 3,000 | 60 | To be settled in balancing (a fixed-price effect, or Veteran-only) | +50% stock and demand; price movement per crate ÷1.5 more |
+| Market Hall | 2,500 | 50 | Narrows this port's buy/sell gap one more step | Restock and price recovery twice as fast |
 | Customs House | 2,000 | 40 | Harbour dues here halved, and half the time in port | The same |
 
 This is the "upgrade the port's limit" mechanic. It and port growth give the multi-year mission a long-term shape: supply a colony, it grows, you build there, and it becomes a hub.
@@ -105,7 +108,7 @@ The numbers may need rescaling for a 2-year mission.
 
 **Targets: carry over both modes' lists, adapted to 2 years, plus:**
 - Veteran's win-timing target becomes a share of the mission: a good player's median win lands between 65% and 90% of the mission length.
-- **Beginner's "buying routes matters"** (a fleet that keeps only its free routes earns at most 70% of one that expands) should now pass, because stock limits stop one route absorbing everything. This is the main reason for port stock.
+- **Port development matters in Beginner:** a bot that builds and grows ports earns at least 5% more than one that doesn't. With fixed prices and no stock, nothing stops one route absorbing every ship, so Beginner's "buying routes matters" target is information only.
 - **Port buildings pay off:** a bot that builds earns at least 5% more than one that doesn't.
 - **Ports grow:** a good player's network has at least 4 ports at level 2 or above by the end. Informational to start with.
 - **Seasons matter every year:** time on hurricane routes drops by at least 20% in each hurricane season compared with the calm months.
