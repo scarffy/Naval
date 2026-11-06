@@ -16,20 +16,21 @@ namespace Naval.Tests
             Assert.AreEqual(3, data.ShipTiers.Count);
             Assert.AreEqual("Havana", data.StartPort.Name);
             Assert.AreEqual(new DateTime(1770, 7, 1), data.Rules.StartDate);
-            Assert.AreEqual(6000, data.Rules.StartGold);
+            Assert.AreEqual(8500, data.Rules.StartGold);
             Assert.AreEqual(730, data.Rules.MissionDays);
             Assert.AreEqual(2, data.Rules.FreeRoutes);
             Assert.Greater(data.Rules.GoalGold, data.Rules.StartGold);
         }
 
         [Test]
-        public void RealData_StartingGoldBuysOneMerchantmanOrTwoBrigsOrThreeSloops()
+        public void RealData_FleetBudgetBuysOneMerchantmanOrTwoBrigsOrThreeSloops_AndLeavesGoldForCargo()
         {
             GameData data = TestData.Data();
-            int gold = data.Rules.StartGold;
-            Assert.AreEqual(gold, data.FindShipTier("Merchantman").Price);
-            Assert.AreEqual(gold, 2 * data.FindShipTier("Brig").Price);
-            Assert.AreEqual(gold, 3 * data.FindShipTier("Sloop").Price);
+            int budget = data.FleetBudget;
+            Assert.AreEqual(budget, data.FindShipTier("Merchantman").Price);
+            Assert.AreEqual(budget, 2 * data.FindShipTier("Brig").Price);
+            Assert.AreEqual(budget, 3 * data.FindShipTier("Sloop").Price);
+            Assert.Greater(data.Rules.StartGold, budget, "gold is left for the first cargoes");
             Assert.IsFalse(data.FindShipTier("Sloop").OceanGoing);
             Assert.IsTrue(data.FindShipTier("Brig").OceanGoing);
             Assert.IsTrue(data.FindShipTier("Merchantman").OceanGoing);

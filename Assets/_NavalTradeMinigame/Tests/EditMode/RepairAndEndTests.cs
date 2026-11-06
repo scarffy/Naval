@@ -67,7 +67,7 @@ namespace Naval.Tests
         [Test]
         public void Repair_IsRefusedInDebt()
         {
-            GameState game = TestData.NewGame(TestData.Forced(1, 0, 0, 10));
+            GameState game = TestData.NewGame(TestData.ExactFleetGold(TestData.Forced(1, 0, 0, 10)));
             Ship ship = DamagedShip(game, "Merchantman", false);   // bought with every coin, then wages and dues
             Assert.Less(game.Gold, 0, "wages and dues put it in debt");
             int gold = game.Gold;
@@ -113,8 +113,8 @@ namespace Naval.Tests
         [Test]
         public void SellingCanReachTheGoalAtOnce()
         {
-            // Resale at full price: buying and selling a sloop returns to 6000 = the goal.
-            SliceCsv csv = Rules("goal_gold,500000,", "goal_gold,6000,");
+            // Resale at full price: buying and selling a sloop returns to the start gold = the goal.
+            SliceCsv csv = Rules("goal_gold,500000,", "goal_gold," + TestData.Data().Rules.StartGold + ",");
             csv.Rules = TestData.Replace(csv.Rules, "ship_resale_fraction,0.50,", "ship_resale_fraction,1.00,");
             GameState game = TestData.NewGame(csv);
             Ship ship = TestData.Buy(game, "Sloop");
@@ -155,7 +155,7 @@ namespace Naval.Tests
         [Test]
         public void NoShipsAndNotEnoughGoldForOne_Loses()
         {
-            GameState game = TestData.NewGame(Rules("start_gold,6000,", "start_gold,1500,"));
+            GameState game = TestData.NewGame(Rules("start_gold,8500,", "start_gold,1500,"));
             IReadOnlyList<GameEvent> events = game.AdvanceDay();
             Assert.AreEqual(GameOutcome.Lost, game.Outcome);
             Assert.AreEqual(FailReason.NoShips, events[0].Reason);
@@ -172,7 +172,7 @@ namespace Naval.Tests
         [Test]
         public void LosingTheLastShip_Loses_WhenGoldCannotReplaceIt()
         {
-            GameState game = TestData.NewGame(TestData.Forced(1, 0, 0, 500));
+            GameState game = TestData.NewGame(TestData.ExactFleetGold(TestData.Forced(1, 0, 0, 500)));
             TestData.Open(game, "Havana", "Port-au-Prince");
             Ship ship = TestData.Buy(game, "Merchantman");   // 0 gold left
             game.Send(ship, "Port-au-Prince");

@@ -230,6 +230,8 @@ namespace Naval.Core
         public Rules Rules { get; private set; }
         public Port StartPort { get; private set; }
         public int CheapestShipPrice { get; private set; }
+        /// <summary>What the opening fleet choice costs: the price of the most expensive ship tier.</summary>
+        public int FleetBudget { get; private set; }
 
         internal GameData(List<Good> goods, List<Port> ports, double?[,] multipliers, List<Route> routes,
                           List<ShipTier> tiers, UpgradeLevel[][] upgrades, Rules rules, Port startPort)
@@ -244,6 +246,7 @@ namespace Naval.Core
             StartPort = startPort;
             CheapestShipPrice = int.MaxValue;
             foreach (ShipTier tier in tiers) CheapestShipPrice = Math.Min(CheapestShipPrice, tier.Price);
+            foreach (ShipTier tier in tiers) FleetBudget = Math.Max(FleetBudget, tier.Price);
         }
 
         /// <summary>The port's price multiplier for a good, or null if the port does not trade it.</summary>

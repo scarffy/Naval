@@ -18,19 +18,73 @@ namespace Naval.Tests
         [Test]
         public void StartingGoldBuysTheThreeFleets()
         {
-            Assert.AreEqual(6000, game.Gold);
+            int start = game.Data.Rules.StartGold;
+            int budget = game.Data.FleetBudget;
+            Assert.AreEqual(start, game.Gold);
             TestData.Buy(game, "Merchantman");
-            Assert.AreEqual(0, game.Gold);
+            Assert.AreEqual(start - budget, game.Gold);
 
             game = TestData.NewGame();
             TestData.Buy(game, "Brig");
             TestData.Buy(game, "Brig");
-            Assert.AreEqual(0, game.Gold);
+            Assert.AreEqual(start - budget, game.Gold);
 
             game = TestData.NewGame();
             for (int i = 0; i < 3; i++) TestData.Buy(game, "Sloop");
-            Assert.AreEqual(0, game.Gold);
+            Assert.AreEqual(start - budget, game.Gold);
             Assert.AreEqual(3, game.Fleet.Count);
+        }
+
+        [TestCase("Merchantman", 1)]
+        [TestCase("Brig", 2)]
+        [TestCase("Sloop", 3)]
+        public void ChooseFleet_BuysTheWholeFleetAtTheStartPort(string tier, int count)
+        {
+            int start = game.Gold;
+            Assert.IsFalse(game.FleetChosen);
+            CommandResult result = game.ChooseFleet(tier);
+            Assert.IsTrue(result.Ok, result.Message);
+            Assert.AreEqual(count, game.Fleet.Count);
+            foreach (Ship ship in game.Fleet)
+            {
+                Assert.AreEqual(tier, ship.Tier.Name);
+                Assert.AreSame(game.Data.StartPort, ship.Port);
+            }
+            Assert.AreEqual(start - game.Data.FleetBudget, game.Gold);
+            Assert.IsTrue(game.FleetChosen);
+        }
+
+        [Test]
+        public void ChooseFleet_OnlyWorksOnce()
+        {
+            Assert.IsTrue(game.ChooseFleet("Brig").Ok);
+            int gold = game.Gold;
+            CommandResult again = game.ChooseFleet("Sloop");
+            Assert.AreEqual(Failure.FleetChosen, again.Reason);
+            Assert.IsNotEmpty(again.Message);
+            Assert.AreEqual(gold, game.Gold);
+            Assert.AreEqual(2, game.Fleet.Count);
+        }
+
+        [Test]
+        public void ChooseFleet_IsRefusedAfterAShipWasBought()
+        {
+            TestData.Buy(game, "Sloop");
+            int gold = game.Gold;
+            Assert.AreEqual(Failure.FleetChosen, game.ChooseFleet("Brig").Reason);
+            Assert.AreEqual(gold, game.Gold);
+            Assert.AreEqual(1, game.Fleet.Count);
+            Assert.IsFalse(game.FleetChosen);
+        }
+
+        [Test]
+        public void ChooseFleet_RejectsAnUnknownTier()
+        {
+            int gold = game.Gold;
+            Assert.AreEqual(Failure.UnknownName, game.ChooseFleet("Galleon").Reason);
+            Assert.AreEqual(gold, game.Gold);
+            Assert.AreEqual(0, game.Fleet.Count);
+            Assert.IsFalse(game.FleetChosen);
         }
 
         [Test]
@@ -59,6 +113,7 @@ namespace Naval.Tests
         [Test]
         public void Overspending_IsRefused()
         {
+            game = TestData.NewGame(TestData.ExactFleetGold(TestData.Csv()));
             Ship ship = TestData.Buy(game, "Merchantman");   // leaves 0 gold
             CommandResult result = game.BuyGoods(ship, "Sugar", 1);
             Assert.AreEqual(Failure.NotEnoughGold, result.Reason);
@@ -123,13 +178,14 @@ namespace Naval.Tests
             CommandResult result = game.BuyShip("Natchez", "Sloop", out ship);
             Assert.AreEqual(Failure.NotAtShipyard, result.Reason);
             Assert.IsNull(ship);
-            Assert.AreEqual(6000, game.Gold);
+            Assert.AreEqual(game.Data.Rules.StartGold, game.Gold);
             Assert.AreEqual(Failure.UnknownName, game.BuyShip("Havana", "Galleon", out ship).Reason);
         }
 
         [Test]
         public void ABuyShip_NeedsTheGold()
         {
+            game = TestData.NewGame(TestData.ExactFleetGold(TestData.Csv()));
             TestData.Buy(game, "Merchantman");
             Ship ship;
             Assert.AreEqual(Failure.NotEnoughGold, game.BuyShip("Havana", "Sloop", out ship).Reason);
@@ -184,7 +240,7 @@ namespace Naval.Tests
             Assert.IsTrue(game.Upgrade(ship, UpgradeTrack.Hold).Ok);
             Assert.AreEqual(Failure.MaxUpgrade, game.Upgrade(ship, UpgradeTrack.Hold).Reason);
 
-            game = TestData.NewGame();
+            game = TestData.NewGame(TestData.ExactFleetGold(TestData.Csv()));
             ship = TestData.Buy(game, "Merchantman");   // 0 gold left
             Assert.AreEqual(Failure.NotEnoughGold, game.Upgrade(ship, UpgradeTrack.Sails).Reason);
             Assert.AreEqual(1.15, ship.Speed, 1e-9);
@@ -197,7 +253,7 @@ namespace Naval.Tests
             CommandResult result = game.BuyShip("Liverpool", "Sloop", out ship);
             Assert.AreEqual(Failure.NotConnected, result.Reason);
             Assert.IsNull(ship);
-            Assert.AreEqual(6000, game.Gold);
+            Assert.AreEqual(game.Data.Rules.StartGold, game.Gold);
 
             TestData.Open(game, "Havana", "New York");
             TestData.Open(game, "New York", "Boston");
@@ -208,6 +264,7 @@ namespace Naval.Tests
         [Test]
         public void InDebt_NothingCanBeBought_NotEvenAFreeRoute()
         {
+            game = TestData.NewGame(TestData.ExactFleetGold(TestData.Csv()));
             Ship ship = TestData.Buy(game, "Merchantman");   // 0 gold: free things are still allowed
             Assert.IsTrue(game.OpenRoute(game.Data.FindRoute("Havana", "Port-au-Prince")).Ok);
 

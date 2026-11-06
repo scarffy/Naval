@@ -18,6 +18,7 @@ namespace Naval.Core
         readonly List<Ship> fleet = new List<Ship>();
         readonly List<GameEvent> pending = new List<GameEvent>();
         int nextShipId = 1;
+        bool fleetChosen;
 
         public GameData Data { get; private set; }
         public GameCalendar Calendar { get; private set; }
@@ -27,6 +28,8 @@ namespace Naval.Core
         /// <summary>Days that have passed since the start. Day 0 is the first morning.</summary>
         public int Day { get; private set; }
         public GameOutcome Outcome { get; private set; }
+        /// <summary>True once the opening fleet has been chosen with ChooseFleet.</summary>
+        public bool FleetChosen { get { return fleetChosen; } }
 
         public GameState(GameData data) : this(data, data.Rules.DefaultSeed) { }
 
@@ -127,6 +130,23 @@ namespace Naval.Core
             ship = new Ship(Data, nextShipId++, tier, port);
             fleet.Add(ship);
             return CommandResult.Success("Bought a " + tier.Name + " for " + tier.Price + " gold.");
+        }
+
+        /// <summary>The opening purchase: as many ships of one tier as FleetBudget buys (one Merchantman, two Brigs or three Sloops), at the start port. Only once, before any ship is bought.</summary>
+        public CommandResult ChooseFleet(string tierName)
+        {
+            if (Outcome != GameOutcome.InProgress) return CommandResult.Fail(Failure.GameOver, "The mission is over.");
+            if (fleetChosen || fleet.Count > 0) return CommandResult.Fail(Failure.FleetChosen, "The fleet has already been chosen.");
+            ShipTier tier = Data.FindShipTier(tierName);
+            if (tier == null) return CommandResult.Fail(Failure.UnknownName, "Unknown ship '" + tierName + "'.");
+            int count = Math.Max(1, Data.FleetBudget / tier.Price);
+            int total = count * tier.Price;
+            CommandResult poor = CheckAfford(total);
+            if (poor != null) return poor;
+            for (int i = 0; i < count; i++) fleet.Add(new Ship(Data, nextShipId++, tier, Data.StartPort));
+            Gold -= total;
+            fleetChosen = true;
+            return CommandResult.Success("Bought " + (count == 1 ? "a " + tier.Name : count + " " + tier.Name + "s") + " for " + total + " gold.");
         }
 
         /// <summary>Sells a ship at a shipyard for a fraction of the tier's price. The hold must be empty.</summary>

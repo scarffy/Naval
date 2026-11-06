@@ -37,6 +37,14 @@ namespace Naval.Tests
             return DataLoader.Load(Csv());
         }
 
+        /// <summary>The start gold set to exactly the fleet price, so buying the biggest fleet leaves nothing.</summary>
+        public static SliceCsv ExactFleetGold(SliceCsv csv)
+        {
+            int budget = DataLoader.Load(csv).FleetBudget;
+            csv.Rules = Replace(csv.Rules, "start_gold," + DataLoader.Load(csv).Rules.StartGold + ",", "start_gold," + budget + ",");
+            return csv;
+        }
+
         public static GameState NewGame(int seed = 1)
         {
             return new GameState(Data(), seed);

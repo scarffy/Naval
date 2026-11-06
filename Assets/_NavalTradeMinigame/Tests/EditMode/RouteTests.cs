@@ -23,7 +23,7 @@ namespace Naval.Tests
             Assert.AreEqual(0, game.RouteCost(R("Havana", "Port-au-Prince")));
             TestData.Open(game, "Havana", "Port-au-Prince");
             TestData.Open(game, "Havana", "New Orleans");
-            Assert.AreEqual(6000, game.Gold);
+            Assert.AreEqual(game.Data.Rules.StartGold, game.Gold);
             Assert.AreEqual(0, game.Routes.FreeRoutesLeft);
             Assert.AreEqual(2, game.Routes.Owned.Count);
         }
@@ -35,13 +35,14 @@ namespace Naval.Tests
             TestData.Open(game, "Havana", "New Orleans");
             Assert.AreEqual(400, game.RouteCost(R("Campeche", "Havana")));
             TestData.Open(game, "Campeche", "Havana");
-            Assert.AreEqual(5600, game.Gold);
+            Assert.AreEqual(game.Data.Rules.StartGold - 400, game.Gold);
             Assert.IsTrue(game.Routes.Owns(R("Campeche", "Havana")));
         }
 
         [Test]
         public void ALaterRoute_NeedsTheGold()
         {
+            game = TestData.NewGame(TestData.ExactFleetGold(TestData.Csv()));
             TestData.Buy(game, "Merchantman");   // 0 gold
             TestData.Open(game, "Havana", "Port-au-Prince");
             TestData.Open(game, "Havana", "New Orleans");
@@ -59,7 +60,7 @@ namespace Naval.Tests
             Assert.AreEqual(Failure.NotConnected, far.Reason);
             Assert.AreEqual(Failure.NotConnected, game.OpenRoute(R("Natchez", "New Orleans")).Reason);
             Assert.AreEqual(2, game.Routes.FreeRoutesLeft, "a refused route uses no free pick");
-            Assert.AreEqual(6000, game.Gold);
+            Assert.AreEqual(game.Data.Rules.StartGold, game.Gold);
 
             TestData.Open(game, "Havana", "New Orleans");
             Assert.IsTrue(game.OpenRoute(R("Natchez", "New Orleans")).Ok, "it now touches New Orleans");

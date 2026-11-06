@@ -1,5 +1,5 @@
 key,value,notes
-start_gold,6000,Gold on day 1: exactly one Merchantman or two Brigs or three Sloops
+start_gold,8500,6000 goes on the fleet choice (one Merchantman or two Brigs or three Sloops); the rest pays for the first cargoes and wages
 goal_gold,500000,Win when gold on hand reaches this. PROVISIONAL: tune by playing
 mission_days,730,The mission is lost if the goal is not reached when this many days have passed
 start_date,1770-07-01,Calendar date of day 0

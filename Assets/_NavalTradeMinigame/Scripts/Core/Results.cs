@@ -24,7 +24,8 @@ namespace Naval.Core
         NotConnected,
         NoRoute,
         NeedsOceanShip,
-        SamePort
+        SamePort,
+        FleetChosen
     }
 
     /// <summary>What a command did: success, or the reason it was refused with a message the UI can show.</summary>
