@@ -7,8 +7,8 @@ using UnityEngine.UI;
 namespace Naval.Slice
 {
     /// <summary>
-    /// Date, days left, gold against the goal, the speed buttons, and a placeholder Won/Lost text.
-    /// If the data failed to load it shows the error instead. The scene builder creates the widgets.
+    /// Date, days left, gold against the goal and the speed buttons.
+    /// If the data failed to load it shows the error in the status text. The scene builder creates the widgets.
     /// </summary>
     public sealed class SliceHud : MonoBehaviour
     {
@@ -46,7 +46,6 @@ namespace Naval.Slice
         bool shownState;
         int shownDay;
         int shownGold;
-        GameOutcome shownOutcome;
         float shownSpeed = -1f;
 
         void Update()
@@ -78,15 +77,6 @@ namespace Naval.Slice
                     speedButtons[i].image.color = Mathf.Approximately(shownSpeed, Speeds[i]) ? ActiveColor : IdleColor;
             }
 
-            if (!shownState || state.Outcome != shownOutcome)
-            {
-                // Placeholder: the real win and lose screens come with the screens phase.
-                statusText.color = Color.white;
-                if (state.Outcome == GameOutcome.Won) statusText.text = "Won";
-                else if (state.Outcome == GameOutcome.Lost) statusText.text = "Lost";
-                else statusText.text = "";
-                shownOutcome = state.Outcome;
-            }
             shownState = true;
         }
     }

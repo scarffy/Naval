@@ -28,6 +28,9 @@ namespace Naval.Slice
         /// <summary>0 (paused), 1, 2 or 4.</summary>
         public float Speed { get; private set; }
 
+        /// <summary>While true no time passes, whatever the speed. The screens hold the clock while the player decides something.</summary>
+        public bool Held { get; set; }
+
         /// <summary>How far into the current day we are, 0 to 1. Used to move ships smoothly.</summary>
         public float DayFraction { get; private set; }
 
@@ -64,7 +67,7 @@ namespace Naval.Slice
                 return;
             }
 
-            elapsed += Time.deltaTime * Speed / Mathf.Max(0.01f, secondsPerDay);
+            if (!Held) elapsed += Time.deltaTime * Speed / Mathf.Max(0.01f, secondsPerDay);
             int days = 0;
             while (elapsed >= 1f && days < MaxDaysPerFrame && state.Outcome == GameOutcome.InProgress)
             {

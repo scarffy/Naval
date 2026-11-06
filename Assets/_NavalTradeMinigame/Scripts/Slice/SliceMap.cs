@@ -1,3 +1,4 @@
+using System;
 using Naval.Core;
 using UnityEngine;
 
@@ -5,7 +6,8 @@ namespace Naval.Slice
 {
     /// <summary>
     /// The placeholder map: a port marker and name at every port, and a line for every route.
-    /// Owned routes are bright and thick, the rest faint and thin. Map units are world units times <see cref="scale"/>.
+    /// Owned routes are bright and thick, routes the player could open now brighter than the rest. Ports and routes
+    /// have colliders and report clicks (the camera needs a Physics2DRaycaster). Map units are world units times <see cref="scale"/>.
     /// </summary>
     public sealed class SliceMap : MonoBehaviour
     {
@@ -22,6 +24,8 @@ namespace Naval.Slice
         static readonly Color OceanOwned = new Color(0.55f, 0.9f, 1f, 1f);
         static readonly Color CoastIdle = new Color(1f, 0.93f, 0.62f, 0.22f);
         static readonly Color OceanIdle = new Color(0.55f, 0.9f, 1f, 0.22f);
+        static readonly Color CoastOpen = new Color(1f, 0.93f, 0.62f, 0.65f);
+        static readonly Color OceanOpen = new Color(0.55f, 0.9f, 1f, 0.65f);
 
         [SerializeField] SliceBootstrap bootstrap;
         [SerializeField] Camera sceneCamera;
@@ -35,6 +39,10 @@ namespace Naval.Slice
         Material lineMaterial;
         int ownedCount = -1;
         float lastAspect;
+
+        /// <summary>Raised when the player clicks a port or a route.</summary>
+        public event Action<Port> PortClicked;
+        public event Action<Route> RouteClicked;
 
         public float Scale { get { return scale; } }
 
@@ -114,6 +122,7 @@ namespace Naval.Slice
                 line.numCapVertices = 4;
                 line.sortingOrder = 0;
                 lines[route.Index] = line;
+                AddRouteCollider(go, route);
             }
         }
 
@@ -123,15 +132,36 @@ namespace Naval.Slice
             foreach (Route route in state.Data.Routes)
             {
                 bool owned = state.Routes.Owns(route);
-                Color color = route.Ocean ? (owned ? OceanOwned : OceanIdle) : (owned ? CoastOwned : CoastIdle);
+                bool open = !owned && state.Routes.CanConnect(route);
+                Color color;
+                if (owned) color = route.Ocean ? OceanOwned : CoastOwned;
+                else if (open) color = route.Ocean ? OceanOpen : CoastOpen;
+                else color = route.Ocean ? OceanIdle : CoastIdle;
                 LineRenderer line = lines[route.Index];
-                float width = (owned ? ownedWidth : idleWidth) * scale;
+                float width = (owned ? ownedWidth : open ? idleWidth * 1.6f : idleWidth) * scale;
                 line.startWidth = width;
                 line.endWidth = width;
                 line.startColor = color;
                 line.endColor = color;
                 line.sortingOrder = owned ? 1 : 0;
             }
+        }
+
+        /// <summary>A box along the line, shortened so it does not cover the port circles, and wide enough to hit easily.</summary>
+        void AddRouteCollider(GameObject go, Route route)
+        {
+            Vector3 a = PortPosition(route.A);
+            Vector3 b = PortPosition(route.B);
+            Vector3 along = b - a;
+            go.transform.position = (a + b) / 2f;
+            go.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(along.y, along.x) * Mathf.Rad2Deg);
+            var box = go.AddComponent<BoxCollider2D>();
+            box.size = new Vector2(Mathf.Max(0.5f * scale, along.magnitude - 2.8f * scale), 1.5f * scale);
+            go.AddComponent<SliceMapClick>().Clicked = () =>
+            {
+                Action<Route> handler = RouteClicked;
+                if (handler != null) handler(route);
+            };
         }
 
         void BuildPort(Port port)
@@ -145,6 +175,12 @@ namespace Naval.Slice
             sr.sprite = SliceSprites.Circle();
             sr.color = port.HasShipyard ? ShipyardColor : PortColor;
             sr.sortingOrder = 10;
+            go.AddComponent<CircleCollider2D>().radius = 0.7f;
+            go.AddComponent<SliceMapClick>().Clicked = () =>
+            {
+                Action<Port> handler = PortClicked;
+                if (handler != null) handler(port);
+            };
 
             var label = new GameObject("Label");
             label.transform.SetParent(transform, false);

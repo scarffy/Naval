@@ -8,7 +8,7 @@
    - Each port sells some goods cheaply and pays well for others.
    - **Prices are fixed:** the player's trading never moves them. Prices rise only in hurricane season (item 7).
 2. **14 goods:** Lumber & Naval Stores, Salt Cod, Flour, Logwood, Sugar, Tobacco, Rum, Wine, Hardware, Furs & Deerskins, Cloth, Coffee, Indigo, Cochineal. Every crate takes 1 space in the hold.
-3. **Start with gold, choose your fleet.** Starting gold buys exactly one Merchantman (great), *or* two Brigs (good), *or* three Sloops (poor).
+3. **Start with gold, choose your fleet.** The player starts with 8,500 gold. 6,000 of it buys exactly one Merchantman (great), *or* two Brigs (good), *or* three Sloops (poor), and the rest pays for the first cargoes.
    - Sloops are coastal and can't cross the Atlantic.
    - Ships cost daily wages.
    - More ships can be bought at shipyards (Havana, Boston, Liverpool, Bordeaux), with no fleet limit.

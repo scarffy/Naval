@@ -23,9 +23,9 @@ mapfile -d '' runtime < <(find "$ROOT/Assets" -name '*.cs' -not -path '*/Editor/
     -not -name 'SimpleCameraController.cs' -print0)
 mapfile -d '' editor < <(find "$ROOT/Assets" -path '*/Editor/*' -name '*.cs' -not -path '*/Plugins/*' -print0)
 
-flags=(-langversion:experimental -nowarn:414,169,649,219,618 -nostdlib- -sdk:4.5)
+flags=(-langversion:experimental -nowarn:414,169,649,219,618,436 -nostdlib- -sdk:4.5)
 echo "Runtime scripts: ${#runtime[@]}"
-mcs "${flags[@]}" -target:library -out:"$OUT/Runtime.dll" "${refs[@]}" "$HERE/stubs/TMPro.cs" "${runtime[@]}"
+mcs "${flags[@]}" -target:library -out:"$OUT/Runtime.dll" "${refs[@]}" "$HERE/stubs/TMPro.cs" "$HERE/stubs/EventSystems.cs" "${runtime[@]}"
 if [ "${#editor[@]}" -gt 0 ]; then
   echo "Editor scripts: ${#editor[@]}"
   mcs "${flags[@]}" -target:library -out:"$OUT/Editor.dll" "${refs[@]}" -r:"$OUT/Runtime.dll" \
