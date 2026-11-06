@@ -38,7 +38,7 @@ Each mission uses exactly one of these objectives. They all reuse the same game 
 | **Fleet** | Own N ships (or N ocean-going ships) by day D | "Own 4 ocean-going ships by day 50" | Growth and upgrades |
 | **Supplier** | Deliver at least K crates of a good to a port every week for W weeks | "Keep Boston supplied with 30 crates of Rum a week for 8 weeks" | Steady logistics, and the reactive market working against you |
 | **Survival** | End day D with at least N ships and gold at or above zero | "Get through hurricane season with your fleet intact" (or a war year with privateers) | Risk management, hull and guns upgrades |
-| **Race** | Reach a target before a rival company | Later, once rival companies exist | Competition. Needs AI rivals, a large feature on its own. |
+| **Race** | Reach a target before a rival company | Later, once rival companies exist | Competition. Needs computer-controlled rival companies, a large feature on its own. |
 
 Contract, Pathfinder, Fleet and Survival need almost no new systems: a new goal check, a starting state and a balance pass. That makes them the cheapest content after the slice.
 
