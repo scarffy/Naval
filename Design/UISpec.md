@@ -812,6 +812,12 @@ The rule: **what a designer sees in the editor is what the player sees.** Every 
 - `Map` under `Game`: the sea and land sprites, 12 `PortMarker` instances, 17 `RouteLine` instances and the region labels, placed by hand on the art (see Q2).
 - `Canvas` with children: `Top Bar`, `Legend`, `Toasts`, `Fleet List`, `Objective Card`, `Tutorial Frame`, and the panels: `Fleet Choice`, `Route Drawer`, `Send Drawer`, `Port Panel`, `Pause Menu`, `Confirm Dialog`, `Log`, `End Screen`.
 - **Each panel is a prefab instance** (`Prefabs/UI/Panels/PortPanel.prefab` and so on). The designer edits it in Prefab Mode, and two people can change different panels without scene merge conflicts.
+- **Each controller sits on the object it controls**, not all on the Canvas as now (all 12 UI controllers are currently on `Canvas`):
+  - `SliceScreens` (the game flow) moves to `Game`.
+  - `Top Bar`, `Fleet List` and `Toasts` each carry their own controller.
+  - Each panel is an always-active, full-stretch holder named after the screen (e.g. `Port Panel`) that carries the controller, with a child `Window` that the controller shows and hides. A disabled object never runs `Start`, so the controller stays active while its window is hidden.
+  - `Tutorial` carries `SliceTutorial`, with `Objective Card` and `Frame` as children.
+- **Static parts stay in the scene or panel prefab, not instantiated:** the market table header, the quantity control, the legend, the three fleet cards and the upgrade rows.
 
 **Prefabs** (new `Assets/_NavalTradeMinigame/Prefabs/UI/` and `Prefabs/Map/`):
 
@@ -845,7 +851,8 @@ It holds:
 - **Fonts:** `TMP_FontAsset displayFont`, `TMP_FontAsset bodyFont`.
 - **Type sizes:** display, title, heading, body, caption, map label.
 - **Thresholds:** risk bands, hull bands, the PAYS threshold, days-left warnings.
-- **Timings:** toast durations, pulse speed.
+- **Timings and limits:** toast durations, the number of toasts shown, pulse speed, the tutorial frame padding.
+- **Map settings:** port marker and label sizes, route widths and dash styles per state, ship marker size. (These are currently `const`/`static readonly` values in `SliceMap`, `SliceShips`, `SliceNotifications` and `SliceTutorial`.)
 
 Two tiny components apply it, so a designer can recolour or re-font the whole UI from one asset:
 - `ThemedText` (on a TMP text): a style dropdown (Display, Title, Heading, Body, Caption) and a colour token dropdown.
@@ -894,7 +901,7 @@ public sealed class MarketRowView : MonoBehaviour
 ### 5.5 No runtime widget factories
 
 - `SliceUi`'s widget-making methods (`MakeText`, `MakeLabel`, `MakeButton`, `MakeRow`, `Clear`) are removed. Its formatting helpers (`Percent`, `Date`, `Count`, `ShipName`) stay, renamed `SliceFormat`.
-- `SliceSprites` (circle, triangle and square textures made in code) is replaced by placeholder sprite files.
+- `SliceSprites` (circle, triangle and square textures made in code) may stay as a stop-gap until the placeholder sprite files exist, moved to its own file `SliceSprites.cs`. Step 4 replaces it with sprite assets assigned on the map prefabs.
 - Nothing builds a GameObject from `new GameObject` plus `AddComponent` for UI or map content. Instantiating a designer-made prefab is the only way rows appear.
 
 ### 5.6 Script changes
