@@ -7,6 +7,11 @@ namespace MiniGame
 {
     public class MoneyManager : MonoBehaviour
     {
+        //! The game's only currency. Always show money through Format() so every screen matches.
+        public const string CurrencyName = "gold";
+
+        public static string Format(int amount) => $"{amount:N0} {CurrencyName}";
+
         public Action<int> OnMoneyUpdated;
         
         public static MoneyManager Instance
@@ -50,7 +55,7 @@ namespace MiniGame
 
         public string GetMoneyString()
         {
-            return _money.ToString();
+            return Format(_money);
         }
     }
 }

@@ -61,7 +61,7 @@ namespace MiniGame.UI
             _portInformations = PortManager.Instance.CurrentPort.port;
             
             // Set Money
-            _moneyText.text = MoneyManager.Instance.GetMoneyString() + " $";
+            _moneyText.text = MoneyManager.Instance.GetMoneyString();
 
             // Set Port Name
             _portText.text = _portInformations.PortName;

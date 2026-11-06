@@ -15,10 +15,11 @@ This is a familiar structure for management games (Railway Empire's campaign wor
 
 **Nothing in the repo sets a year.** The README, code and data have no dates. The ports are real cities and the goods are real colonial trade goods, so it's already based on the real world, just not pinned to a time.
 
-**Proposal: loosely historical, 1770–1800, moving forward in time chapter by chapter.**
-- Real places, real goods and real seasons. The companies, people and prices are invented.
+**Decided: inspired by history, not a faithful recreation.** Chapters move forward in time from about 1770 to 1800.
+- Real places, goods, ships and seasons give it flavour. Events, companies, people and prices are invented whenever that makes a better game.
+- **Money is always "gold"**, in every region and chapter. There are no historical currencies or exchange rates. In code, all money is shown through `MoneyManager.Format()` (for example "1,500 gold").
 - Show the date on the in-game calendar. Chapter 1, Mission 1 would start on July 1, 1770. The hurricane season (day 25 to the day-55 peak) then falls in late July to late August, close to the real peak from mid-August to mid-October.
-- It doesn't have to be exact. A game set "around 1770" can bend history where play needs it, but these are worth knowing:
+- Historical notes are flavour, not rules. These are worth knowing when writing port descriptions:
   - **Seville** had lost the official Spanish Americas trade to **Cádiz** by 1717. Renaming the port to Cádiz is more accurate; keeping Seville is fine for a loose setting. (The port asset is also misspelled "Sevile".)
   - **Natchez cotton** really boomed only after the cotton gin (1793). In 1770 Natchez was a small British outpost; tobacco fits it better then. Natchez was Spanish from 1779, and New Orleans from 1763 to 1801.
   - **Port-au-Prince** was in the French colony of Saint-Domingue, the world's largest sugar and coffee producer until the revolution of 1791.

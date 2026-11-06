@@ -27,6 +27,8 @@ You start in Havana with one sloop and 2,500 gold. You have **90 days to reach 5
 
 ## Rules
 
+Money is called **gold** everywhere: UI, docs and data.
+
 ### Time
 - Time is continuous. Ships arrive whenever their voyage ends, and the player acts then. Wages, price recovery and market news happen once a day.
 - Suggested pacing: about 8 seconds per day at 1× speed, with pause, 2× and 4×, which makes a 90-day mission about 12 minutes at 1×.
