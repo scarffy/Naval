@@ -13,9 +13,10 @@ MonoBehaviour:
   m_Name: TODO PrioList
   m_EditorClassIdentifier: 
   priorities:
-  - 'Shop System: purchase ships'
-  - 'Shop System: purchase goods to ships'
-  - 'Port Manager: ??'
-  - 'Port Children: ??'
-  - 'Ship Manager: refactor sail update'
-  - 'Ship Event: during voyage'
+  - 'Test in Unity: phases 1-4 checklist in Design/Status.md, Test Runner 110 tests'
+  - 'Security: move to Unity 2021.3.45f2 (CVE-2025-59489 fix), then Unity 6 LTS before polish'
+  - 'Balance: tune goal_gold (500,000 placeholder) by playing'
+  - 'Slice phase 5: original map art (replace Map.png, another game''s screenshot)'
+  - 'Slice phase 5: ship sprites, UI style, sound and music, animation'
+  - 'Cleanup: remove old prototype scripts and scene once the slice is confirmed'
+  - 'Port Manager / Port Children: superseded by the slice; delete with the prototype'
