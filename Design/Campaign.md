@@ -1,5 +1,7 @@
 # Naval: campaign and missions (proposal)
 
+> **Parked:** this doc describes ideas for after the vertical slice. What's being built now is defined in `Design/SliceScope.md`.
+
 A proposal for how the game grows beyond the vertical slice. Nothing here is built or balanced yet, except Chapter 1, Mission 1 (`Design/VerticalSlice.md`).
 
 ## The shape

@@ -1,5 +1,7 @@
 # Naval: economy, version 2 (spec)
 
+> **Parked:** this doc describes ideas for after the vertical slice. What's being built now is defined in `Design/SliceScope.md`.
+
 This spec combines the decisions made after the first vertical-slice balance:
 - 14 historically flavoured goods
 - missions that span years

@@ -1,5 +1,7 @@
 # Naval: game modes
 
+> **Parked:** this doc describes ideas for after the vertical slice. What's being built now is defined in `Design/SliceScope.md`.
+
 There are three ways to play. **Tutorial** teaches the game. **Beginner** and **Veteran** are the two difficulties for every mission. You choose the difficulty when you start a mission and can't change it mid-mission.
 
 | | Tutorial | Beginner | Veteran |

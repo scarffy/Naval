@@ -64,3 +64,6 @@ crashlytics-build.properties
 
 # Python cache
 __pycache__/
+
+# Downloaded Unity reference assemblies for the compile check
+Tools/compile-check/.refs/
