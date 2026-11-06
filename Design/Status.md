@@ -16,6 +16,8 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
 
 ## Done
 
+- **The compile check builds each assembly separately** (Naval.Core, Naval.Tests.EditMode, Prototype, Assembly-CSharp), the way Unity does, so a script using something `internal` to another assembly now fails the check. That gap let `Num.Round` slip into the fleet choice once.
+
 **Design and research** are in `Design/`: the slice scope, research on 1770s ships and goods, Asia, Railway Empire and other references, and AC3's minigames. Parked designs: economy v2, game modes, campaign.
 
 **Phase 1: game rules and data.**
@@ -197,7 +199,6 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
 
 ## Open items
 
-- **The compile check builds all runtime scripts as one assembly,** so it can't catch a Slice script using something `internal` to `Naval.Core`. That slipped through once (`Num.Round` in the fleet choice) and was fixed. Until the check builds `Naval.Core` separately, reviews must look for this by hand.
 
 - **The clock stops while the port panel is open.** That keeps trading calm, but ships at sea also wait. Decide by playing.
 - **The tutorial's preview shows the real risks** while the voyage itself is sheltered. The step text says it sails under escort. The alternative is showing 0%, which teaches less.
