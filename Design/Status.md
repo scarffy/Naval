@@ -100,11 +100,12 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
 - Rows that depend on the data (market, fleet list, destinations, shipyard, notifications) and the map's sprites, routes and port markers are still made at runtime. Nothing editor-only is needed to play.
 - `Slice.unity` is in Build Settings, after `Game.unity`, so Restart works.
 - The scene was written as text, not saved by Unity, and was checked by a script (unique fileIDs, every GUID and reference resolves, parent and component links match, field names match the scripts). It still needs opening in Unity.
+- **Review:** 10 findings. Fixed: generic names in the port panel (`Label`, `Row`) are now `Ships Header`, `Ship Info`, `Ship Actions`, `Shipyard Header` and `Not Traded`; the UI objects are on the UI layer like Unity's own UI objects; the × in the speed buttons is plain UTF-8 instead of a `\x` escape; the Restart error now also covers an unticked scene; `SliceUi` lost the widget helpers only the old menu used; `SliceScope.md` and the `UnityEditor` stub comment were out of date. Left: the UI scripts all sit on the Canvas (a UI root holding the controllers, each panel a child it shows and hides); `Game.unity` stays first in Build Settings, so a player build starts the prototype until the slice replaces it; the scene's colours are copies of `SliceUi`'s, so a change to one needs the other.
 
 ## To check in Unity (designer)
 
 1. Open the project and check the console for import or compile errors.
-   - Open `Slice.unity`: no "missing script" or broken-reference warnings, and the Hierarchy shows Main Camera, Game (with Canvas under it) and EventSystem. Click through the Canvas objects: the HUD, the panels (inactive) and the tutorial box are there, and the slice components on Game and Canvas have their references filled in.
+   - Open `Slice.unity`: no "missing script" or broken-reference warnings, and the Hierarchy shows Main Camera, Game (with Canvas under it) and EventSystem. Click through the Canvas objects: the HUD, the panels (inactive) and the tutorial box are there, and the slice components on Game and Canvas have their references filled in. The speed buttons read Pause, 1×, 2× and 4×.
    - **Naval** no longer appears in the menu bar.
 2. Open `Assets/_NavalTradeMinigame/Scenes/Slice.unity` and press Play. Play a game through:
    - **Fleet choice:** the panel appears, choosing a fleet puts the ships beside Havana, and 2,500 gold is left.

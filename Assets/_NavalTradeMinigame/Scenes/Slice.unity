@@ -342,7 +342,7 @@ GameObject:
   - component: {fileID: 100000300}
   - component: {fileID: 100000323}
   - component: {fileID: 100000360}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -732,7 +732,7 @@ GameObject:
   - component: {fileID: 100000022}
   - component: {fileID: 100000023}
   - component: {fileID: 100000024}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Date
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -812,7 +812,7 @@ GameObject:
   - component: {fileID: 100000026}
   - component: {fileID: 100000027}
   - component: {fileID: 100000028}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: DaysLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -892,7 +892,7 @@ GameObject:
   - component: {fileID: 100000030}
   - component: {fileID: 100000031}
   - component: {fileID: 100000032}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Gold
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -972,7 +972,7 @@ GameObject:
   - component: {fileID: 100000034}
   - component: {fileID: 100000035}
   - component: {fileID: 100000036}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Status
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1054,7 +1054,7 @@ GameObject:
   - component: {fileID: 100000040}
   - component: {fileID: 100000041}
   - component: {fileID: 100000042}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Speed Pause
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1195,7 +1195,7 @@ GameObject:
   - component: {fileID: 100000044}
   - component: {fileID: 100000045}
   - component: {fileID: 100000046}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1277,8 +1277,8 @@ GameObject:
   - component: {fileID: 100000050}
   - component: {fileID: 100000051}
   - component: {fileID: 100000052}
-  m_Layer: 0
-  m_Name: "Speed 1\xD7"
+  m_Layer: 5
+  m_Name: "Speed 1×"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1418,7 +1418,7 @@ GameObject:
   - component: {fileID: 100000054}
   - component: {fileID: 100000055}
   - component: {fileID: 100000056}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1486,7 +1486,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: "1\xD7"
+  m_Text: "1×"
 --- !u!1 &100000057
 GameObject:
   m_ObjectHideFlags: 0
@@ -1500,8 +1500,8 @@ GameObject:
   - component: {fileID: 100000060}
   - component: {fileID: 100000061}
   - component: {fileID: 100000062}
-  m_Layer: 0
-  m_Name: "Speed 2\xD7"
+  m_Layer: 5
+  m_Name: "Speed 2×"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1641,7 +1641,7 @@ GameObject:
   - component: {fileID: 100000064}
   - component: {fileID: 100000065}
   - component: {fileID: 100000066}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1709,7 +1709,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: "2\xD7"
+  m_Text: "2×"
 --- !u!1 &100000067
 GameObject:
   m_ObjectHideFlags: 0
@@ -1723,8 +1723,8 @@ GameObject:
   - component: {fileID: 100000070}
   - component: {fileID: 100000071}
   - component: {fileID: 100000072}
-  m_Layer: 0
-  m_Name: "Speed 4\xD7"
+  m_Layer: 5
+  m_Name: "Speed 4×"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1864,7 +1864,7 @@ GameObject:
   - component: {fileID: 100000074}
   - component: {fileID: 100000075}
   - component: {fileID: 100000076}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1932,7 +1932,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: "4\xD7"
+  m_Text: "4×"
 --- !u!1 &100000077
 GameObject:
   m_ObjectHideFlags: 0
@@ -1946,7 +1946,7 @@ GameObject:
   - component: {fileID: 100000080}
   - component: {fileID: 100000081}
   - component: {fileID: 100000082}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Restart
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2087,7 +2087,7 @@ GameObject:
   - component: {fileID: 100000084}
   - component: {fileID: 100000085}
   - component: {fileID: 100000086}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2169,7 +2169,7 @@ GameObject:
   - component: {fileID: 100000090}
   - component: {fileID: 100000091}
   - component: {fileID: 100000092}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Tutorial
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2310,7 +2310,7 @@ GameObject:
   - component: {fileID: 100000094}
   - component: {fileID: 100000095}
   - component: {fileID: 100000096}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2389,7 +2389,7 @@ GameObject:
   m_Component:
   - component: {fileID: 100000101}
   - component: {fileID: 100000102}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Fleet List
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2452,7 +2452,7 @@ GameObject:
   m_Component:
   - component: {fileID: 100000105}
   - component: {fileID: 100000106}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Feed
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2516,7 +2516,7 @@ GameObject:
   - component: {fileID: 100000108}
   - component: {fileID: 100000109}
   - component: {fileID: 100000110}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Banner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2593,7 +2593,7 @@ GameObject:
   - component: {fileID: 100000112}
   - component: {fileID: 100000113}
   - component: {fileID: 100000114}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2673,7 +2673,7 @@ GameObject:
   - component: {fileID: 100000116}
   - component: {fileID: 100000117}
   - component: {fileID: 100000118}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Fleet Choice
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2753,7 +2753,7 @@ GameObject:
   - component: {fileID: 100000120}
   - component: {fileID: 100000121}
   - component: {fileID: 100000122}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Title
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2833,7 +2833,7 @@ GameObject:
   - component: {fileID: 100000124}
   - component: {fileID: 100000125}
   - component: {fileID: 100000126}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Info
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2912,7 +2912,7 @@ GameObject:
   m_Component:
   - component: {fileID: 100000128}
   - component: {fileID: 100000129}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Rows
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2976,7 +2976,7 @@ GameObject:
   - component: {fileID: 100000131}
   - component: {fileID: 100000132}
   - component: {fileID: 100000133}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Message
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3056,7 +3056,7 @@ GameObject:
   - component: {fileID: 100000136}
   - component: {fileID: 100000137}
   - component: {fileID: 100000138}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Route Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3137,7 +3137,7 @@ GameObject:
   - component: {fileID: 100000140}
   - component: {fileID: 100000141}
   - component: {fileID: 100000142}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Title
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3217,7 +3217,7 @@ GameObject:
   - component: {fileID: 100000144}
   - component: {fileID: 100000145}
   - component: {fileID: 100000146}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Detail
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3297,7 +3297,7 @@ GameObject:
   - component: {fileID: 100000148}
   - component: {fileID: 100000149}
   - component: {fileID: 100000150}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Message
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3379,7 +3379,7 @@ GameObject:
   - component: {fileID: 100000154}
   - component: {fileID: 100000155}
   - component: {fileID: 100000156}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Button Open route
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3520,7 +3520,7 @@ GameObject:
   - component: {fileID: 100000158}
   - component: {fileID: 100000159}
   - component: {fileID: 100000160}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3602,7 +3602,7 @@ GameObject:
   - component: {fileID: 100000164}
   - component: {fileID: 100000165}
   - component: {fileID: 100000166}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Button Close
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3743,7 +3743,7 @@ GameObject:
   - component: {fileID: 100000168}
   - component: {fileID: 100000169}
   - component: {fileID: 100000170}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3823,7 +3823,7 @@ GameObject:
   - component: {fileID: 100000173}
   - component: {fileID: 100000174}
   - component: {fileID: 100000175}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Port Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3905,7 +3905,7 @@ GameObject:
   - component: {fileID: 100000177}
   - component: {fileID: 100000178}
   - component: {fileID: 100000179}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Title
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3985,7 +3985,7 @@ GameObject:
   - component: {fileID: 100000181}
   - component: {fileID: 100000182}
   - component: {fileID: 100000183}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Gold
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4064,7 +4064,7 @@ GameObject:
   m_Component:
   - component: {fileID: 100000185}
   - component: {fileID: 100000186}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Left
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4134,8 +4134,8 @@ GameObject:
   - component: {fileID: 100000189}
   - component: {fileID: 100000190}
   - component: {fileID: 100000191}
-  m_Layer: 0
-  m_Name: Label
+  m_Layer: 5
+  m_Name: Ships Header
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4233,7 +4233,7 @@ GameObject:
   m_Component:
   - component: {fileID: 100000193}
   - component: {fileID: 100000194}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Ships
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4298,8 +4298,8 @@ GameObject:
   - component: {fileID: 100000197}
   - component: {fileID: 100000198}
   - component: {fileID: 100000199}
-  m_Layer: 0
-  m_Name: Label
+  m_Layer: 5
+  m_Name: Ship Info
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4398,8 +4398,8 @@ GameObject:
   - component: {fileID: 100000201}
   - component: {fileID: 100000202}
   - component: {fileID: 100000203}
-  m_Layer: 0
-  m_Name: Row
+  m_Layer: 5
+  m_Name: Ship Actions
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4486,7 +4486,7 @@ GameObject:
   - component: {fileID: 100000207}
   - component: {fileID: 100000208}
   - component: {fileID: 100000209}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Button Repair
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4627,7 +4627,7 @@ GameObject:
   - component: {fileID: 100000211}
   - component: {fileID: 100000212}
   - component: {fileID: 100000213}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4709,7 +4709,7 @@ GameObject:
   - component: {fileID: 100000217}
   - component: {fileID: 100000218}
   - component: {fileID: 100000219}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Button Send
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4850,7 +4850,7 @@ GameObject:
   - component: {fileID: 100000221}
   - component: {fileID: 100000222}
   - component: {fileID: 100000223}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4929,7 +4929,7 @@ GameObject:
   m_Component:
   - component: {fileID: 100000225}
   - component: {fileID: 100000226}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Shipyard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4996,8 +4996,8 @@ GameObject:
   - component: {fileID: 100000229}
   - component: {fileID: 100000230}
   - component: {fileID: 100000231}
-  m_Layer: 0
-  m_Name: Label
+  m_Layer: 5
+  m_Name: Shipyard Header
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5095,7 +5095,7 @@ GameObject:
   m_Component:
   - component: {fileID: 100000233}
   - component: {fileID: 100000234}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Rows
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5158,7 +5158,7 @@ GameObject:
   m_Component:
   - component: {fileID: 100000236}
   - component: {fileID: 100000237}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Right
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5223,7 +5223,7 @@ GameObject:
   m_Component:
   - component: {fileID: 100000239}
   - component: {fileID: 100000240}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Market
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5288,8 +5288,8 @@ GameObject:
   - component: {fileID: 100000243}
   - component: {fileID: 100000244}
   - component: {fileID: 100000245}
-  m_Layer: 0
-  m_Name: Label
+  m_Layer: 5
+  m_Name: Not Traded
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5388,7 +5388,7 @@ GameObject:
   - component: {fileID: 100000247}
   - component: {fileID: 100000248}
   - component: {fileID: 100000249}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Message
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5470,7 +5470,7 @@ GameObject:
   - component: {fileID: 100000253}
   - component: {fileID: 100000254}
   - component: {fileID: 100000255}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Button Close
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5611,7 +5611,7 @@ GameObject:
   - component: {fileID: 100000257}
   - component: {fileID: 100000258}
   - component: {fileID: 100000259}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5691,7 +5691,7 @@ GameObject:
   - component: {fileID: 100000262}
   - component: {fileID: 100000263}
   - component: {fileID: 100000264}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Send Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5773,7 +5773,7 @@ GameObject:
   - component: {fileID: 100000266}
   - component: {fileID: 100000267}
   - component: {fileID: 100000268}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Title
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5852,7 +5852,7 @@ GameObject:
   m_Component:
   - component: {fileID: 100000270}
   - component: {fileID: 100000271}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Destinations
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5916,7 +5916,7 @@ GameObject:
   - component: {fileID: 100000273}
   - component: {fileID: 100000274}
   - component: {fileID: 100000275}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Preview
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5996,7 +5996,7 @@ GameObject:
   - component: {fileID: 100000277}
   - component: {fileID: 100000278}
   - component: {fileID: 100000279}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Message
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6078,7 +6078,7 @@ GameObject:
   - component: {fileID: 100000283}
   - component: {fileID: 100000284}
   - component: {fileID: 100000285}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Button Set sail
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6219,7 +6219,7 @@ GameObject:
   - component: {fileID: 100000287}
   - component: {fileID: 100000288}
   - component: {fileID: 100000289}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6301,7 +6301,7 @@ GameObject:
   - component: {fileID: 100000293}
   - component: {fileID: 100000294}
   - component: {fileID: 100000295}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Button Back
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6442,7 +6442,7 @@ GameObject:
   - component: {fileID: 100000297}
   - component: {fileID: 100000298}
   - component: {fileID: 100000299}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6522,7 +6522,7 @@ GameObject:
   - component: {fileID: 100000302}
   - component: {fileID: 100000303}
   - component: {fileID: 100000304}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: End Screen
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6601,7 +6601,7 @@ GameObject:
   - component: {fileID: 100000306}
   - component: {fileID: 100000307}
   - component: {fileID: 100000308}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Title
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6681,7 +6681,7 @@ GameObject:
   - component: {fileID: 100000310}
   - component: {fileID: 100000311}
   - component: {fileID: 100000312}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Detail
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6763,7 +6763,7 @@ GameObject:
   - component: {fileID: 100000316}
   - component: {fileID: 100000317}
   - component: {fileID: 100000318}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Button Restart
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6904,7 +6904,7 @@ GameObject:
   - component: {fileID: 100000320}
   - component: {fileID: 100000321}
   - component: {fileID: 100000322}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6984,7 +6984,7 @@ GameObject:
   - component: {fileID: 100000325}
   - component: {fileID: 100000326}
   - component: {fileID: 100000327}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Tutorial Box
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7062,7 +7062,7 @@ GameObject:
   - component: {fileID: 100000329}
   - component: {fileID: 100000330}
   - component: {fileID: 100000331}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7144,7 +7144,7 @@ GameObject:
   - component: {fileID: 100000335}
   - component: {fileID: 100000336}
   - component: {fileID: 100000337}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Button Skip
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7285,7 +7285,7 @@ GameObject:
   - component: {fileID: 100000339}
   - component: {fileID: 100000340}
   - component: {fileID: 100000341}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7363,7 +7363,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 100000343}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Tutorial Frame
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7405,7 +7405,7 @@ GameObject:
   - component: {fileID: 100000345}
   - component: {fileID: 100000346}
   - component: {fileID: 100000347}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Top
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7481,7 +7481,7 @@ GameObject:
   - component: {fileID: 100000349}
   - component: {fileID: 100000350}
   - component: {fileID: 100000351}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Bottom
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7557,7 +7557,7 @@ GameObject:
   - component: {fileID: 100000353}
   - component: {fileID: 100000354}
   - component: {fileID: 100000355}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Left
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7633,7 +7633,7 @@ GameObject:
   - component: {fileID: 100000357}
   - component: {fileID: 100000358}
   - component: {fileID: 100000359}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Right
   m_TagString: Untagged
   m_Icon: {fileID: 0}

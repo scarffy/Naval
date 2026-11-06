@@ -9,7 +9,6 @@ namespace Naval.Slice
     /// <summary>Widget factory and text helpers for the rows the screens build at runtime.</summary>
     public static class SliceUi
     {
-        public static readonly Color PanelColor = new Color(0.07f, 0.11f, 0.17f, 0.96f);
         public static readonly Color ButtonColor = new Color(0.75f, 0.75f, 0.75f);
         public static readonly Color SelectedColor = new Color(1f, 0.85f, 0.4f);
         public static readonly Color GoodColor = new Color(0.6f, 1f, 0.65f);
@@ -27,41 +26,7 @@ namespace Naval.Slice
             }
         }
 
-        /// <summary>Anchors and pivots a widget at one point of its parent and moves it from there.</summary>
-        public static void Place(Component widget, Vector2 anchor, Vector2 position)
-        {
-            var rect = (RectTransform)widget.transform;
-            rect.anchorMin = anchor;
-            rect.anchorMax = anchor;
-            rect.pivot = anchor;
-            rect.anchoredPosition = position;
-        }
-
-        /// <summary>A background panel centred in its parent. It blocks clicks to whatever lies behind it.</summary>
-        public static GameObject MakePanel(Transform parent, string name, Vector2 size, Color color)
-        {
-            var go = new GameObject(name, typeof(RectTransform));
-            go.transform.SetParent(parent, false);
-            var rect = (RectTransform)go.transform;
-            rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.sizeDelta = size;
-            go.AddComponent<Image>().color = color;
-            return go;
-        }
-
-        /// <summary>A panel that covers the whole parent.</summary>
-        public static GameObject MakeBlocker(Transform parent, string name, Color color)
-        {
-            GameObject go = MakePanel(parent, name, Vector2.zero, color);
-            var rect = (RectTransform)go.transform;
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
-            return go;
-        }
-
-        /// <summary>A fixed-size text that wraps to its width. Position it with <see cref="Place"/>.</summary>
+        /// <summary>A fixed-size text that wraps to its width.</summary>
         public static Text MakeText(Transform parent, string name, int fontSize, TextAnchor align, Vector2 size)
         {
             var go = new GameObject(name, typeof(RectTransform));
@@ -120,27 +85,6 @@ namespace Naval.Slice
         public static Text LabelOf(Button button)
         {
             return button.GetComponentInChildren<Text>();
-        }
-
-        /// <summary>
-        /// A vertical stack of rows laid out inside a rectangle of the given size (a nested column takes its size from its parent,
-        /// so pass zero). Rows start at the top, or at the bottom with a lower alignment.
-        /// </summary>
-        public static RectTransform MakeColumn(Transform parent, string name, Vector2 size, float spacing = 6f,
-                                               TextAnchor alignment = TextAnchor.UpperLeft)
-        {
-            var go = new GameObject(name, typeof(RectTransform));
-            go.transform.SetParent(parent, false);
-            var rect = (RectTransform)go.transform;
-            rect.sizeDelta = size;
-            VerticalLayoutGroup layout = go.AddComponent<VerticalLayoutGroup>();
-            layout.spacing = spacing;
-            layout.childAlignment = alignment;
-            layout.childControlWidth = true;
-            layout.childControlHeight = true;
-            layout.childForceExpandWidth = true;
-            layout.childForceExpandHeight = false;
-            return rect;
         }
 
         public static RectTransform MakeRow(Transform parent, float height, float spacing = 8f)

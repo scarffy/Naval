@@ -69,8 +69,8 @@ The slice's numbers live in CSV files under `Assets/_NavalTradeMinigame/Resource
 
   They use a seeded random source so bugs can be reproduced. Edit-mode tests cover the rules.
 - **Presentation** (the map, ships, screens) is MonoBehaviours that read the game state.
-- A new scene, `Slice.unity`, committed as a real scene. The old prototype scene stays untouched until the slice works.
-- **Every coding phase ends with a review** (`.claude/skills/review-after-code`): correctness first, then pragmatism, then style. `Tools/compile-check/check.sh` checks every change against Unity 2021.3's real libraries. Running and playing can only be done in the Unity editor.
+- **Scene:** `Slice.unity` is committed as a real scene. The old prototype scene stays untouched until the slice works.
+- **Every coding phase ends with a review** (`.claude/skills/review-after-code`): made for people first, then correctness, then pragmatism, then style. `Tools/compile-check/check.sh` checks every change against Unity 2021.3's real libraries. Running and playing can only be done in the Unity editor.
 
 ## Phases
 

@@ -1,6 +1,6 @@
 // Stand-in for UnityEditor, which has no downloadable reference assembly.
-// Only the members the game's Editor scripts use. Add members here as needed.
-// check.sh compiles this file only when the game has Editor scripts.
+// Only the members Editor scripts need. The game has no Editor scripts at the moment, so check.sh skips this file;
+// add members here when one needs them.
 namespace UnityEditor
 {
     public static class AssetDatabase
