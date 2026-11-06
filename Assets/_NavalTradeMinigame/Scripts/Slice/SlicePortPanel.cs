@@ -23,6 +23,7 @@ namespace Naval.Slice
 
         [SerializeField] SliceBootstrap bootstrap;
         [SerializeField] SliceClock clock;
+        [SerializeField] SliceWidgets widgets;
         [SerializeField] GameObject panel;
         [SerializeField] Text titleText;
         [SerializeField] Text goldText;
@@ -43,19 +44,33 @@ namespace Naval.Slice
         public event Action CloseRequested;
         public event Action<Ship> SendRequested;
 
-        public bool IsOpen { get { return panel.activeSelf; } }
+        bool ready;
+
+        public bool IsOpen { get { return ready && panel.activeSelf; } }
 
         /// <summary>True when the panel is open and shows this port.</summary>
         public bool IsOpenAt(Port target) { return IsOpen && port == target; }
 
         void Start()
         {
-            if (bootstrap == null || clock == null || panel == null || titleText == null || goldText == null ||
-                shipRows == null || shipText == null || repairButton == null || sendButton == null ||
-                shipyardRoot == null || shipyardRows == null || marketRows == null || notTradedText == null ||
-                messageText == null || closeButton == null)
+            bool ok = SliceUi.IsAssigned(bootstrap, "Bootstrap", this)
+                & SliceUi.IsAssigned(clock, "Clock", this)
+                & SliceUi.IsAssigned(widgets, "Widgets", this)
+                & SliceUi.IsAssigned(panel, "Panel", this)
+                & SliceUi.IsAssigned(titleText, "Title Text", this)
+                & SliceUi.IsAssigned(goldText, "Gold Text", this)
+                & SliceUi.IsAssigned(shipRows, "Ship Rows", this)
+                & SliceUi.IsAssigned(shipText, "Ship Text", this)
+                & SliceUi.IsAssigned(repairButton, "Repair Button", this)
+                & SliceUi.IsAssigned(sendButton, "Send Button", this)
+                & SliceUi.IsAssigned(shipyardRoot, "Shipyard Root", this)
+                & SliceUi.IsAssigned(shipyardRows, "Shipyard Rows", this)
+                & SliceUi.IsAssigned(marketRows, "Market Rows", this)
+                & SliceUi.IsAssigned(notTradedText, "Not Traded Text", this)
+                & SliceUi.IsAssigned(messageText, "Message Text", this)
+                & SliceUi.IsAssigned(closeButton, "Close Button", this);
+            if (!ok)
             {
-                Debug.LogError("SlicePortPanel: every field must be assigned.");
                 enabled = false;
                 return;
             }
@@ -67,6 +82,7 @@ namespace Naval.Slice
                 if (selected != null && handler != null) handler(selected);
             });
             closeButton.onClick.AddListener(() => { Action handler = CloseRequested; if (handler != null) handler(); });
+            ready = true;
         }
 
         void OnDestroy()
@@ -82,6 +98,7 @@ namespace Naval.Slice
         /// <summary>Opens the port with a ship selected (the first one there when null), optionally showing the result of an earlier command.</summary>
         public void Show(Port target, Ship ship, CommandResult result)
         {
+            if (!ready) return;
             port = target;
             selected = ship;
             if (result != null) SliceUi.ShowResult(messageText, result); else messageText.text = "";
@@ -91,6 +108,7 @@ namespace Naval.Slice
 
         public void Hide()
         {
+            if (!ready) return;
             panel.SetActive(false);
             port = null;
             selected = null;
@@ -122,11 +140,11 @@ namespace Naval.Slice
             var here = new List<Ship>();
             foreach (Ship ship in state.Fleet) if (ship.Port == port) here.Add(ship);
             int index = here.IndexOf(selected);
-            RectTransform row = SliceUi.MakeRow(shipRows, 44f);
-            Button previous = SliceUi.MakeButton(row, "<", new Vector2(60f, 44f), () => Step(here, index, -1), 24);
+            RectTransform row = widgets.MakeRow(shipRows, 44f);
+            Button previous = widgets.MakeButton(row, "<", new Vector2(60f, 44f), () => Step(here, index, -1), 24);
             string text = here.Count == 0 ? "No ships here" : "Ship " + (index + 1) + " of " + here.Count + " here";
-            SliceUi.MakeLabel(row, text, 24, Color.white, 0f, 0f, TextAnchor.MiddleCenter);
-            Button next = SliceUi.MakeButton(row, ">", new Vector2(60f, 44f), () => Step(here, index, 1), 24);
+            widgets.MakeLabel(row, text, 24, Color.white, 0f, 0f, TextAnchor.MiddleCenter);
+            Button next = widgets.MakeButton(row, ">", new Vector2(60f, 44f), () => Step(here, index, 1), 24);
             previous.interactable = here.Count > 1;
             next.interactable = here.Count > 1;
         }
@@ -159,15 +177,15 @@ namespace Naval.Slice
             notTradedText.gameObject.SetActive(false);
             if (selected == null)
             {
-                SliceUi.MakeLabel(marketRows, "Bring a ship here to trade.", 26, Color.white, 0f, RowHeight);
+                widgets.MakeLabel(marketRows, "Bring a ship here to trade.", 26, Color.white, 0f, RowHeight);
                 return;
             }
 
-            RectTransform header = SliceUi.MakeRow(marketRows, 36f);
-            SliceUi.MakeLabel(header, "Good", 22, SliceUi.WarnColor, NameWidth);
-            SliceUi.MakeLabel(header, "Buy", 22, SliceUi.WarnColor, CellWidth);
-            SliceUi.MakeLabel(header, "Sell", 22, SliceUi.WarnColor, CellWidth);
-            SliceUi.MakeLabel(header, "Aboard", 22, SliceUi.WarnColor, CellWidth);
+            RectTransform header = widgets.MakeRow(marketRows, 36f);
+            widgets.MakeLabel(header, "Good", 22, SliceUi.WarnColor, NameWidth);
+            widgets.MakeLabel(header, "Buy", 22, SliceUi.WarnColor, CellWidth);
+            widgets.MakeLabel(header, "Sell", 22, SliceUi.WarnColor, CellWidth);
+            widgets.MakeLabel(header, "Aboard", 22, SliceUi.WarnColor, CellWidth);
 
             var untraded = new StringBuilder();
             foreach (Good good in state.Data.Goods)
@@ -179,11 +197,11 @@ namespace Naval.Slice
                     continue;
                 }
                 Good g = good;
-                RectTransform row = SliceUi.MakeRow(marketRows, RowHeight);
-                SliceUi.MakeLabel(row, good.Name, 26, Color.white, NameWidth);
-                SliceUi.MakeLabel(row, state.BuyPrice(port, good).ToString("N0", CultureInfo.InvariantCulture), 26, Color.white, CellWidth);
-                SliceUi.MakeLabel(row, state.SellPrice(port, good).ToString("N0", CultureInfo.InvariantCulture), 26, Color.white, CellWidth);
-                SliceUi.MakeLabel(row, aboard.ToString(), 26, Color.white, CellWidth);
+                RectTransform row = widgets.MakeRow(marketRows, RowHeight);
+                widgets.MakeLabel(row, good.Name, 26, Color.white, NameWidth);
+                widgets.MakeLabel(row, state.BuyPrice(port, good).ToString("N0", CultureInfo.InvariantCulture), 26, Color.white, CellWidth);
+                widgets.MakeLabel(row, state.SellPrice(port, good).ToString("N0", CultureInfo.InvariantCulture), 26, Color.white, CellWidth);
+                widgets.MakeLabel(row, aboard.ToString(), 26, Color.white, CellWidth);
                 TradeButton(row, "Buy 1", true, () => Trade(true, g, 1));
                 TradeButton(row, "Buy 10", true, () => Trade(true, g, 10));
                 TradeButton(row, "Sell 1", aboard > 0, () => Trade(false, g, 1));
@@ -194,9 +212,9 @@ namespace Naval.Slice
             notTradedText.gameObject.SetActive(true);
         }
 
-        static void TradeButton(Transform row, string label, bool enabled, UnityEngine.Events.UnityAction onClick)
+        void TradeButton(Transform row, string label, bool enabled, UnityEngine.Events.UnityAction onClick)
         {
-            Button button = SliceUi.MakeButton(row, label, new Vector2(ButtonWidth, RowHeight), onClick, 22);
+            Button button = widgets.MakeButton(row, label, new Vector2(ButtonWidth, RowHeight), onClick, 22);
             button.interactable = enabled;
         }
 
@@ -216,7 +234,7 @@ namespace Naval.Slice
             foreach (ShipTier tier in state.Data.ShipTiers)
             {
                 ShipTier t = tier;
-                SliceUi.MakeButton(shipyardRows, "Buy " + tier.Name + " – " + MoneyManager.Format(tier.Price),
+                widgets.MakeButton(shipyardRows, "Buy " + tier.Name + " – " + MoneyManager.Format(tier.Price),
                     new Vector2(540f, 44f), () => BuyShip(t), 24);
             }
             if (selected == null) return;
@@ -225,9 +243,9 @@ namespace Naval.Slice
                 UpgradeTrack tr = track;
                 UpgradeLevel next = state.Data.FindUpgrade(track, selected.Level(track) + 1);
                 if (next == null)
-                    SliceUi.MakeLabel(shipyardRows, track + ": complete", 24, Color.white, 0f, 44f);
+                    widgets.MakeLabel(shipyardRows, track + ": complete", 24, Color.white, 0f, 44f);
                 else
-                    SliceUi.MakeButton(shipyardRows, track + ": " + next.Name + " – " + MoneyManager.Format(state.UpgradeCost(selected, track)),
+                    widgets.MakeButton(shipyardRows, track + ": " + next.Name + " – " + MoneyManager.Format(state.UpgradeCost(selected, track)),
                         new Vector2(540f, 44f), () => Upgrade(tr), 24);
             }
         }

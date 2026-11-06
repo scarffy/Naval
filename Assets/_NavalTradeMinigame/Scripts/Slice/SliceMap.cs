@@ -34,9 +34,10 @@ namespace Naval.Slice
         [SerializeField] float idleWidth = 0.12f;
         /// <summary>Height of a port name in world units.</summary>
         [SerializeField] float labelSize = 1.7f;
+        [SerializeField, Tooltip("Font for the port names on the map.")] Font labelFont;
+        [SerializeField, Tooltip("Material for the route lines. Use Unity's built-in Sprites-Default.")] Material lineMaterial;
 
         LineRenderer[] lines;
-        Material lineMaterial;
         int ownedCount = -1;
         float lastAspect;
 
@@ -54,9 +55,12 @@ namespace Naval.Slice
 
         void Start()
         {
-            if (bootstrap == null || sceneCamera == null)
+            bool ok = SliceUi.IsAssigned(bootstrap, "Bootstrap", this)
+                & SliceUi.IsAssigned(sceneCamera, "Scene Camera", this)
+                & SliceUi.IsAssigned(labelFont, "Label Font", this)
+                & SliceUi.IsAssigned(lineMaterial, "Line Material", this);
+            if (!ok)
             {
-                Debug.LogError("SliceMap: the bootstrap and sceneCamera fields must be assigned.");
                 enabled = false;
                 return;
             }
@@ -64,15 +68,9 @@ namespace Naval.Slice
             GameState state = bootstrap.State;
             if (state == null) return;
             BuildSea();
-            lineMaterial = new Material(Shader.Find("Sprites/Default"));
             BuildRoutes(state.Data);
             foreach (Port port in state.Data.Ports) BuildPort(port);
             RefreshRoutes(state);
-        }
-
-        void OnDestroy()
-        {
-            if (lineMaterial != null) Destroy(lineMaterial);
         }
 
         void LateUpdate()
@@ -186,9 +184,8 @@ namespace Naval.Slice
             label.transform.SetParent(transform, false);
             label.transform.position = PortPosition(port) + new Vector3(0f, (size / 2f + 0.3f * scale), 0f);
             TextMesh text = label.AddComponent<TextMesh>();
-            Font font = SliceUi.Font;
             const int fontSize = 64;
-            text.font = font;
+            text.font = labelFont;
             text.text = port.Name;
             text.fontSize = fontSize;
             text.characterSize = labelSize * scale / (fontSize * 0.1f);   // about labelSize units tall
@@ -196,7 +193,7 @@ namespace Naval.Slice
             text.alignment = TextAlignment.Center;
             text.color = Color.white;
             MeshRenderer mr = label.GetComponent<MeshRenderer>();
-            mr.sharedMaterial = font.material;
+            mr.sharedMaterial = labelFont.material;
             mr.sortingOrder = 30;
         }
     }

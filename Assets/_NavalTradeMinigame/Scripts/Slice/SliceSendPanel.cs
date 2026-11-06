@@ -12,6 +12,7 @@ namespace Naval.Slice
     {
         [SerializeField] SliceBootstrap bootstrap;
         [SerializeField] SliceClock clock;
+        [SerializeField] SliceWidgets widgets;
         [SerializeField] GameObject panel;
         [SerializeField] Text titleText;
         [SerializeField] RectTransform destinationRows;
@@ -30,22 +31,33 @@ namespace Naval.Slice
         /// <summary>The ship set sail. Gives the port it left and the result to show there.</summary>
         public event Action<Port, CommandResult> Sailed;
 
-        public bool IsOpen { get { return panel.activeSelf; } }
+        bool ready;
+
+        public bool IsOpen { get { return ready && panel.activeSelf; } }
         /// <summary>True while a destination is chosen and its preview is valid.</summary>
         public bool HasPreview { get { return preview != null && preview.Ok; } }
 
         void Start()
         {
-            if (bootstrap == null || clock == null || panel == null || titleText == null || destinationRows == null ||
-                previewText == null || messageText == null || sailButton == null || backButton == null)
+            bool ok = SliceUi.IsAssigned(bootstrap, "Bootstrap", this)
+                & SliceUi.IsAssigned(clock, "Clock", this)
+                & SliceUi.IsAssigned(widgets, "Widgets", this)
+                & SliceUi.IsAssigned(panel, "Panel", this)
+                & SliceUi.IsAssigned(titleText, "Title Text", this)
+                & SliceUi.IsAssigned(destinationRows, "Destination Rows", this)
+                & SliceUi.IsAssigned(previewText, "Preview Text", this)
+                & SliceUi.IsAssigned(messageText, "Message Text", this)
+                & SliceUi.IsAssigned(sailButton, "Sail Button", this)
+                & SliceUi.IsAssigned(backButton, "Back Button", this);
+            if (!ok)
             {
-                Debug.LogError("SliceSendPanel: every field must be assigned.");
                 enabled = false;
                 return;
             }
             clock.DayAdvanced += OnDay;
             sailButton.onClick.AddListener(SetSail);
             backButton.onClick.AddListener(() => { Action<Port, Ship> handler = BackRequested; if (handler != null) handler(origin, ship); });
+            ready = true;
         }
 
         void OnDestroy()
@@ -60,6 +72,7 @@ namespace Naval.Slice
 
         public void Show(Ship target)
         {
+            if (!ready) return;
             GameState state = bootstrap.State;
             if (state == null || target.Port == null) return;
             ship = target;
@@ -75,13 +88,14 @@ namespace Naval.Slice
             {
                 if (port == origin || !state.Routes.Reaches(port)) continue;
                 Port chosen = port;
-                SliceUi.MakeButton(destinationRows, port.Name, new Vector2(340f, 44f), () => { destination = chosen; Preview(); }, 24);
+                widgets.MakeButton(destinationRows, port.Name, new Vector2(340f, 44f), () => { destination = chosen; Preview(); }, 24);
             }
             ShowPreview();
         }
 
         public void Hide()
         {
+            if (!ready) return;
             panel.SetActive(false);
             ship = null;
             destination = null;

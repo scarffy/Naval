@@ -9,6 +9,7 @@ namespace Naval.Slice
     public sealed class SliceFleetList : MonoBehaviour
     {
         [SerializeField] SliceBootstrap bootstrap;
+        [SerializeField] SliceWidgets widgets;
         [SerializeField] RectTransform rows;
 
         int shownKey;
@@ -18,11 +19,10 @@ namespace Naval.Slice
 
         void Start()
         {
-            if (bootstrap == null || rows == null)
-            {
-                Debug.LogError("SliceFleetList: the bootstrap and rows fields must be assigned.");
-                enabled = false;
-            }
+            bool ok = SliceUi.IsAssigned(bootstrap, "Bootstrap", this)
+                & SliceUi.IsAssigned(widgets, "Widgets", this)
+                & SliceUi.IsAssigned(rows, "Rows", this);
+            if (!ok) enabled = false;
         }
 
         void Update()
@@ -59,11 +59,11 @@ namespace Naval.Slice
                 string name = SliceUi.ShipName(ship);
                 if (ship.Port == null)
                 {
-                    SliceUi.MakeLabel(rows, name + " – at sea to " + ship.Voyage.Destination.Name, 20, Color.white, 0f, 36f);
+                    widgets.MakeLabel(rows, name + " – at sea to " + ship.Voyage.Destination.Name, 20, Color.white, 0f, 36f);
                     continue;
                 }
                 Ship clicked = ship;
-                Button button = SliceUi.MakeButton(rows, name + " – " + ship.Port.Name + " – hull " + ship.Hull + "/" + ship.MaxHull,
+                Button button = widgets.MakeButton(rows, name + " – " + ship.Port.Name + " – hull " + ship.Hull + "/" + ship.MaxHull,
                     new Vector2(520f, 36f), () => { Action<Ship> handler = ShipClicked; if (handler != null) handler(clicked); }, 20);
                 SliceUi.LabelOf(button).alignment = TextAnchor.MiddleLeft;
             }

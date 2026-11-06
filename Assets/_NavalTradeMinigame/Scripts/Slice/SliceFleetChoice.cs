@@ -11,23 +11,33 @@ namespace Naval.Slice
     public sealed class SliceFleetChoice : MonoBehaviour
     {
         [SerializeField] SliceBootstrap bootstrap;
+        [SerializeField] SliceWidgets widgets;
         [SerializeField] GameObject panel;
         [SerializeField] Text infoText;
         [SerializeField] RectTransform rows;
         [SerializeField] Text messageText;
 
+        bool ready;
+
         void Start()
         {
-            if (bootstrap == null || panel == null || infoText == null || rows == null || messageText == null)
+            bool ok = SliceUi.IsAssigned(bootstrap, "Bootstrap", this)
+                & SliceUi.IsAssigned(widgets, "Widgets", this)
+                & SliceUi.IsAssigned(panel, "Panel", this)
+                & SliceUi.IsAssigned(infoText, "Info Text", this)
+                & SliceUi.IsAssigned(rows, "Rows", this)
+                & SliceUi.IsAssigned(messageText, "Message Text", this);
+            if (!ok)
             {
-                Debug.LogError("SliceFleetChoice: every field must be assigned.");
                 enabled = false;
+                return;
             }
+            ready = true;
         }
 
         public void SetVisible(bool visible)
         {
-            if (panel.activeSelf == visible) return;
+            if (!ready || panel.activeSelf == visible) return;
             panel.SetActive(visible);
             if (visible) Build();
         }
@@ -52,7 +62,7 @@ namespace Naval.Slice
                     + tier.Speed.ToString("0.##", CultureInfo.InvariantCulture) + ", hull " + tier.Hull + ", wages "
                     + MoneyManager.Format(tier.WagePerDay) + "/day, " + (tier.OceanGoing ? "ocean-going" : "coastal only");
                 string label = title + "\n" + stats + "\nTotal cost " + MoneyManager.Format(count * tier.Price);
-                SliceUi.MakeButton(rows, label, new Vector2(1000f, 130f), () => Choose(chosen), 28);
+                widgets.MakeButton(rows, label, new Vector2(1000f, 130f), () => Choose(chosen), 28);
             }
         }
 

@@ -29,11 +29,19 @@ namespace Naval.Slice
 
         void Start()
         {
-            if (bootstrap == null || clock == null || map == null || fleetChoice == null || routePanel == null ||
-                portPanel == null || sendPanel == null || endScreen == null || fleetList == null || banner == null ||
-                bannerText == null)
+            bool ok = SliceUi.IsAssigned(bootstrap, "Bootstrap", this)
+                & SliceUi.IsAssigned(clock, "Clock", this)
+                & SliceUi.IsAssigned(map, "Map", this)
+                & SliceUi.IsAssigned(fleetChoice, "Fleet Choice", this)
+                & SliceUi.IsAssigned(routePanel, "Route Panel", this)
+                & SliceUi.IsAssigned(portPanel, "Port Panel", this)
+                & SliceUi.IsAssigned(sendPanel, "Send Panel", this)
+                & SliceUi.IsAssigned(endScreen, "End Screen", this)
+                & SliceUi.IsAssigned(fleetList, "Fleet List", this)
+                & SliceUi.IsAssigned(banner, "Banner", this)
+                & SliceUi.IsAssigned(bannerText, "Banner Text", this);
+            if (!ok)
             {
-                Debug.LogError("SliceScreens: every field must be assigned.");
                 enabled = false;
                 return;
             }

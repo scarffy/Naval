@@ -36,9 +36,8 @@ namespace Naval.Slice
 
         void Start()
         {
-            if (bootstrap == null)
+            if (!SliceUi.IsAssigned(bootstrap, "Bootstrap", this))
             {
-                Debug.LogError("SliceClock: the bootstrap field is not assigned.");
                 enabled = false;
                 return;
             }

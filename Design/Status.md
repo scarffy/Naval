@@ -60,7 +60,7 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
   - `SliceEndScreen`: goal reached, or mission failed with the reason. It replaces the HUD's placeholder text.
   - Every refused command shows its reason on the panel.
 - **Map clicks** use the EventSystem: the camera has a `Physics2DRaycaster`, and ports and routes have 2D colliders (`SliceMapClick`).
-- **Widgets:** `SliceUi` makes the rows built at runtime (market, fleet list, destinations and so on).
+- **Widgets:** `SliceWidgets` (on the Canvas, with a Font field) makes the rows built at runtime (market, fleet list, destinations and so on); `SliceUi` keeps the colours and text helpers.
 - **Tools:**
   - `Tools/test-runner/run.sh` runs the edit-mode tests on Mono without Unity.
   - The compile check has a small stub for the pointer event types (`stubs/EventSystems.cs`).
@@ -96,19 +96,31 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
 - **Review:** 8 findings. Fixed: a player who reached the wrap-up but didn't click Done (the game ended or they quit) saw the tutorial again; Replay cleared the flag even when Restart couldn't reload the scene; the confirm restored button labels from hard-coded text; a button without a Text label would throw on click; the HUD summary didn't mention the new buttons; the starting-gold decision was written three times. Left: the ship leaving the fleet after setting sail counts as seen (as designed); the Tutorial button also works mid-tutorial (it restarts with the tutorial, after "Sure?").
 
 **Real scene.** `Slice.unity` is now a committed scene instead of the output of the **Naval → Build Slice Scene** menu, which is gone (with `SliceSceneBuilder.cs` and the `Slice/Editor` folder).
-- It holds everything the menu made, as objects you see and edit in the Hierarchy and Inspector: the Main Camera (`Camera`, `AudioListener`, `Physics2DRaycaster`), the EventSystem (`StandaloneInputModule`), `Game` with the bootstrap, clock, map and ships, and the Canvas (scale with screen size, 1920×1080, match 0.5) with the HUD, the panels, the tutorial box and every reference between them.
+- It holds everything the menu made, as objects you see and edit in the Hierarchy and Inspector: the Main Camera (`Camera`, `AudioListener`, `Physics2DRaycaster`), the EventSystem (`InputSystemUIInputModule`, with the Input System package's default actions), `Game` with the bootstrap, clock, map and ships, and the Canvas (scale with screen size, 1920×1080, match 0.5) with the HUD, the panels, the tutorial box and every reference between them.
 - Rows that depend on the data (market, fleet list, destinations, shipyard, notifications) and the map's sprites, routes and port markers are still made at runtime. Nothing editor-only is needed to play.
 - `Slice.unity` is in Build Settings, after `Game.unity`, so Restart works.
 - The scene was written as text, not saved by Unity, and was checked by a script (unique fileIDs, every GUID and reference resolves, parent and component links match, field names match the scripts). It still needs opening in Unity.
-- **Review:** 10 findings. Fixed: generic names in the port panel (`Label`, `Row`) are now `Ships Header`, `Ship Info`, `Ship Actions`, `Shipyard Header` and `Not Traded`; the UI objects are on the UI layer like Unity's own UI objects; the × in the speed buttons is plain UTF-8 instead of a `\x` escape; the Restart error now also covers an unticked scene; `SliceUi` lost the widget helpers only the old menu used; `SliceScope.md` and the `UnityEditor` stub comment were out of date. Left: the UI scripts all sit on the Canvas (a UI root holding the controllers, each panel a child it shows and hides); `Game.unity` stays first in Build Settings, so a player build starts the prototype until the slice replaces it; the scene's colours are copies of `SliceUi`'s, so a change to one needs the other.
+- **Review:** 10 findings. Fixed: generic names in the port panel (`Label`, `Row`) are now `Ships Header`, `Ship Info`, `Ship Actions`, `Shipyard Header` and `Not Traded`; the UI objects are on the UI layer like Unity's own UI objects; the × in the speed buttons is plain UTF-8 instead of a `\x` escape; the Restart error now also covers an unticked scene; `SliceUi` lost the widget helpers only the old menu used (the rest later moved to `SliceWidgets`); `SliceScope.md` and the `UnityEditor` stub comment were out of date. Left: the UI scripts all sit on the Canvas (a UI root holding the controllers, each panel a child it shows and hides); `Game.unity` stays first in Build Settings, so a player build starts the prototype until the slice replaces it; the scene's colours are copies of `SliceUi`'s, so a change to one needs the other.
+
+**First run in Unity: empty fleet choice, no ports or ships.**
+- **What was wrong:** every text built at runtime (the fleet-choice options, market rows, fleet list, destinations, notifications and the port names on the map) got its font from `Resources.GetBuiltinResource<Font>("Arial.ttf")`. Since Unity 2022.2 that call throws ("Arial.ttf is no longer a valid built in font"). The fleet choice stopped at its first button, which left only that button's grey background (the dot at the top left). The map stopped at the first port name, after the route lines were drawn. With no fleet chosen there were no ships. The HUD's texts are scene objects that reference the font asset directly, so they still showed.
+- **Fix:** no asset is looked up by name in code any more.
+  - `SliceWidgets` on the Canvas has a **Font** field (set to the same built-in font as the scene's texts) and makes the rows, texts and buttons. The five screens that build rows have a **Widgets** field pointing at it.
+  - `SliceMap` has **Label Font** (port names) and **Line Material** (route lines, Unity's built-in Sprites-Default) fields instead of `Shader.Find`.
+  - An empty Inspector field now logs one clear error per field, for example `SliceFleetChoice on 'Canvas': the Widgets field is empty. Assign it in the Inspector.`; clicking it selects the object. Panels whose setup failed ignore calls instead of throwing every frame.
+- **Input:** the EventSystem now uses the Input System's `InputSystemUIInputModule` (com.unity.inputsystem 1.4.4, with its DefaultInputActions), like `Game.unity`. Active Input Handling is Both.
+- **Review:** 8 findings. Fixed: the send panel read the bootstrap before checking its setup; the docs gave the wrong reason for Both (the prototype camera already uses the Input System); `SliceWidgets` built its own error text instead of the shared helper; `MakeRow` was left in `SliceUi`, apart from the other widget makers; the HUD's missing-label error only showed after every other field was fixed. Left: each panel keeps its own setup flag (`SliceScreens` starts before the panels, so it can't check them itself); an empty Font only logs the error and leaves runtime texts blank; if the end screen's setup failed, nothing shows when the game ends apart from that error.
 
 ## To check in Unity (designer)
 
 1. Open the project and check the console for import or compile errors.
    - Open `Slice.unity`: no "missing script" or broken-reference warnings, and the Hierarchy shows Main Camera, Game (with Canvas under it) and EventSystem. Click through the Canvas objects: the HUD, the panels (inactive) and the tutorial box are there, and the slice components on Game and Canvas have their references filled in. The speed buttons read Pause, 1×, 2× and 4×.
    - **Naval** no longer appears in the menu bar.
+   - The Console shows no errors on Play. A missing Inspector reference shows as an error naming the component, the object and the field.
+   - The EventSystem has `EventSystem` and `Input System UI Input Module`, with Actions Asset set to DefaultInputActions and Point, Left Click and the others filled in. If Unity asks to restart for the Active Input Handling change, restart.
+   - Canvas → `Slice Widgets` has Font set; Game → `Slice Map` has Label Font and Line Material (Sprites-Default) set.
 2. Open `Assets/_NavalTradeMinigame/Scenes/Slice.unity` and press Play. Play a game through:
-   - **Fleet choice:** the panel appears, choosing a fleet puts the ships beside Havana, and 2,500 gold is left.
+   - **Fleet choice:** the panel shows three options (one Merchantman, two Brigs, three Sloops) with their text, choosing a fleet puts the ships beside Havana, and 2,500 gold is left.
    - **Free routes:**
      - the banner counts down
      - clicking a route opens its panel
@@ -126,9 +138,9 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
    - **Time:** it stops while a panel is open and runs again when it's closed.
    - **Notifications:** lines appear for arrivals and hazards and fade after about 10 seconds.
    - **Fleet list:** it sits at the bottom right, its lines fit, and it doesn't cover a port or the free-routes banner.
-   - **Phase 2 checks:** the map fits the view, port names are readable, and ships glide along their routes and settle beside ports.
+   - **Phase 2 checks:** the map fits the view, every port has its dot and name (shipyards bigger and gold), port names are readable, and ships glide along their routes and settle beside ports.
    - **Win and lose:** lower `goal_gold` in `rules.csv` (to 10,000, say) to see the win screen. Use 4× speed, or lower `mission_days`, to see the lose screen; it should give the number of days from `rules.csv`.
-3. If clicks on the map don't register, check the Main Camera's `Physics2DRaycaster` and the EventSystem's `StandaloneInputModule`. The project uses the old Input Manager (Project Settings → Player → Active Input Handling).
+3. If clicks on the map don't register, check the Main Camera's `Physics2DRaycaster` and the EventSystem's `InputSystemUIInputModule`. Active Input Handling is set to Both (Project Settings → Player), so anything that still reads the old `Input` class keeps working. Unity asks to restart the editor after this setting changes.
 4. **Phase 4:**
    - **Build Settings:** `Slice.unity` is listed and enabled, after `Game.unity`, which is unchanged.
    - **Restart:** the end screen's Restart starts a fresh game: fleet choice, 8,500 gold, the date back to 1 Jul 1770, no old notifications, markers or panels, speed 1×. The HUD Restart (under 4×) shows "Sure?", goes back to "Restart" after about 3 seconds, and restarts on a second click.

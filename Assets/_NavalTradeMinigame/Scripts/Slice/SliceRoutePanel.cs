@@ -18,26 +18,34 @@ namespace Naval.Slice
         [SerializeField] Button closeButton;
 
         Route route;
+        bool ready;
 
         public event Action CloseRequested;
 
-        public bool IsOpen { get { return panel.activeSelf; } }
+        public bool IsOpen { get { return ready && panel.activeSelf; } }
 
         void Start()
         {
-            if (bootstrap == null || panel == null || titleText == null || detailText == null || messageText == null ||
-                openButton == null || closeButton == null)
+            bool ok = SliceUi.IsAssigned(bootstrap, "Bootstrap", this)
+                & SliceUi.IsAssigned(panel, "Panel", this)
+                & SliceUi.IsAssigned(titleText, "Title Text", this)
+                & SliceUi.IsAssigned(detailText, "Detail Text", this)
+                & SliceUi.IsAssigned(messageText, "Message Text", this)
+                & SliceUi.IsAssigned(openButton, "Open Button", this)
+                & SliceUi.IsAssigned(closeButton, "Close Button", this);
+            if (!ok)
             {
-                Debug.LogError("SliceRoutePanel: every field must be assigned.");
                 enabled = false;
                 return;
             }
             openButton.onClick.AddListener(OpenRoute);
             closeButton.onClick.AddListener(() => { Action handler = CloseRequested; if (handler != null) handler(); });
+            ready = true;
         }
 
         public void Show(Route target)
         {
+            if (!ready) return;
             route = target;
             messageText.text = "";
             panel.SetActive(true);
@@ -46,6 +54,7 @@ namespace Naval.Slice
 
         public void Hide()
         {
+            if (!ready) return;
             panel.SetActive(false);
             route = null;
         }

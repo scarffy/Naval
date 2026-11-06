@@ -64,26 +64,37 @@ namespace Naval.Slice
 
         void Start()
         {
-            if (bootstrap == null || map == null || sceneCamera == null || portPanel == null || sendPanel == null ||
-                box == null || objectiveText == null || skipButton == null || frame == null || marketRows == null ||
-                portSendButton == null || portCloseButton == null || destinationRows == null || sailButton == null ||
-                fastestSpeedButton == null)
+            bool ok = SliceUi.IsAssigned(bootstrap, "Bootstrap", this)
+                & SliceUi.IsAssigned(map, "Map", this)
+                & SliceUi.IsAssigned(sceneCamera, "Scene Camera", this)
+                & SliceUi.IsAssigned(portPanel, "Port Panel", this)
+                & SliceUi.IsAssigned(sendPanel, "Send Panel", this)
+                & SliceUi.IsAssigned(box, "Box", this)
+                & SliceUi.IsAssigned(objectiveText, "Objective Text", this)
+                & SliceUi.IsAssigned(skipButton, "Skip Button", this)
+                & SliceUi.IsAssigned(frame, "Frame", this)
+                & SliceUi.IsAssigned(marketRows, "Market Rows", this)
+                & SliceUi.IsAssigned(portSendButton, "Port Send Button", this)
+                & SliceUi.IsAssigned(portCloseButton, "Port Close Button", this)
+                & SliceUi.IsAssigned(destinationRows, "Destination Rows", this)
+                & SliceUi.IsAssigned(sailButton, "Sail Button", this)
+                & SliceUi.IsAssigned(fastestSpeedButton, "Fastest Speed Button", this);
+            if (!ok)
             {
-                Debug.LogError("SliceTutorial: every field must be assigned.");
                 enabled = false;
                 return;
             }
             Canvas canvas = GetComponentInParent<Canvas>();
             if (canvas == null)
             {
-                Debug.LogError("SliceTutorial: must be on or under the canvas.");
+                Debug.LogError("SliceTutorial on '" + name + "': it must be on the Canvas or under it.", this);
                 enabled = false;
                 return;
             }
             skipLabel = SliceUi.LabelOf(skipButton);
             if (skipLabel == null)
             {
-                Debug.LogError("SliceTutorial: the Skip button needs a Text label.");
+                Debug.LogError("SliceTutorial on '" + name + "': the Skip button needs a Text label.", this);
                 enabled = false;
                 return;
             }

@@ -36,17 +36,19 @@ namespace Naval.Slice
 
         void Start()
         {
-            if (bootstrap == null || clock == null || dateText == null || daysLeftText == null ||
-                goldText == null || statusText == null || speedButtons == null || speedButtons.Length != Speeds.Length ||
-                restartButton == null || tutorialButton == null)
+            bool ok = SliceUi.IsAssigned(bootstrap, "Bootstrap", this)
+                & SliceUi.IsAssigned(clock, "Clock", this)
+                & SliceUi.IsAssigned(dateText, "Date Text", this)
+                & SliceUi.IsAssigned(daysLeftText, "Days Left Text", this)
+                & SliceUi.IsAssigned(goldText, "Gold Text", this)
+                & SliceUi.IsAssigned(statusText, "Status Text", this)
+                & SliceUi.IsAssigned(restartButton, "Restart Button", this)
+                & SliceUi.IsAssigned(tutorialButton, "Tutorial Button", this)
+                & SpeedButtonsAssigned()
+                & HasLabel(restartButton, "Restart Button")
+                & HasLabel(tutorialButton, "Tutorial Button");
+            if (!ok)
             {
-                Debug.LogError("SliceHud: every field must be assigned (four speed buttons).");
-                enabled = false;
-                return;
-            }
-            if (SliceUi.LabelOf(restartButton) == null || SliceUi.LabelOf(tutorialButton) == null)
-            {
-                Debug.LogError("SliceHud: the Restart and Tutorial buttons need a Text label.");
                 enabled = false;
                 return;
             }
@@ -57,6 +59,42 @@ namespace Naval.Slice
                 float speed = Speeds[i];
                 speedButtons[i].onClick.AddListener(() => clock.SetSpeed(speed));
             }
+        }
+
+        /// <summary>The confirm swaps a button's label text, so it needs a Text child. An empty field is reported elsewhere.</summary>
+        bool HasLabel(Button button, string field)
+        {
+            if (button == null || SliceUi.LabelOf(button) != null) return true;
+            Debug.LogError("SliceHud on '" + name + "': the button in " + field + " needs a Text label as a child.", this);
+            return false;
+        }
+
+        /// <summary>The four speed buttons (Pause, 1x, 2x, 4x) must be there, each with an Image to tint for the selected speed.</summary>
+        bool SpeedButtonsAssigned()
+        {
+            if (speedButtons == null)
+            {
+                Debug.LogError("SliceHud on '" + name + "': the Speed Buttons field is empty. Assign it in the Inspector.", this);
+                return false;
+            }
+            if (speedButtons.Length != Speeds.Length)
+            {
+                Debug.LogError("SliceHud on '" + name + "': the Speed Buttons field needs " + Speeds.Length
+                    + " buttons (Pause, 1x, 2x, 4x) but has " + speedButtons.Length + ". Fix it in the Inspector.", this);
+                return false;
+            }
+            bool ok = true;
+            for (int i = 0; i < speedButtons.Length; i++)
+            {
+                string element = "Speed Buttons element " + i;
+                if (!SliceUi.IsAssigned(speedButtons[i], element, this)) ok = false;
+                else if (speedButtons[i].image == null)
+                {
+                    Debug.LogError("SliceHud on '" + name + "': the button in " + element + " has no Image as its Target Graphic. Assign it in the Inspector.", this);
+                    ok = false;
+                }
+            }
+            return ok;
         }
 
         // What is currently shown, so the strings are only rebuilt when something changes.

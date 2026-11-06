@@ -20,15 +20,18 @@ namespace Naval.Slice
         }
 
         [SerializeField] SliceClock clock;
+        [SerializeField] SliceWidgets widgets;
         [SerializeField] RectTransform rows;
 
         readonly List<Line> lines = new List<Line>();
 
         void Start()
         {
-            if (clock == null || rows == null)
+            bool ok = SliceUi.IsAssigned(clock, "Clock", this)
+                & SliceUi.IsAssigned(widgets, "Widgets", this)
+                & SliceUi.IsAssigned(rows, "Rows", this);
+            if (!ok)
             {
-                Debug.LogError("SliceNotifications: the clock and rows fields must be assigned.");
                 enabled = false;
                 return;
             }
@@ -77,7 +80,7 @@ namespace Naval.Slice
         void Add(string text, Color color)
         {
             if (lines.Count >= MaxLines) RemoveFirst();
-            Text label = SliceUi.MakeLabel(rows, text, 26, color, 0f, 34f);
+            Text label = widgets.MakeLabel(rows, text, 26, color, 0f, 34f);
             label.gameObject.AddComponent<Shadow>();
             lines.Add(new Line { Object = label.gameObject, Expires = Time.unscaledTime + LineSeconds });
         }

@@ -1,12 +1,11 @@
 using System.Globalization;
 using Naval.Core;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace Naval.Slice
 {
-    /// <summary>Widget factory and text helpers for the rows the screens build at runtime.</summary>
+    /// <summary>Colours and small helpers shared by the screens. The widgets themselves are made by <see cref="SliceWidgets"/>.</summary>
     public static class SliceUi
     {
         public static readonly Color ButtonColor = new Color(0.75f, 0.75f, 0.75f);
@@ -15,90 +14,20 @@ namespace Naval.Slice
         public static readonly Color BadColor = new Color(1f, 0.45f, 0.4f);
         public static readonly Color WarnColor = new Color(1f, 0.8f, 0.45f);
 
-        static Font font;
-
-        public static Font Font
+        /// <summary>
+        /// False, with a clear error naming the component, its object and the field, when an Inspector reference is empty.
+        /// Check every field with it and combine the results with &amp; so all the missing ones are reported at once.
+        /// </summary>
+        public static bool IsAssigned(Object value, string field, Component owner)
         {
-            get
-            {
-                if (font == null) font = Resources.GetBuiltinResource<Font>("Arial.ttf");
-                return font;
-            }
-        }
-
-        /// <summary>A fixed-size text that wraps to its width.</summary>
-        public static Text MakeText(Transform parent, string name, int fontSize, TextAnchor align, Vector2 size)
-        {
-            var go = new GameObject(name, typeof(RectTransform));
-            go.transform.SetParent(parent, false);
-            ((RectTransform)go.transform).sizeDelta = size;
-            Text text = go.AddComponent<Text>();
-            text.font = Font;
-            text.fontSize = fontSize;
-            text.alignment = align;
-            text.color = Color.white;
-            text.horizontalOverflow = HorizontalWrapMode.Wrap;
-            text.verticalOverflow = VerticalWrapMode.Overflow;
-            text.raycastTarget = false;
-            return text;
-        }
-
-        /// <summary>A text for layout groups. A width of 0 lets it take the space that is left.</summary>
-        public static Text MakeLabel(Transform parent, string content, int fontSize, Color color, float width = 0f,
-                                     float height = 0f, TextAnchor align = TextAnchor.MiddleLeft)
-        {
-            Text text = MakeText(parent, "Label", fontSize, align, Vector2.zero);
-            text.text = content;
-            text.color = color;
-            LayoutElement element = text.gameObject.AddComponent<LayoutElement>();
-            if (width > 0f) element.preferredWidth = width; else element.flexibleWidth = 1f;
-            if (height > 0f) element.preferredHeight = height;
-            return text;
-        }
-
-        /// <summary>A button with a centred label. In a layout group it asks for the given size.</summary>
-        public static Button MakeButton(Transform parent, string label, Vector2 size, UnityAction onClick, int fontSize = 26)
-        {
-            var go = new GameObject("Button " + label.Split('\n')[0], typeof(RectTransform));
-            go.transform.SetParent(parent, false);
-            ((RectTransform)go.transform).sizeDelta = size;
-            LayoutElement element = go.AddComponent<LayoutElement>();
-            element.preferredWidth = size.x;
-            element.preferredHeight = size.y;
-            Image image = go.AddComponent<Image>();
-            image.color = ButtonColor;
-            Button button = go.AddComponent<Button>();
-            button.targetGraphic = image;
-            if (onClick != null) button.onClick.AddListener(onClick);
-
-            Text text = MakeText(go.transform, "Label", fontSize, TextAnchor.MiddleCenter, Vector2.zero);
-            text.text = label;
-            text.color = new Color(0.1f, 0.1f, 0.1f);
-            var rect = (RectTransform)text.transform;
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.offsetMin = new Vector2(8f, 0f);
-            rect.offsetMax = new Vector2(-8f, 0f);
-            return button;
+            if (value != null) return true;
+            Debug.LogError(owner.GetType().Name + " on '" + owner.name + "': the " + field + " field is empty. Assign it in the Inspector.", owner);
+            return false;
         }
 
         public static Text LabelOf(Button button)
         {
             return button.GetComponentInChildren<Text>();
-        }
-
-        public static RectTransform MakeRow(Transform parent, float height, float spacing = 8f)
-        {
-            var go = new GameObject("Row", typeof(RectTransform));
-            go.transform.SetParent(parent, false);
-            HorizontalLayoutGroup layout = go.AddComponent<HorizontalLayoutGroup>();
-            layout.spacing = spacing;
-            layout.childControlWidth = true;
-            layout.childControlHeight = true;
-            layout.childForceExpandWidth = false;
-            layout.childForceExpandHeight = true;
-            go.AddComponent<LayoutElement>().preferredHeight = height;
-            return (RectTransform)go.transform;
         }
 
         /// <summary>Removes every row. They leave the layout at once and are destroyed at the end of the frame.</summary>

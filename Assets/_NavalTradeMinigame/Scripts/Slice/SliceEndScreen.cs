@@ -14,21 +14,29 @@ namespace Naval.Slice
         [SerializeField] Text detailText;
         [SerializeField] Button restartButton;
 
-        public bool IsOpen { get { return panel.activeSelf; } }
+        bool ready;
+
+        public bool IsOpen { get { return ready && panel.activeSelf; } }
 
         void Start()
         {
-            if (bootstrap == null || panel == null || titleText == null || detailText == null || restartButton == null)
+            bool ok = SliceUi.IsAssigned(bootstrap, "Bootstrap", this)
+                & SliceUi.IsAssigned(panel, "Panel", this)
+                & SliceUi.IsAssigned(titleText, "Title Text", this)
+                & SliceUi.IsAssigned(detailText, "Detail Text", this)
+                & SliceUi.IsAssigned(restartButton, "Restart Button", this);
+            if (!ok)
             {
-                Debug.LogError("SliceEndScreen: every field must be assigned.");
                 enabled = false;
                 return;
             }
             restartButton.onClick.AddListener(SliceBootstrap.Restart);
+            ready = true;
         }
 
         public void Show(GameState state)
         {
+            if (!ready) return;
             string standing = "Gold: " + MoneyManager.Format(state.Gold) + " (goal " + MoneyManager.Format(state.Data.Rules.GoalGold) + ")\n"
                 + SliceUi.Date(state.Date);
             if (state.Outcome == GameOutcome.Won)

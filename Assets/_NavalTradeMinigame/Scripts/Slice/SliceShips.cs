@@ -33,9 +33,11 @@ namespace Naval.Slice
 
         void Start()
         {
-            if (bootstrap == null || clock == null || map == null)
+            bool ok = SliceUi.IsAssigned(bootstrap, "Bootstrap", this)
+                & SliceUi.IsAssigned(clock, "Clock", this)
+                & SliceUi.IsAssigned(map, "Map", this);
+            if (!ok)
             {
-                Debug.LogError("SliceShips: the bootstrap, clock and map fields must be assigned.");
                 enabled = false;
                 return;
             }
