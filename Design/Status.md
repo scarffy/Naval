@@ -157,7 +157,7 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
 **Phase 5: polish.**
 - original map art (it replaces `Map.png`)
 - ships moving along their routes
-- the UI style
+- the UI style: proposed in `Design/UISpec.md` (UX review, screen designs, design system and build plan), waiting for the owner's approval
 - sound and music
 - arrival and sale feedback
 
