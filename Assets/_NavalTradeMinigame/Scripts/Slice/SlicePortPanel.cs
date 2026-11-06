@@ -45,6 +45,9 @@ namespace Naval.Slice
 
         public bool IsOpen { get { return panel.activeSelf; } }
 
+        /// <summary>True when the panel is open and shows this port.</summary>
+        public bool IsOpenAt(Port target) { return IsOpen && port == target; }
+
         void Start()
         {
             if (bootstrap == null || clock == null || panel == null || titleText == null || goldText == null ||

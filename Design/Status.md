@@ -66,7 +66,7 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
 - **Review:** 10 findings plus the author's open questions. Fixed: the test runner skipped `[TestCase]` rows; buying a ship before `ChooseFleet` left `FleetChosen` false; the port panel overflowed with a 14-good market or 4+ ships (ships are now stepped through with < and >, Repair and Send share a row, market rows are shorter); the fleet list covered Natchez and New Orleans (moved to the bottom right); the end screen hard-coded "two years" and guessed the loss reason (`GameState.LostBecause` now says why); the clock could tick one frame after a panel opened; the fleet count was worked out in two places (`GameData.FleetCount`); duplicated date, colour and font helpers; the goal tests used a goal below the start gold.
 
 **Phase 4: restart and the tutorial** (code only, not yet run in Unity).
-- **Restart** reloads the scene. It's on the end screen, plus a small Restart button left of Pause on the HUD, which asks "Sure?" and restarts on a second click within 3 seconds. A reload resets everything, so no component needs its own reset code. **Naval → Build Slice Scene** now adds `Slice.unity` to Build Settings (or enables it), because the reload needs a build index. If the scene isn't in Build Settings, Restart logs an error saying to run the menu command.
+- **Restart** reloads the scene. It's on the end screen, plus a small Restart button under 4× on the HUD, which asks "Sure?" and restarts on a second click within 3 seconds. A reload resets everything, so no component needs its own reset code. **Naval → Build Slice Scene** now adds `Slice.unity` to Build Settings (or enables it), because the reload needs a build index. If the scene isn't in Build Settings, Restart logs an error saying to run the menu command.
 - **Sheltered voyages (Core):** while `GameState.ShelterNewVoyages` is true, voyages started by `Send` meet no hazards for their whole trip, even if it's turned off on the way. The preview still shows the route's real risks. 3 new tests.
 - **Tutorial** (`SliceTutorial`): a guided first voyage. It shows one objective at a time in a box at the top centre, with a pulsing outline on the target. The steps are:
   1. open the start port
@@ -79,10 +79,12 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
   8. a wrap-up naming the goal and the date
   - **Skip** works at any step. It's a short ordered list of steps, each with text, a completion check and a target.
   - **When it starts:** after the opening (fleet choice and the 2 free routes). The voyage needs a ship and owned routes, and the opening already guides itself with its panel and banner.
-  - **It can't be lost:** it turns `ShelterNewVoyages` on while it runs and off when it ends or is skipped.
-  - **It doesn't get stuck:** if the player sets sail before the text asks, it jumps ahead. If nothing aboard sells at the destination, the sell step completes.
+  - **It can't be lost:** it turns `ShelterNewVoyages` on when it starts and off as soon as the first ship sets sail (or when it's skipped), so only that one voyage is sheltered.
+  - **It doesn't get stuck:** if the player sets sail before the text asks, it jumps ahead. If the player opens another port, the outline points at Close. After Back on the send panel, it points at Send again. The sell step completes when the player sells from the tutorial ship, when that ship leaves the port, or when nothing aboard sells there.
+  - **The box** stretches between the gold text and the Pause button, so it fits on 16:10 and 4:3 screens too (the text shrinks to fit). Only Skip takes clicks.
   - It runs again after a restart.
 - **Tests:** 110 edit-mode tests pass in the Mono runner.
+- **Review:** 7 findings. Fixed: every voyage stayed sheltered until the player clicked Done (now only the first); the sell step stuck if the ship left or bought more first; the box covered Restart on 16:10 and 4:3 screens (Restart moved under 4×, the box stretches and doesn't block clicks); no way back after Back on the send panel; steps counted any open port as the start port; the Skip label was looked up every frame. Left: a restart uses the same seed (reproducible on purpose), and the buying tip uses the first ship and today's prices (all opening ships are the same type).
 
 ## To check in Unity (designer)
 
@@ -111,13 +113,15 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
 3. If clicks on the map don't register, check the Main Camera's `Physics2DRaycaster` and the EventSystem's Input System UI module.
 4. **Phase 4** (build the scene again first):
    - **Build Settings:** after the menu command, `Slice.unity` is listed and enabled, and the scenes that were already there are unchanged.
-   - **Restart:** the end screen's Restart starts a fresh game: fleet choice, 8,500 gold, the date back to 1 Jul 1770, no old notifications, markers or panels, speed 1×. The HUD Restart shows "Sure?", goes back to "Restart" after about 3 seconds, and restarts on a second click.
+   - **Restart:** the end screen's Restart starts a fresh game: fleet choice, 8,500 gold, the date back to 1 Jul 1770, no old notifications, markers or panels, speed 1×. The HUD Restart (under 4×) shows "Sure?", goes back to "Restart" after about 3 seconds, and restarts on a second click.
    - **Tutorial:**
      - it appears after the second free route, one objective at a time
      - the outline sits on the right thing at each step: the start port on the map, the market, Send, the destinations, Set sail, Close or 4×, the destination port, then the market there
      - the outline never blocks a click
      - the box doesn't cover the date, gold, speed or Restart buttons, or anything you need on the port and send panels
-     - the first voyage meets no storms, pirates or hurricanes
+     - the first voyage meets no storms, pirates or hurricanes, and a second ship sent during the tutorial does meet them
+     - try 16:10 and 4:3 in the Game view: the box clears the gold text, the speed buttons and Restart, and its text fits
+     - open a different port, press Back on the send panel, or sail away from the destination without selling: the outline and text still point somewhere sensible
      - Skip hides it at any step, and voyages after that meet hazards again
      - doing things out of order (for example, setting sail straight away) doesn't leave it stuck
 5. Window → General → Test Runner → EditMode → Run All. Expect 110 passing.

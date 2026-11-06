@@ -135,10 +135,10 @@ namespace Naval.SliceEditor
             }
 
             fastest = buttons[buttons.Length - 1];
-            // Left of Pause (whose left edge is at -540), with a 10px gap.
-            Button restart = SliceUi.MakeButton(root, "Restart", new Vector2(110f, 64f), null, 24);
+            // Under 4×, clear of the tutorial box.
+            Button restart = SliceUi.MakeButton(root, "Restart", new Vector2(120f, 44f), null, 24);
             restart.name = "Restart";
-            SliceUi.Place(restart, TopRight, new Vector2(-550f, -24f));
+            SliceUi.Place(restart, TopRight, new Vector2(-30f, -98f));
 
             var hud = root.gameObject.AddComponent<SliceHud>();
             SetRef(hud, "restartButton", restart);
@@ -416,11 +416,26 @@ namespace Naval.SliceEditor
 
         static void BuildTutorial(Transform root, SliceBootstrap bootstrap, SliceMap map, Camera camera, Screens screens, Button fastest)
         {
-            // Narrow enough to clear the gold text on the left and the Restart button on the right.
             GameObject box = SliceUi.MakePanel(root, "Tutorial Box", new Vector2(620f, 130f), SliceUi.PanelColor);
-            SliceUi.Place(box.transform, TopCenter, new Vector2(-40f, -10f));
+            box.GetComponent<Image>().raycastTarget = false;   // only Skip is clickable
+            // Stretches between the gold text (left, ends near x 630) and the Pause button (right edge 540 from the right), 10 to 140 from the top.
+            var boxRect = (RectTransform)box.transform;
+            boxRect.anchorMin = new Vector2(0f, 1f);
+            boxRect.anchorMax = new Vector2(1f, 1f);
+            boxRect.pivot = new Vector2(0.5f, 1f);
+            boxRect.offsetMin = new Vector2(650f, -140f);
+            boxRect.offsetMax = new Vector2(-560f, -10f);
             Text text = SliceUi.MakeText(box.transform, "Text", 22, TextAnchor.MiddleLeft, new Vector2(470f, 110f));
-            SliceUi.Place(text, TopLeft, new Vector2(14f, -10f));
+            // Fills the box to the left of Skip.
+            var textRect = (RectTransform)text.transform;
+            textRect.anchorMin = new Vector2(0f, 0f);
+            textRect.anchorMax = new Vector2(1f, 1f);
+            textRect.pivot = new Vector2(0.5f, 0.5f);
+            textRect.offsetMin = new Vector2(14f, 8f);
+            textRect.offsetMax = new Vector2(-136f, -8f);
+            text.resizeTextForBestFit = true;
+            text.resizeTextMinSize = 14;
+            text.resizeTextMaxSize = 22;
             Button skip = SliceUi.MakeButton(box.transform, "Skip", new Vector2(110f, 56f), null, 28);
             SliceUi.Place(skip, new Vector2(1f, 0.5f), new Vector2(-12f, 0f));
 

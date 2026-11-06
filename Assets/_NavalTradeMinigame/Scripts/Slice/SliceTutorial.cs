@@ -57,7 +57,8 @@ namespace Naval.Slice
         string tip = "";
         Ship tutorialShip;
         Port arrivedAt;
-        int arrivalCargo;
+        int lastCargo;
+        Text skipLabel;
 
         void Start()
         {
@@ -74,6 +75,13 @@ namespace Naval.Slice
             if (canvas == null)
             {
                 Debug.LogError("SliceTutorial: must be on or under the canvas.");
+                enabled = false;
+                return;
+            }
+            skipLabel = SliceUi.LabelOf(skipButton);
+            if (skipLabel == null)
+            {
+                Debug.LogError("SliceTutorial: the Skip button needs a Text label.");
                 enabled = false;
                 return;
             }
@@ -99,6 +107,13 @@ namespace Naval.Slice
                 Begin(state);
             }
 
+            if (tutorialShip == null)
+            {
+                tutorialShip = FindShelteredShip(state);
+                // Only the first voyage is sheltered.
+                if (tutorialShip != null) state.ShelterNewVoyages = false;
+            }
+
             // Past the sending step the ship matters; if it is gone there is nothing left to show.
             if (index >= SailStepCount && !InFleet(state, tutorialShip))
             {
@@ -121,7 +136,6 @@ namespace Naval.Slice
             string text = step.Text();
             if (objectiveText.text != text) objectiveText.text = text;
             string skip = index == steps.Count - 1 ? "Done" : "Skip";
-            Text skipLabel = SliceUi.LabelOf(skipButton);
             if (skipLabel.text != skip) skipLabel.text = skip;
         }
 
@@ -223,38 +237,39 @@ namespace Naval.Slice
             steps.Add(new Step
             {
                 Text = () => "Your fleet waits in " + start + ". Click " + start + " on the map to open its market.",
-                Done = () => portPanel.IsOpen || Sailed(state),
+                Done = () => portPanel.IsOpenAt(startPort) || Sailed(),
                 MapPort = () => startPort
             });
             steps.Add(new Step
             {
                 Text = () => "Buy goods: click Buy 10 next to a good." + (tip.Length > 0 ? " " + tip : "")
-                    + (portPanel.IsOpen ? "" : " Click " + start + " to open its market."),
-                Done = () => AnyCargo(state) || Sailed(state),
-                Target = () => portPanel.IsOpen ? marketRows : null,
+                    + (portPanel.IsOpenAt(startPort) ? "" : " Click " + start + " to open its market."),
+                Done = () => AnyCargo(state) || Sailed(),
+                Target = () => PortTarget(startPort, marketRows),
                 MapPort = () => startPort
             });
             steps.Add(new Step
             {
                 Text = () => "The crates went straight into the ship's hold. Buy more to fill it while your gold allows, then click Send.",
-                Done = () => sendPanel.IsOpen || Sailed(state),
-                Target = () => portSendButton.GetComponent<RectTransform>(),
+                Done = () => sendPanel.IsOpen || Sailed(),
+                Target = SendTarget,
                 MapPort = () => startPort
             });
             steps.Add(new Step
             {
-                Text = () => "Pick a destination and read the preview: the arrival date, the pirate and hurricane risk, and the chance of losing the ship.",
-                Done = () => sendPanel.HasPreview || Sailed(state),
-                Target = () => destinationRows,
+                Text = () => "Pick a destination and read the preview: the arrival date, the pirate and hurricane risk, and the chance of losing the ship."
+                    + (sendPanel.IsOpen ? "" : " Click Send in " + start + "'s market first."),
+                Done = () => sendPanel.HasPreview || Sailed(),
+                Target = SendTarget,
                 MapPort = () => startPort
             });
             steps.Add(new Step
             {
-                Text = () => "Your first voyage sails under escort, so nothing will happen to it on the way. Click Set sail.",
-                Done = () => Sailed(state),
-                Target = () => sailButton.GetComponent<RectTransform>(),
-                MapPort = () => startPort,
-                OnDone = () => tutorialShip = FindShelteredShip(state)
+                Text = () => "Your first voyage sails under escort, so nothing will happen to it on the way. Click Set sail."
+                    + (sendPanel.IsOpen ? "" : " Click Send in " + start + "'s market first."),
+                Done = () => Sailed(),
+                Target = SendTarget,
+                MapPort = () => startPort
             });
             steps.Add(new Step
             {
@@ -264,20 +279,19 @@ namespace Naval.Slice
                 OnDone = () =>
                 {
                     arrivedAt = tutorialShip.Port;
-                    arrivalCargo = tutorialShip.CargoCount;
+                    lastCargo = tutorialShip.CargoCount;
                 }
             });
             steps.Add(new Step
             {
                 Text = () => "Your ship reached " + arrivedAt.Name + ". Click " + arrivedAt.Name + " and sell your cargo with Sell all.",
-                // Also done when nothing aboard sells here, so the player is never stuck on this step.
-                Done = () => tutorialShip.CargoCount < arrivalCargo || !SellsAny(state, tutorialShip, arrivedAt),
-                Target = () => portPanel.IsOpen ? marketRows : null,
+                Done = SoldOrLeft,
+                Target = () => PortTarget(arrivedAt, marketRows),
                 MapPort = () => arrivedAt
             });
             steps.Add(new Step
             {
-                Text = () => "That's a trade. Reach " + MoneyManager.Format(state.Data.Rules.GoalGold) + " by "
+                Text = () => "That's the trade loop. Reach " + MoneyManager.Format(state.Data.Rules.GoalGold) + " by "
                     + SliceUi.Date(state.Calendar.DateOf(state.Data.Rules.MissionDays))
                     + ". Ports pay more for Gulf and Caribbean goods in hurricane season, but the risks rise too.",
                 Done = () => false   // the Done button (the skip button) ends this step
@@ -291,9 +305,37 @@ namespace Naval.Slice
         }
 
         /// <summary>True once a ship set sail under the tutorial's shelter (the player may get there before the text asks).</summary>
-        static bool Sailed(GameState state)
+        bool Sailed()
         {
-            return FindShelteredShip(state) != null;
+            return tutorialShip != null;
+        }
+
+        /// <summary>The widget inside the port panel when it shows this port; Close when it shows another; null (outline the port on the map) when it is shut.</summary>
+        RectTransform PortTarget(Port port, RectTransform inside)
+        {
+            if (portPanel.IsOpenAt(port)) return inside;
+            return portPanel.IsOpen ? (RectTransform)portCloseButton.transform : null;
+        }
+
+        /// <summary>Where the player is on the way to setting sail: Set sail, the destinations, Send in the start port's market, or the start port.</summary>
+        RectTransform SendTarget()
+        {
+            if (sendPanel.IsOpen) return sendPanel.HasPreview ? (RectTransform)sailButton.transform : destinationRows;
+            return PortTarget(startPort, (RectTransform)portSendButton.transform);
+        }
+
+        /// <summary>
+        /// True once the player sells from the tutorial ship (crates bought here first don't hide the sale), once the ship has left
+        /// the port, or when nothing aboard sells here, so the player is never stuck on this step.
+        /// </summary>
+        bool SoldOrLeft()
+        {
+            GameState state = bootstrap.State;
+            if (tutorialShip.Port != arrivedAt) return true;
+            int cargo = tutorialShip.CargoCount;
+            bool sold = cargo < lastCargo;
+            lastCargo = cargo;
+            return sold || !SellsAny(state, tutorialShip, arrivedAt);
         }
 
         static bool SellsAny(GameState state, Ship ship, Port port)
