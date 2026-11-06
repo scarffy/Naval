@@ -1,0 +1,13 @@
+port,region,shipyard
+Natchez,Gulf,no
+New Orleans,Gulf,no
+Campeche,Gulf,no
+Veracruz,Gulf,no
+Havana,Caribbean,yes
+Port-au-Prince,Caribbean,no
+Bridgetown,Caribbean,no
+New York,North America,no
+Boston,North America,yes
+Liverpool,Europe,yes
+Bordeaux,Europe,yes
+Seville,Europe,no

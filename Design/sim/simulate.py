@@ -1,23 +1,25 @@
 #!/usr/bin/env python3
 """Balance simulator for the Naval vertical slice.
 
-Reads the CSV files in Design/data, plays many 60-day sessions with simple
-bot players, and checks the results against the targets in
+Reads the CSV files in Design/data, plays many sessions with simple bot
+players, and checks the results against the balance targets listed in
 Design/VerticalSlice.md. Standard library only.
 
-    python3 Design/sim/simulate.py              # 500 sessions per bot
-    python3 Design/sim/simulate.py --runs 2000  # more sessions, steadier numbers
-    python3 Design/sim/simulate.py --seed 7     # different random sequence
+    python3 Design/sim/simulate.py              # 200 sessions per bot
+    python3 Design/sim/simulate.py --runs 1000  # steadier numbers
+    python3 Design/sim/simulate.py --seed 7     # a different random sequence
 """
 import argparse
 import csv
+import heapq
 import math
 import os
 import random
 import statistics
-from collections import Counter
+from collections import Counter, defaultdict
 
 DATA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data")
+TRACK_ORDER = ["Hold", "Sails", "Hull", "Guns"]
 
 
 # ---------------------------------------------------------------- data ----
@@ -27,165 +29,308 @@ def read_csv(name):
         return list(csv.DictReader(f))
 
 
-def load():
-    goods = {r["good"]: float(r["base_price"]) for r in read_csv("goods.csv")}
-    market = {}
-    for r in read_csv("market.csv"):
-        market[r["port"]] = {g: float(r[g]) for g in goods}
-    routes = {}
-    for r in read_csv("routes.csv"):
-        info = {"distance": float(r["distance"]),
-                "storm": float(r["storm_per_day"]),
-                "pirates": float(r["pirates_per_day"])}
-        routes[(r["from"], r["to"])] = info
-        routes[(r["to"], r["from"])] = info
-    ships = {r["ship"]: {"price": float(r["price"]), "capacity": int(r["capacity"]),
-                         "speed": float(r["speed"]), "hull": int(r["hull"]),
-                         "wage": float(r["wage_per_day"])}
-             for r in read_csv("ships.csv")}
-    rules = {}
-    for r in read_csv("rules.csv"):
-        v = r["value"]
-        try:
-            rules[r["key"]] = float(v)
-        except ValueError:
-            rules[r["key"]] = v
-    ports = list(market)
-    for a in ports:
-        for b in ports:
-            if a != b and (a, b) not in routes:
-                raise SystemExit(f"routes.csv has no route between {a} and {b}")
-    return goods, market, routes, ships, rules
+def as_value(v):
+    try:
+        return float(v)
+    except ValueError:
+        return v
+
+
+class Data:
+    def __init__(self):
+        self.goods = {r["good"]: float(r["base_price"]) for r in read_csv("goods.csv")}
+        self.ports = {r["port"]: {"region": r["region"], "shipyard": r["shipyard"].strip().lower() == "yes"}
+                      for r in read_csv("ports.csv")}
+        self.market = {}
+        for r in read_csv("market.csv"):
+            self.market[r["port"]] = {g: float(r[g]) for g in self.goods if (r.get(g) or "").strip()}
+        self.ships = {r["ship"]: {"price": float(r["price"]), "capacity": int(r["capacity"]),
+                                  "speed": float(r["speed"]), "hull": int(r["hull"]),
+                                  "wage": float(r["wage_per_day"])}
+                      for r in read_csv("ships.csv")}
+        self.upgrades = defaultdict(list)
+        for r in sorted(read_csv("upgrades.csv"), key=lambda r: (r["track"], int(r["level"]))):
+            self.upgrades[r["track"]].append({k: as_value(v) for k, v in r.items()})
+        self.rules = {r["key"]: as_value(r["value"]) for r in read_csv("rules.csv")}
+        lanes = [{"a": r["from"], "b": r["to"], "distance": float(r["distance"]),
+                  "storm": float(r["storm_per_day"]), "pirates": float(r["pirates_per_day"]),
+                  "hurricanes": float(r["hurricanes_per_day"])} for r in read_csv("lanes.csv")]
+        if set(self.market) != set(self.ports):
+            raise SystemExit("market.csv and ports.csv list different ports")
+        self.routes = self._routes(lanes)
+
+    def _routes(self, lanes):
+        """Shortest sea path between every pair of ports, as a list of lanes."""
+        adj = defaultdict(list)
+        for lane in lanes:
+            for x, y in ((lane["a"], lane["b"]), (lane["b"], lane["a"])):
+                if x not in self.ports or y not in self.ports:
+                    raise SystemExit(f"lanes.csv mentions unknown port {x!r}")
+                adj[x].append((y, lane))
+        routes = {}
+        for src in self.ports:
+            dist, prev = {src: 0.0}, {}
+            heap = [(0.0, src)]
+            while heap:
+                d, u = heapq.heappop(heap)
+                if d > dist[u]:
+                    continue
+                for v, lane in adj[u]:
+                    if d + lane["distance"] < dist.get(v, math.inf):
+                        dist[v], prev[v] = d + lane["distance"], (u, lane)
+                        heapq.heappush(heap, (dist[v], v))
+            for dst in self.ports:
+                if dst == src:
+                    continue
+                if dst not in dist:
+                    raise SystemExit(f"No sea path from {src} to {dst}")
+                legs, node = [], dst
+                while node != src:
+                    node, lane = prev[node]
+                    legs.append(lane)
+                legs.reverse()
+                total = dist[dst]
+                avg = {k: sum(l[k] * l["distance"] for l in legs) / total
+                       for k in ("storm", "pirates", "hurricanes")}
+                europe = {self.ports[src]["region"] == "Europe", self.ports[dst]["region"] == "Europe"}
+                routes[(src, dst)] = {"distance": total, "legs": legs, "atlantic": len(europe) == 2, **avg}
+        return routes
 
 
 # ---------------------------------------------------------------- game ----
 
 class Ship:
-    def __init__(self, kind, spec, port):
-        self.kind, self.spec = kind, spec
-        self.port = port            # current port, or destination while sailing
-        self.hull = spec["hull"]
+    def __init__(self, data, kind, port):
+        self.data, self.kind, self.base = data, kind, data.ships[kind]
+        self.levels = Counter()          # upgrade track -> level bought
+        self.invested = self.base["price"]
+        self.port = port                 # current port, or destination while sailing
         self.cargo = Counter()
-        self.arrive_day = 0         # day the ship is next free to act
-        self.origin = None
+        self.free_at = 0.0               # time (in days) the ship can act again
+        self.origin = None               # set while sailing
+        self.hull = self.max_hull()
+
+    def _mult(self, field):
+        m = 1.0
+        for track, level in self.levels.items():
+            if level:
+                m *= self.data.upgrades[track][level - 1][field]
+        return m
+
+    def speed(self):
+        return self.base["speed"] * self._mult("speed")
+
+    def capacity(self):
+        return int(round(self.base["capacity"] * self._mult("capacity")))
+
+    def max_hull(self):
+        return int(round(self.base["hull"] * self._mult("hull")))
+
+    def wage(self):
+        return self.base["wage"] * self._mult("wage")
+
+    def repair_mult(self):
+        return self._mult("repair_cost")
+
+    def repel(self):
+        return max([self.data.upgrades[t][l - 1]["pirate_repel"] for t, l in self.levels.items() if l] or [0.0])
+
+
+def frac_at_least(hull, lo, hi):
+    """Chance that damage drawn uniformly from lo..hi is at least `hull`."""
+    return min(1.0, max(0.0, (hi - hull + 1) / (hi - lo + 1)))
 
 
 class Game:
     def __init__(self, data, rng):
-        self.goods, self.market, self.routes, self.ships_spec, self.r = data
-        self.rng = rng
+        self.d, self.r, self.rng = data, data.rules, rng
         self.day = 0
+        self.now = 0.0                   # exact time of the decision being made
         self.gold = self.r["start_gold"]
-        self.pressure = {p: {g: 0.0 for g in self.goods} for p in self.market}
-        self.inbound = {p: Counter() for p in self.market}
-        self.fleet = [Ship(self.r["start_ship"], self.ships_spec[self.r["start_ship"]],
-                           self.r["start_port"])]
+        self.pressure = {p: defaultdict(float) for p in data.market}   # pushed by the player's trading
+        self.trend = {p: defaultdict(float) for p in data.market}      # shortages and gluts
+        self.inbound = {p: Counter() for p in data.market}
+        self.fleet = [Ship(data, self.r["start_ship"], self.r["start_port"])]
         self.win_day = None
         self.sunk = 0
         self.events = Counter()
         self.trips = Counter()
-        self.bought = Counter()
+        self.arrivals = Counter()
+        self.atlantic_trips = 0
+        self.sea_days = Counter()        # (period, on_hurricane_lane) -> ship-days at sea
+        self.ships_bought = Counter()
+        self.upgrades_bought = Counter()
+        self.history = []                # gold at the end of each day
 
     # --- prices
-    def mid(self, port, good, extra=0.0):
-        p = min(self.r["pressure_max"], max(self.r["pressure_min"],
-                                            self.pressure[port][good] + extra))
-        return self.goods[good] * self.market[port][good] * (1 + p)
+    def price(self, port, good, pressure):
+        p = min(self.r["pressure_max"], max(self.r["pressure_min"], pressure))
+        return self.d.goods[good] * self.d.market[port][good] * (1 + p)
+
+    def total_pressure(self, port, good):
+        return self.pressure[port][good] + self.trend[port][good]
 
     def buy_price(self, port, good, extra=0.0):
-        return self.mid(port, good, extra) * (1 + self.r["spread"] / 2)
+        return self.price(port, good, self.total_pressure(port, good) + extra) * (1 + self.r["spread"] / 2)
 
-    def sell_price(self, port, good, extra=0.0):
-        return self.mid(port, good, extra) * (1 - self.r["spread"] / 2)
+    def sell_price(self, port, good, pressure):
+        return self.price(port, good, pressure) * (1 - self.r["spread"] / 2)
 
     def push(self, port, good, amount):
         p = self.pressure[port]
         p[good] = min(self.r["pressure_max"], max(self.r["pressure_min"], p[good] + amount))
 
     def buy(self, ship, good):
-        price = self.buy_price(ship.port, good)
-        self.gold -= price
+        self.gold -= self.buy_price(ship.port, good)
         ship.cargo[good] += 1
         self.push(ship.port, good, self.r["pressure_per_crate_bought"])
 
     def sell_all(self, ship):
         for good, n in list(ship.cargo.items()):
+            if good not in self.d.market[ship.port]:
+                continue                                  # not traded here: keep it aboard
             for _ in range(n):
-                self.gold += self.sell_price(ship.port, good)
+                self.gold += self.sell_price(ship.port, good, self.total_pressure(ship.port, good))
                 self.push(ship.port, good, -self.r["pressure_per_crate_sold"])
-        ship.cargo.clear()
+            del ship.cargo[good]
 
+    # --- ships
     def repair(self, ship, below=1.0):
-        missing = ship.spec["hull"] - ship.hull
-        if missing <= 0 or ship.hull > ship.spec["hull"] * below:
+        missing = ship.max_hull() - ship.hull
+        if missing <= 0 or ship.hull > ship.max_hull() * below:
             return
-        afford = int(max(0, self.gold) // self.r["repair_cost_per_hull"])
-        fix = min(missing, afford)
+        cost = self.r["repair_cost_per_hull"] * ship.repair_mult()
+        fix = min(missing, int(max(0, self.gold) // cost))
         ship.hull += fix
-        self.gold -= fix * self.r["repair_cost_per_hull"]
+        self.gold -= fix * cost
+
+    def buy_ship(self, kind, port):
+        spec = self.d.ships[kind]
+        self.gold -= spec["price"]
+        self.ships_bought[kind] += 1
+        ship = Ship(self.d, kind, port)
+        ship.free_at = self.now
+        self.fleet.append(ship)
+        return ship
+
+    def upgrade_cost(self, ship, track):
+        level = ship.levels[track]
+        if level >= len(self.d.upgrades[track]):
+            return None
+        return self.d.upgrades[track][level]["cost_fraction"] * ship.base["price"]
+
+    def buy_upgrade(self, ship, track):
+        cost = self.upgrade_cost(ship, track)
+        before = ship.max_hull()
+        ship.levels[track] += 1
+        ship.hull += ship.max_hull() - before
+        ship.invested += cost
+        self.gold -= cost
+        self.upgrades_bought[f"{track} {ship.levels[track]}"] += 1
+
+    # --- voyages
+    def season(self, day):
+        start, peak = self.r["hurricane_season_start"], self.r["hurricane_season_peak"]
+        if day < start:
+            return 0.0
+        return min(1.0, (day - start) / max(1.0, peak - start))
 
     def voyage_days(self, ship, dest):
-        return math.ceil(self.routes[(ship.port, dest)]["distance"] / ship.spec["speed"])
+        return self.d.routes[(ship.port, dest)]["distance"] / ship.speed()
+
+    def roll(self, lo, hi):
+        return self.rng.randint(int(self.r[lo]), int(self.r[hi]))
+
+    def lose_cargo(self, ship, lo, hi):
+        frac = self.rng.uniform(self.r[lo], self.r[hi])
+        for g in ship.cargo:
+            ship.cargo[g] -= round(ship.cargo[g] * frac)
 
     def sail(self, ship, dest):
-        route = self.routes[(ship.port, dest)]
+        route = self.d.routes[(ship.port, dest)]
         days = self.voyage_days(ship, dest)
         self.trips[tuple(sorted((ship.port, dest)))] += 1
-        for _ in range(days):
-            if self.rng.random() < route["storm"]:
+        self.atlantic_trips += route["atlantic"]
+        bounds, total = [], 0.0
+        for lane in route["legs"]:
+            total += lane["distance"]
+            bounds.append((total, lane))
+        delay = 0
+        for i in range(math.ceil(days)):
+            share = min(1.0, days - i)           # the last day at sea may be partial
+            pos = min(i + 0.5, days) / days * route["distance"]
+            lane = next(l for b, l in bounds if pos <= b)
+            sea_day = int(self.now) + i
+            period = "early" if sea_day <= self.r["hurricane_season_start"] else (
+                "late" if sea_day > self.r["hurricane_season_peak"] else "mid")
+            self.sea_days[(period, lane["hurricanes"] > 0.025)] += share
+            if self.rng.random() < lane["storm"] * share:
                 self.events["storm"] += 1
-                days += self.rng.randint(int(self.r["storm_delay_min"]), int(self.r["storm_delay_max"]))
-                ship.hull -= self.rng.randint(int(self.r["storm_damage_min"]), int(self.r["storm_damage_max"]))
-            if self.rng.random() < route["pirates"]:
-                self.events["pirates"] += 1
-                loss = self.rng.uniform(self.r["pirate_loss_min"], self.r["pirate_loss_max"])
-                for g in ship.cargo:
-                    ship.cargo[g] -= round(ship.cargo[g] * loss)
-                ship.hull -= self.rng.randint(int(self.r["pirate_damage_min"]), int(self.r["pirate_damage_max"]))
+                delay += self.roll("storm_delay_min", "storm_delay_max")
+                ship.hull -= self.roll("storm_damage_min", "storm_damage_max")
+            if self.rng.random() < lane["pirates"] * share:
+                if self.rng.random() < ship.repel():
+                    self.events["pirates driven off"] += 1
+                    ship.hull -= self.roll("pirate_damage_min", "pirate_damage_max") // 2
+                else:
+                    self.events["pirates"] += 1
+                    self.lose_cargo(ship, "pirate_loss_min", "pirate_loss_max")
+                    ship.hull -= self.roll("pirate_damage_min", "pirate_damage_max")
+            if self.rng.random() < lane["hurricanes"] * self.season(sea_day) * share:
+                self.events["hurricane"] += 1
+                delay += self.roll("hurricane_delay_min", "hurricane_delay_max")
+                self.lose_cargo(ship, "hurricane_loss_min", "hurricane_loss_max")
+                ship.hull -= self.roll("hurricane_damage_min", "hurricane_damage_max")
             if ship.hull <= 0:
                 break
         for g, n in ship.cargo.items():
             self.inbound[dest][g] += n
-        ship.origin, ship.port, ship.arrive_day = ship.port, dest, self.day + days
+        ship.origin, ship.port = ship.port, dest
+        ship.free_at = self.now + days + delay + self.r["port_time_days"]
 
     def arrive(self, ship):
         for g, n in ship.cargo.items():
             self.inbound[ship.port][g] -= n
+        ship.origin = None
         if ship.hull <= 0:
             self.sunk += 1
-            self.events["sunk"] += 1
             self.fleet.remove(ship)
             return False
+        self.arrivals[ship.port] += 1
+        self.gold -= self.r["port_fee"]
         self.sell_all(ship)
         return True
 
     def end_of_day(self):
-        self.gold -= sum(s.spec["wage"] for s in self.fleet)
+        self.gold -= sum(s.wage() for s in self.fleet)
         keep = 1 - self.r["pressure_recovery_per_day"]
+        trend_keep = 1 - self.r["market_event_recovery_per_day"]
         noise = self.r["market_noise_per_day"]
-        for port in self.pressure:
-            for g in self.pressure[port]:
+        for port in self.d.market:
+            for g in self.d.market[port]:
                 self.pressure[port][g] = self.pressure[port][g] * keep + self.rng.gauss(0, noise)
+                self.trend[port][g] *= trend_keep
+        if self.rng.random() < self.r["market_event_chance_per_day"]:
+            port = self.rng.choice(list(self.d.market))
+            good = self.rng.choice(list(self.d.market[port]))
+            self.trend[port][good] += self.rng.choice((-1, 1)) * self.r["market_event_size"]
+            self.events["market news"] += 1
+        self.history.append(self.gold)
         if self.win_day is None and self.gold >= self.r["goal_gold"]:
             self.win_day = self.day
 
     def bankrupt(self):
-        cheapest = min(s["price"] for s in self.ships_spec.values())
-        return not self.fleet and self.gold < cheapest
+        return not self.fleet and self.gold < min(s["price"] for s in self.d.ships.values())
 
     def run(self, bot):
-        limit = int(self.r["day_limit"])
-        for self.day in range(1, limit + 1):
-            for ship in [s for s in self.fleet if s.arrive_day <= self.day]:
-                if ship.arrive_day == self.day and ship.origin is not None:
-                    if not self.arrive(ship):
-                        continue
-                    ship.origin = None
-                if self.gold >= self.r["goal_gold"]:
+        for self.day in range(1, int(self.r["day_limit"]) + 1):
+            for ship in sorted((s for s in self.fleet if s.free_at <= self.day), key=lambda s: s.free_at):
+                self.now = max(ship.free_at, self.day - 1)
+                if ship.origin is not None and not self.arrive(ship):
                     continue
                 bot.act(self, ship)
             self.end_of_day()
-            if self.win_day is not None or self.bankrupt():
+            if self.bankrupt():
                 break
         return self
 
@@ -193,97 +338,138 @@ class Game:
 # ---------------------------------------------------------------- bots ----
 
 def plan_cargo(game, ship, dest, days):
-    """Pick crates one at a time by best expected margin. Returns (plan, expected profit)."""
-    route = game.routes[(ship.port, dest)]
-    p_pirates = 1 - (1 - route["pirates"]) ** days
-    keep_frac = 1 - p_pirates * (game.r["pirate_loss_min"] + game.r["pirate_loss_max"]) / 2
-    decay = (1 - game.r["pressure_recovery_per_day"]) ** days
-    bought, sold = Counter(), Counter()
-    budget = game.gold - 200          # keep a little for wages and repairs
-    plan, profit = Counter(), 0.0
-    for _ in range(ship.spec["capacity"]):
-        best, best_margin, best_cost = None, 2.0, 0.0
-        for g in game.goods:
-            cost = game.buy_price(ship.port, g, bought[g] * game.r["pressure_per_crate_bought"])
-            expected_pressure = (game.pressure[dest][g] * decay
-                                 - (game.inbound[dest][g] + sold[g]) * game.r["pressure_per_crate_sold"])
-            value = game.sell_price(dest, g, expected_pressure - game.pressure[dest][g])
-            margin = value * keep_frac - cost
-            if margin > best_margin and cost <= budget:
-                best, best_margin, best_cost = g, margin, cost
-        if best is None:
+    """Choose crates one at a time by best expected margin. Returns (plan, expected profit)."""
+    r = game.r
+    route = game.d.routes[(ship.port, dest)]
+    here, there = game.d.market[ship.port], game.d.market[dest]
+    season = game.season(int(game.now + days / 2))
+    p_robbed = 1 - (1 - route["pirates"] * (1 - ship.repel())) ** days
+    p_hurricane = 1 - (1 - route["hurricanes"] * season) ** days
+    keep = ((1 - p_robbed * (r["pirate_loss_min"] + r["pirate_loss_max"]) / 2)
+            * (1 - p_hurricane * (r["hurricane_loss_min"] + r["hurricane_loss_max"]) / 2))
+    decay = (1 - r["pressure_recovery_per_day"]) ** days
+    trend_decay = (1 - r["market_event_recovery_per_day"]) ** days
+    kb, ks = r["pressure_per_crate_bought"], r["pressure_per_crate_sold"]
+
+    def margin(g, k):
+        cost = game.buy_price(ship.port, g, k * kb)
+        expected = (game.pressure[dest][g] * decay + game.trend[dest][g] * trend_decay
+                    - (game.inbound[dest][g] + k) * ks)
+        return game.sell_price(dest, g, expected) * keep - cost, cost
+
+    heap = []
+    for g in here:
+        if g in there:
+            m, c = margin(g, 0)
+            heap.append((-m, g, 0, c))
+    heapq.heapify(heap)
+    budget = game.gold - 200                  # keep a little for wages and repairs
+    room = ship.capacity() - sum(ship.cargo.values())
+    plan, profit, spent = Counter(), 0.0, 0.0
+    while heap and room > 0:
+        neg, g, k, cost = heapq.heappop(heap)
+        if -neg <= 2:
             break
-        plan[best] += 1
-        bought[best] += 1
-        sold[best] += 1
-        budget -= best_cost
-        profit += best_margin
-    expected_damage = days * (route["storm"] * (game.r["storm_damage_min"] + game.r["storm_damage_max"]) / 2
-                              + route["pirates"] * (game.r["pirate_damage_min"] + game.r["pirate_damage_max"]) / 2)
-    profit -= days * ship.spec["wage"] + expected_damage * game.r["repair_cost_per_hull"]
+        if cost > budget:
+            continue
+        plan[g] += 1
+        room -= 1
+        budget -= cost
+        spent += cost
+        profit -= neg
+        m, c = margin(g, k + 1)
+        heapq.heappush(heap, (-m, g, k + 1, c))
+
+    mean = lambda lo, hi: (r[lo] + r[hi]) / 2
+    damage = days * (route["storm"] * mean("storm_damage_min", "storm_damage_max")
+                     + route["pirates"] * mean("pirate_damage_min", "pirate_damage_max")
+                     + route["hurricanes"] * season * mean("hurricane_damage_min", "hurricane_damage_max"))
+    profit -= ((days + r["port_time_days"]) * ship.wage() + r["port_fee"]
+               + damage * r["repair_cost_per_hull"] * ship.repair_mult())
+    p_sink = min(1.0, p_hurricane * frac_at_least(ship.hull, r["hurricane_damage_min"], r["hurricane_damage_max"])
+                 + (1 - (1 - route["storm"]) ** days)
+                 * frac_at_least(ship.hull, r["storm_damage_min"], r["storm_damage_max"]))
+    profit -= p_sink * (ship.invested + spent + max(0.0, profit))
     return plan, profit
 
 
-def execute(game, ship, dest, plan):
-    for g, n in plan.items():
-        for _ in range(n):
-            game.buy(ship, g)
-    game.sail(ship, dest)
+def reserve(game, extra_capacity=0):
+    """Gold to keep back so every ship can still fill its hold."""
+    return 50 * (extra_capacity + sum(s.capacity() for s in game.fleet)) + 300
 
 
 class Greedy:
-    """Picks the most profitable trip per day from where the ship is. Optionally grows the fleet."""
-    def __init__(self, expand_with=None, allowed=None):
-        self.expand_with = expand_with    # ship type to buy, or None for no fleet growth
+    """Picks the most profitable trip per day from where the ship is.
+    Optionally grows a fleet of one ship type and buys upgrades at shipyards."""
+    def __init__(self, expand_with=None, upgrades=(), allowed=None):
+        self.expand_with = expand_with
+        self.upgrades = list(upgrades)
         self.allowed = allowed            # restrict to these port pairs (fixed-route bot)
 
-    def act(self, game, ship):
-        game.repair(ship, below=0.6)
-        if self.expand_with and game.day <= game.r["day_limit"] - 20:
-            spec = game.ships_spec[self.expand_with]
-            # Keep enough gold back to fill the new ship and the ones already sailing.
-            reserve = 50 * (spec["capacity"] + sum(s.spec["capacity"] for s in game.fleet)) + 300
-            if game.gold >= spec["price"] + reserve:
-                game.gold -= spec["price"]
-                game.bought[self.expand_with] += 1
-                new = Ship(self.expand_with, spec, ship.port)
-                new.arrive_day = game.day
-                game.fleet.append(new)
+    def shop(self, game, ship):
+        if not game.d.ports[ship.port]["shipyard"] or game.day > game.r["day_limit"] - 25:
+            return
+        if self.expand_with:
+            kinds = list(game.d.ships) if self.expand_with == "Mixed" else [self.expand_with]
+            affordable = [k for k in kinds
+                          if game.gold >= game.d.ships[k]["price"] + reserve(game, game.d.ships[k]["capacity"])]
+            if affordable:
+                biggest = max(affordable, key=lambda k: game.d.ships[k]["capacity"])
+                new = game.buy_ship(biggest, ship.port)
                 self.act(game, new)
+        while self.upgrades:
+            options = [(ship.levels[t], TRACK_ORDER.index(t), t) for t in self.upgrades
+                       if game.upgrade_cost(ship, t) is not None]
+            if not options:
+                break
+            _, _, track = min(options)
+            if game.gold < game.upgrade_cost(ship, track) + reserve(game):
+                break
+            game.buy_upgrade(ship, track)
+
+    def act(self, game, ship):
+        game.repair(ship, below=0.8)
+        self.shop(game, ship)
         best = None
-        for dest in game.market:
+        for dest in game.d.ports:
             if dest == ship.port or (self.allowed and tuple(sorted((ship.port, dest))) not in self.allowed):
                 continue
             days = game.voyage_days(ship, dest)
             plan, profit = plan_cargo(game, ship, dest, days)
-            score = profit / days
+            score = profit / (days + game.r["port_time_days"])
             if best is None or score > best[0]:
                 best = (score, dest, plan)
         if best and best[0] > 0:
-            execute(game, ship, best[1], best[2])
+            for g, n in best[2].items():
+                for _ in range(n):
+                    game.buy(ship, g)
+            game.sail(ship, best[1])
         elif self.allowed and best:
-            execute(game, ship, best[1], Counter())    # head back along the route empty
+            game.sail(ship, best[1])             # head back along the route empty
         else:
-            ship.arrive_day = game.day + 1             # wait a day for prices to recover
+            ship.free_at = game.now + 1          # wait a day for prices to move
 
 
 class FixedRoute(Greedy):
-    """Finds the best-looking pair of ports on day 1 and puts every ship on it, adding sloops as it can."""
-    def __init__(self, expand_with="Sloop"):
-        super().__init__(expand_with=expand_with)
+    """Picks the best-looking pair of ports (one with a shipyard) on day 1 and keeps every ship on it."""
+    def __init__(self):
+        super().__init__(expand_with="Sloop")
+        self.pair = None
 
     def act(self, game, ship):
-        if self.allowed is None:
+        if self.pair is None:
             best = None
-            for (a, b) in game.routes:
-                if a < b:
-                    days = game.routes[(a, b)]["distance"]
-                    margin = sum(max(game.goods[g] * (game.market[y][g] - game.market[x][g]) for g in game.goods)
-                                 for x, y in ((a, b), (b, a)))
-                    if best is None or margin / days > best[0]:
-                        best = (margin / days, (a, b))
-            self.allowed = {best[1]}
+            for (a, b), route in game.d.routes.items():
+                if a > b or not (game.d.ports[a]["shipyard"] or game.d.ports[b]["shipyard"]):
+                    continue
+                margin = 0.0
+                for x, y in ((a, b), (b, a)):
+                    shared = [g for g in game.d.market[x] if g in game.d.market[y]]
+                    margin += max([game.d.goods[g] * (game.d.market[y][g] - game.d.market[x][g]) for g in shared] or [0])
+                if best is None or margin / route["distance"] > best[0]:
+                    best = (margin / route["distance"], (a, b))
             self.pair = best[1]
+            self.allowed = {self.pair}
         if ship.port not in self.pair:
             game.sail(ship, self.pair[0])
             return
@@ -294,9 +480,12 @@ class RandomPlayer:
     """Sails to a random port with random cargo. A stand-in for someone ignoring prices."""
     def act(self, game, ship):
         game.repair(ship, below=0.5)
-        dest = game.rng.choice([p for p in game.market if p != ship.port])
-        for _ in range(ship.spec["capacity"]):
-            g = game.rng.choice(list(game.goods))
+        dest = game.rng.choice([p for p in game.d.ports if p != ship.port])
+        shared = [g for g in game.d.market[ship.port] if g in game.d.market[dest]]
+        for _ in range(ship.capacity()):
+            if not shared:
+                break
+            g = game.rng.choice(shared)
             if game.buy_price(ship.port, g) <= game.gold - 200:
                 game.buy(ship, g)
         game.sail(ship, dest)
@@ -304,118 +493,152 @@ class RandomPlayer:
 
 # -------------------------------------------------------------- report ----
 
-def pct(xs, q):
-    xs = sorted(xs)
-    return xs[min(len(xs) - 1, int(q * len(xs)))] if xs else float("nan")
-
-
 def simulate(data, make_bot, runs, seed):
-    games = []
-    for i in range(runs):
-        g = Game(data, random.Random(seed * 100003 + i))
-        games.append(g.run(make_bot()))
-    return games
+    return [Game(data, random.Random(seed * 100003 + i)).run(make_bot()) for i in range(runs)]
 
 
-def summarize(name, games, goal):
+def summarize(name, games):
     wins = [g.win_day for g in games if g.win_day is not None]
-    final = [g.gold for g in games]
-    trips = Counter()
+    final = sorted(g.gold for g in games)
+    trips, arrivals, sea = Counter(), Counter(), Counter()
     for g in games:
         trips.update(g.trips)
+        arrivals.update(g.arrivals)
+        sea.update(g.sea_days)
     total_trips = sum(trips.values()) or 1
+    total_arrivals = sum(arrivals.values()) or 1
     top_route, top_n = trips.most_common(1)[0] if trips else (("-", "-"), 0)
-    voyages = total_trips / len(games)
+
+    def hurricane_share(period):
+        on, off = sea[(period, True)], sea[(period, False)]
+        return on / (on + off) if on + off else 0.0
+
+    upgrades = Counter()
+    for g in games:
+        upgrades.update(g.upgrades_bought)
     return {
         "bot": name,
         "win %": 100 * len(wins) / len(games),
-        "median win day": statistics.median(wins) if wins else None,
-        "median gold": statistics.median(final),
-        "p10 gold": pct(final, 0.10),
-        "p90 gold": pct(final, 0.90),
-        "voyages": voyages,
-        "sinkings/session": sum(g.sunk for g in games) / len(games),
-        "top route share %": 100 * top_n / total_trips,
+        "win day": statistics.median(wins) if wins else None,
+        "gold day 90": statistics.median(final),
+        "mean gold": statistics.mean(final),
+        "p10 gold": final[len(final) // 10],
+        "voyages": total_trips / len(games),
+        "sunk": sum(g.sunk for g in games) / len(games),
+        "top route %": 100 * top_n / total_trips,
+        "atlantic %": 100 * sum(g.atlantic_trips for g in games) / total_trips,
+        "min port %": 100 * min(arrivals.get(p, 0) for p in games[0].d.ports) / total_arrivals,
+        "quiet ports": sorted((100 * arrivals.get(p, 0) / total_arrivals, p) for p in games[0].d.ports)[:3],
         "top route": " - ".join(top_route),
-        "bankrupt %": 100 * sum(1 for g in games if g.bankrupt()) / len(games),
+        "hurricane lanes early": hurricane_share("early"),
+        "hurricane lanes late": hurricane_share("late"),
+        "upgrades": {k: v / len(games) for k, v in upgrades.items()},
+        "gold by day": {d: statistics.median(g.history[min(d, len(g.history)) - 1] for g in games)
+                        for d in (50, 60, 70, 80, 90)},
+        "ships bought": {k: sum(g.ships_bought[k] for g in games) / len(games) for k in games[0].d.ships},
     }
 
 
-def static_margins(data):
-    goods, market, routes, ships, rules = data
-    rows = []
-    for (a, b), info in routes.items():
-        for g in goods:
-            m = goods[g] * (market[b][g] - market[a][g]) - goods[g] * (market[a][g] + market[b][g]) / 2 * rules["spread"]
-            if m > 0:
-                rows.append((m / info["distance"], m, g, a, b, info["distance"]))
-    rows.sort(reverse=True)
-    return rows
-
-
-def main():
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--runs", type=int, default=500)
-    ap.add_argument("--seed", type=int, default=1)
-    args = ap.parse_args()
-    data = load()
-    rules = data[4]
-
-    print("Best single-crate margins before any trading (gold per crate, per distance-day):")
-    for per_day, m, g, a, b, d in static_margins(data)[:8]:
-        print(f"  {g:8} {a:>15} -> {b:<15} +{m:5.0f}/crate  ({per_day:4.1f} per distance-day)")
-    print()
-
-    bots = [
-        ("Random", RandomPlayer),
-        ("Fixed route", FixedRoute),
-        ("Greedy, 1 ship", lambda: Greedy()),
-    ] + [(f"Greedy + {k}s", (lambda k=k: lambda: Greedy(expand_with=k))()) for k in data[3]]
-
-    results = [summarize(n, simulate(data, b, args.runs, args.seed), rules["goal_gold"]) for n, b in bots]
-    cols = ["bot", "win %", "median win day", "median gold", "p10 gold", "p90 gold",
-            "voyages", "sinkings/session", "top route share %", "bankrupt %"]
-    widths = [max(len(c), 15) for c in cols]
+def print_table(results):
+    cols = ["bot", "win %", "win day", "gold day 90", "mean gold", "p10 gold", "voyages", "sunk",
+            "top route %", "atlantic %", "min port %"]
+    widths = [max(len(c), 9) if c != "bot" else 22 for c in cols]
     print("  ".join(c.rjust(w) for c, w in zip(cols, widths)))
     for r in results:
         cells = []
         for c, w in zip(cols, widths):
             v = r[c]
-            cells.append((f"{v:,.1f}" if isinstance(v, float) else str("-" if v is None else v)).rjust(w))
+            text = "-" if v is None else (f"{v:,.1f}" if isinstance(v, float) else str(v))
+            cells.append(text.rjust(w))
         print("  ".join(cells))
-    print()
-    print("Most-used route per bot:")
-    for r in results:
-        print(f"  {r['bot']:15} {r['top route']}  ({r['top route share %']:.0f}% of voyages)")
-    print()
-    check(results, rules)
 
 
-def check(results, rules):
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--runs", type=int, default=200)
+    ap.add_argument("--seed", type=int, default=1)
+    args = ap.parse_args()
+    data = Data()
+    run = lambda name, make: summarize(name, simulate(data, make, args.runs, args.seed))
+
+    print("Strongest trades before any trading (gold per crate, and per day for a ship of speed 1):")
+    trades = []
+    for (a, b), route in data.routes.items():
+        for g in data.market[a]:
+            if g in data.market[b]:
+                m = data.goods[g] * (data.market[b][g] - data.market[a][g] * (1 + data.rules["spread"]))
+                if m > 0:
+                    trades.append((m / (route["distance"] + data.rules["port_time_days"]), m, g, a, b))
+    for per_day, m, g, a, b in sorted(trades, reverse=True)[:10]:
+        print(f"  {g:8} {a:>15} -> {b:<15} +{m:4.0f}/crate  {per_day:5.1f}/day")
+    print()
+
+    results = [run("Random", RandomPlayer), run("Fixed route", FixedRoute), run("Greedy, 1 ship", Greedy)]
+    fleet = [run(f"Fleet of {k}s", (lambda k=k: lambda: Greedy(expand_with=k))()) for k in data.ships]
+    fleet.append(run("Mixed fleet", lambda: Greedy(expand_with="Mixed")))
+    results += fleet
+    best = max(fleet, key=lambda r: r["mean gold"])
+    kind = "Mixed" if best["bot"] == "Mixed fleet" else best["bot"].split()[-1][:-1]
+    label = "Mixed" if kind == "Mixed" else f"{kind}s"
+    upgraded = run(f"{label} + all upgrades", lambda: Greedy(expand_with=kind, upgrades=TRACK_ORDER))
+    singles = [run(f"{label} + {t} only", (lambda t=t: lambda: Greedy(expand_with=kind, upgrades=[t]))())
+               for t in TRACK_ORDER]
+    results += [upgraded] + singles
+
+    print_table(results)
+    print()
+    print(f"Hurricane-lane share of sea days for '{best['bot']}': "
+          f"{100 * best['hurricane lanes early']:.0f}% before the season, "
+          f"{100 * best['hurricane lanes late']:.0f}% at its peak")
+    print(f"Most-used route for '{best['bot']}': {best['top route']}")
+    print(f"Median gold for '{best['bot']}' by day: " +
+          ", ".join(f"day {d} {v:,.0f}" for d, v in best["gold by day"].items()))
+    print(f"Least-visited ports for '{best['bot']}': " +
+          ", ".join(f"{p} {share:.1f}%" for share, p in best["quiet ports"]))
+    mixed = next(r for r in results if r["bot"] == "Mixed fleet")
+    print("Ships bought per session by 'Mixed fleet': " +
+          ", ".join(f"{k} {v:.1f}" for k, v in mixed["ships bought"].items()))
+    print(f"Upgrades bought per session by '{upgraded['bot']}': " +
+          ", ".join(f"{k} {v:.1f}" for k, v in sorted(upgraded["upgrades"].items())))
+    print()
+    check(results, best, upgraded, singles, data.rules)
+
+
+def check(results, best, upgraded, singles, rules):
     by = {r["bot"]: r for r in results}
-    fleet = [r for r in results if r["bot"].startswith("Greedy + ")]
-    best_fleet = max(fleet, key=lambda r: r["win %"])
+    hull = next(r for r in singles if r["bot"].endswith("Hull only"))
+    fleet = [r for r in results if r["bot"].startswith("Fleet of ")]
+    limit = rules["day_limit"]
+    base = best["mean gold"]
+    gains = [r["mean gold"] / base - 1 for r in singles]
+    early, late = best["hurricane lanes early"], best["hurricane lanes late"]
     checks = [
-        ("A good player usually wins (best fleet bot wins >= 85%)",
-         best_fleet["win %"] >= 85),
-        ("...but not too early (its median win day is between 40 and 55)",
-         best_fleet["median win day"] is not None and 40 <= best_fleet["median win day"] <= 55),
-        ("Growing the fleet matters (1-ship greedy wins <= 50%)",
-         by["Greedy, 1 ship"]["win %"] <= 50),
-        ("Spamming one route fails (fixed-route bot wins <= 20%)",
-         by["Fixed route"]["win %"] <= 20),
-        ("Ignoring prices fails (random bot wins <= 2%)",
-         by["Random"]["win %"] <= 2),
-        ("No single route dominates (best fleet bot's top route <= 35% of voyages)",
-         best_fleet["top route share %"] <= 35),
-        ("Every ship type is viable (each fleet bot within 25 points of the best win %)",
-         all(best_fleet["win %"] - r["win %"] <= 25 for r in fleet)),
-        ("Losing a ship is rare for careful players (<= 0.3 sinkings per session)",
-         best_fleet["sinkings/session"] <= 0.3),
+        ("A good player usually wins (best fleet bot wins >= 85%)", best["win %"] >= 85),
+        (f"...but not too early (its median win day is {0.65 * limit:.0f}-{0.9 * limit:.0f})",
+         best["win day"] is not None and 0.65 * limit <= best["win day"] <= 0.9 * limit),
+        ("Growing the fleet matters (1-ship greedy wins <= 50%)", by["Greedy, 1 ship"]["win %"] <= 50),
+        ("Putting a fleet on one route fails (fixed-route bot wins <= 20%)", by["Fixed route"]["win %"] <= 20),
+        ("Ignoring prices fails (random bot wins <= 2%)", by["Random"]["win %"] <= 2),
+        ("No route dominates (best fleet bot's top route <= 30% of voyages)", best["top route %"] <= 30),
+        ("Big ships aren't a trap (a fleet that moves up to big ships earns >= 90% of an all-sloop fleet)",
+         by["Mixed fleet"]["mean gold"] >= 0.9 * by["Fleet of Sloops"]["mean gold"]),
+        ("Hull upgrades make sinking rare (<= 1 per session, at most half the unprotected fleet's rate)",
+         hull["sunk"] <= 1.0 and hull["sunk"] <= 0.5 * best["sunk"]),
+        ("All 12 ports matter (each gets >= 2% of the best bot's arrivals)", best["min port %"] >= 2),
+        ("The Atlantic matters (>= 15% of the best bot's voyages cross it)", best["atlantic %"] >= 15),
+        ("Hurricane season changes plans (time on hurricane lanes drops >= 20% at the peak)",
+         early > 0 and late <= 0.8 * early),
+        ("Upgrades pay off (all upgrades: >= 10% more average gold on day 90)", upgraded["mean gold"] >= 1.10 * base),
+        ("Every upgrade track is worth buying (each alone: >= 3% more average gold)", min(gains) >= 0.03),
+        ("No track is a must-have (best single track gains <= 3x the worst)",
+         min(gains) > 0 and max(gains) <= 3 * min(gains)),
     ]
     print("Balance targets:")
     for text, ok in checks:
         print(f"  [{'PASS' if ok else 'FAIL'}] {text}")
+    print("Upgrade gains vs no upgrades: " +
+          ", ".join(f"{r['bot'].split('+ ')[1]} {100 * g:+.0f}%" for r, g in zip(singles, gains)) +
+          f", all {100 * (upgraded['mean gold'] / base - 1):+.0f}%")
 
 
 if __name__ == "__main__":
