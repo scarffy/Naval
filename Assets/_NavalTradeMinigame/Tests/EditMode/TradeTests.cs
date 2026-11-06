@@ -74,7 +74,16 @@ namespace Naval.Tests
             Assert.AreEqual(Failure.FleetChosen, game.ChooseFleet("Brig").Reason);
             Assert.AreEqual(gold, game.Gold);
             Assert.AreEqual(1, game.Fleet.Count);
+            Assert.IsTrue(game.FleetChosen, "buying a ship ends the opening");
+        }
+
+        [Test]
+        public void BuyingAShip_EndsTheOpening()
+        {
             Assert.IsFalse(game.FleetChosen);
+            TestData.Buy(game, "Sloop");
+            Assert.IsTrue(game.FleetChosen);
+            Assert.AreEqual(Failure.FleetChosen, game.ChooseFleet("Brig").Reason);
         }
 
         [Test]

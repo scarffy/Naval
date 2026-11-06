@@ -28,8 +28,10 @@ namespace Naval.Core
         /// <summary>Days that have passed since the start. Day 0 is the first morning.</summary>
         public int Day { get; private set; }
         public GameOutcome Outcome { get; private set; }
-        /// <summary>True once the opening fleet has been chosen with ChooseFleet.</summary>
+        /// <summary>True once the opening is over: the fleet was chosen with ChooseFleet, or a ship was bought.</summary>
         public bool FleetChosen { get { return fleetChosen; } }
+        /// <summary>Why the mission was lost, or null while it is not lost.</summary>
+        public FailReason? LostBecause { get; private set; }
 
         public GameState(GameData data) : this(data, data.Rules.DefaultSeed) { }
 
@@ -129,6 +131,7 @@ namespace Naval.Core
             Gold -= tier.Price;
             ship = new Ship(Data, nextShipId++, tier, port);
             fleet.Add(ship);
+            fleetChosen = true;
             return CommandResult.Success("Bought a " + tier.Name + " for " + tier.Price + " gold.");
         }
 
@@ -136,10 +139,10 @@ namespace Naval.Core
         public CommandResult ChooseFleet(string tierName)
         {
             if (Outcome != GameOutcome.InProgress) return CommandResult.Fail(Failure.GameOver, "The mission is over.");
-            if (fleetChosen || fleet.Count > 0) return CommandResult.Fail(Failure.FleetChosen, "The fleet has already been chosen.");
+            if (fleetChosen) return CommandResult.Fail(Failure.FleetChosen, "The fleet has already been chosen.");
             ShipTier tier = Data.FindShipTier(tierName);
             if (tier == null) return CommandResult.Fail(Failure.UnknownName, "Unknown ship '" + tierName + "'.");
-            int count = Math.Max(1, Data.FleetBudget / tier.Price);
+            int count = Data.FleetCount(tier);
             int total = count * tier.Price;
             CommandResult poor = CheckAfford(total);
             if (poor != null) return poor;
@@ -349,6 +352,7 @@ namespace Naval.Core
         void LoseMission(FailReason reason)
         {
             Outcome = GameOutcome.Lost;
+            LostBecause = reason;
             Raise(EventType.MissionFailed, null).Reason = reason;
         }
 

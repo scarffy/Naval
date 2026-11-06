@@ -37,6 +37,15 @@ namespace Naval.Tests
         }
 
         [Test]
+        public void FleetCount_MatchesTheOpening()
+        {
+            GameData data = TestData.Data();
+            Assert.AreEqual(1, data.FleetCount(data.FindShipTier("Merchantman")));
+            Assert.AreEqual(2, data.FleetCount(data.FindShipTier("Brig")));
+            Assert.AreEqual(3, data.FleetCount(data.FindShipTier("Sloop")));
+        }
+
+        [Test]
         public void RealData_PortsRoutesAndUpgrades()
         {
             GameData data = TestData.Data();

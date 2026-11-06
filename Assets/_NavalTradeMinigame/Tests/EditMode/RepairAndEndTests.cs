@@ -90,7 +90,7 @@ namespace Naval.Tests
         [Test]
         public void ReachingTheGoal_Wins()
         {
-            GameState game = TestData.NewGame(Rules("goal_gold,500000,", "goal_gold,6000,"));
+            GameState game = TestData.NewGame(Rules("goal_gold,500000,", "goal_gold," + TestData.Data().Rules.StartGold + ","));
             IReadOnlyList<GameEvent> events = game.AdvanceDay();
             Assert.AreEqual(GameOutcome.Won, game.Outcome);
             Assert.AreEqual(1, events.Count);
@@ -135,8 +135,10 @@ namespace Naval.Tests
             Assert.AreEqual(0, game.AdvanceDay().Count);
             Assert.AreEqual(0, game.AdvanceDay().Count);
             Assert.AreEqual(GameOutcome.InProgress, game.Outcome);
+            Assert.IsNull(game.LostBecause);
             IReadOnlyList<GameEvent> events = game.AdvanceDay();
             Assert.AreEqual(GameOutcome.Lost, game.Outcome);
+            Assert.AreEqual(FailReason.OutOfTime, game.LostBecause);
             Assert.AreEqual(EventType.MissionFailed, events[0].Type);
             Assert.AreEqual(FailReason.OutOfTime, events[0].Reason);
             Assert.AreEqual(0, game.DaysLeft);
@@ -146,7 +148,7 @@ namespace Naval.Tests
         public void ReachingTheGoalOnTheLastDay_StillWins()
         {
             SliceCsv csv = Rules("mission_days,730,", "mission_days,1,");
-            csv.Rules = TestData.Replace(csv.Rules, "goal_gold,500000,", "goal_gold,6000,");
+            csv.Rules = TestData.Replace(csv.Rules, "goal_gold,500000,", "goal_gold," + TestData.Data().Rules.StartGold + ",");
             GameState game = TestData.NewGame(csv);
             game.AdvanceDay();
             Assert.AreEqual(GameOutcome.Won, game.Outcome);
@@ -155,10 +157,11 @@ namespace Naval.Tests
         [Test]
         public void NoShipsAndNotEnoughGoldForOne_Loses()
         {
-            GameState game = TestData.NewGame(Rules("start_gold,8500,", "start_gold,1500,"));
+            GameState game = TestData.NewGame(Rules("start_gold," + TestData.Data().Rules.StartGold + ",", "start_gold,1500,"));
             IReadOnlyList<GameEvent> events = game.AdvanceDay();
             Assert.AreEqual(GameOutcome.Lost, game.Outcome);
             Assert.AreEqual(FailReason.NoShips, events[0].Reason);
+            Assert.AreEqual(FailReason.NoShips, game.LostBecause);
         }
 
         [Test]

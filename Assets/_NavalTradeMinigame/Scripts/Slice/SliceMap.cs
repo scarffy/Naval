@@ -186,7 +186,7 @@ namespace Naval.Slice
             label.transform.SetParent(transform, false);
             label.transform.position = PortPosition(port) + new Vector3(0f, (size / 2f + 0.3f * scale), 0f);
             TextMesh text = label.AddComponent<TextMesh>();
-            Font font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            Font font = SliceUi.Font;
             const int fontSize = 64;
             text.font = font;
             text.text = port.Name;

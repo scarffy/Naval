@@ -10,7 +10,7 @@ using UnityEngine.UI;
 namespace Naval.Slice
 {
     /// <summary>
-    /// A port: the ships of the player in it, the market for the selected ship, repairs and, at a shipyard,
+    /// A port: the ships of the player in it (stepped through with a selector), the market for the selected ship, repairs and, at a shipyard,
     /// new ships and upgrades. Everything is rebuilt after every command.
     /// </summary>
     public sealed class SlicePortPanel : MonoBehaviour
@@ -19,7 +19,7 @@ namespace Naval.Slice
         const float NameWidth = 230f;
         const float CellWidth = 110f;
         const float ButtonWidth = 100f;
-        const float RowHeight = 46f;
+        const float RowHeight = 40f;
 
         [SerializeField] SliceBootstrap bootstrap;
         [SerializeField] SliceClock clock;
@@ -116,14 +116,23 @@ namespace Naval.Slice
         void BuildShips(GameState state)
         {
             SliceUi.Clear(shipRows);
-            foreach (Ship ship in state.Fleet)
-            {
-                if (ship.Port != port) continue;
-                Ship chosen = ship;
-                Button button = SliceUi.MakeButton(shipRows, SliceUi.ShipName(ship) + "   hull " + ship.Hull + "/" + ship.MaxHull,
-                    new Vector2(540f, 44f), () => { selected = chosen; Refresh(); }, 24);
-                if (ship == selected) button.image.color = SliceUi.SelectedColor;
-            }
+            var here = new List<Ship>();
+            foreach (Ship ship in state.Fleet) if (ship.Port == port) here.Add(ship);
+            int index = here.IndexOf(selected);
+            RectTransform row = SliceUi.MakeRow(shipRows, 44f);
+            Button previous = SliceUi.MakeButton(row, "<", new Vector2(60f, 44f), () => Step(here, index, -1), 24);
+            string text = here.Count == 0 ? "No ships here" : "Ship " + (index + 1) + " of " + here.Count + " here";
+            SliceUi.MakeLabel(row, text, 24, Color.white, 0f, 0f, TextAnchor.MiddleCenter);
+            Button next = SliceUi.MakeButton(row, ">", new Vector2(60f, 44f), () => Step(here, index, 1), 24);
+            previous.interactable = here.Count > 1;
+            next.interactable = here.Count > 1;
+        }
+
+        void Step(List<Ship> here, int index, int direction)
+        {
+            if (here.Count < 2) return;
+            selected = here[(index + direction + here.Count) % here.Count];
+            Refresh();
         }
 
         void BuildShipInfo(GameState state)

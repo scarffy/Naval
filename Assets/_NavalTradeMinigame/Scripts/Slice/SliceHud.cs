@@ -13,8 +13,6 @@ namespace Naval.Slice
     public sealed class SliceHud : MonoBehaviour
     {
         static readonly float[] Speeds = { 0f, 1f, 2f, 4f };
-        static readonly Color ActiveColor = new Color(1f, 0.85f, 0.4f);
-        static readonly Color IdleColor = new Color(0.75f, 0.75f, 0.75f);
 
         [SerializeField] SliceBootstrap bootstrap;
         [SerializeField] SliceClock clock;
@@ -62,9 +60,8 @@ namespace Naval.Slice
 
             if (!shownState || state.Day != shownDay || state.Gold != shownGold)
             {
-                CultureInfo c = CultureInfo.InvariantCulture;
-                dateText.text = state.Date.ToString("d MMM yyyy", c);
-                daysLeftText.text = state.DaysLeft.ToString("N0", c) + " days left";
+                dateText.text = SliceUi.Date(state.Date);
+                daysLeftText.text = state.DaysLeft.ToString("N0", CultureInfo.InvariantCulture) + " days left";
                 goldText.text = MoneyManager.Format(state.Gold) + "   (goal " + MoneyManager.Format(state.Data.Rules.GoalGold) + ")";
                 shownDay = state.Day;
                 shownGold = state.Gold;
@@ -74,7 +71,7 @@ namespace Naval.Slice
             {
                 shownSpeed = clock.Speed;
                 for (int i = 0; i < speedButtons.Length; i++)
-                    speedButtons[i].image.color = Mathf.Approximately(shownSpeed, Speeds[i]) ? ActiveColor : IdleColor;
+                    speedButtons[i].image.color = Mathf.Approximately(shownSpeed, Speeds[i]) ? SliceUi.SelectedColor : SliceUi.ButtonColor;
             }
 
             shownState = true;

@@ -8,6 +8,7 @@ namespace Naval.Slice
     /// Runs the flow of the game: choose a fleet, choose the free routes, play, then the end screen.
     /// Opens and closes the screens so that at most one decision panel is open, and holds the clock while the player decides.
     /// </summary>
+    [DefaultExecutionOrder(-50)]
     public sealed class SliceScreens : MonoBehaviour
     {
         enum Phase { ChooseFleet, FreeRoutes, Play, Over }
@@ -86,8 +87,20 @@ namespace Naval.Slice
                 endScreen.Show(state);
             }
 
+            UpdateHold(phase);
+        }
+
+        void UpdateHold(Phase phase)
+        {
             clock.Held = phase == Phase.ChooseFleet || phase == Phase.FreeRoutes
                 || routePanel.IsOpen || portPanel.IsOpen || sendPanel.IsOpen;
+        }
+
+        // A click can arrive before the clock's Update in the same frame, so the hold is set as soon as a panel opens.
+        void HoldNow()
+        {
+            GameState state = bootstrap.State;
+            if (state != null) UpdateHold(CurrentPhase(state));
         }
 
         static Phase CurrentPhase(GameState state)
@@ -120,6 +133,7 @@ namespace Naval.Slice
             if (state == null || CurrentPhase(state) != Phase.Play) return;
             CloseDecisionPanels();
             portPanel.Show(port, ship, result);
+            HoldNow();
         }
 
         void OnRouteClicked(Route route)
@@ -130,12 +144,14 @@ namespace Naval.Slice
             if (phase != Phase.FreeRoutes && phase != Phase.Play) return;
             CloseDecisionPanels();
             routePanel.Show(route);
+            HoldNow();
         }
 
         void OnSendRequested(Ship ship)
         {
             CloseDecisionPanels();
             sendPanel.Show(ship);
+            HoldNow();
         }
 
         void OnSendBack(Port port, Ship ship)

@@ -177,8 +177,9 @@ namespace Naval.SliceEditor
             var screens = host.AddComponent<SliceScreens>();
 
             var fleetList = host.AddComponent<SliceFleetList>();
-            RectTransform fleetRows = SliceUi.MakeColumn(root, "Fleet List", new Vector2(720f, 420f), 4f);
-            SliceUi.Place(fleetRows, TopLeft, new Vector2(30f, -170f));
+            RectTransform fleetRows = SliceUi.MakeColumn(root, "Fleet List", new Vector2(520f, 420f), 4f, TextAnchor.LowerRight);
+            // Bottom right: open sea, clear of the port markers.
+            SliceUi.Place(fleetRows, BottomRight, new Vector2(-30f, 30f));
             SetRef(fleetList, "bootstrap", bootstrap);
             SetRef(fleetList, "rows", fleetRows);
 
@@ -205,7 +206,7 @@ namespace Naval.SliceEditor
             SetRef(screens, "routePanel", BuildRoutePanel(root, host, bootstrap));
             SetRef(screens, "portPanel", BuildPortPanel(root, host, bootstrap, clock));
             SetRef(screens, "sendPanel", BuildSendPanel(root, host, bootstrap, clock));
-            SetRef(screens, "endScreen", BuildEndScreen(root, host, bootstrap, clock));
+            SetRef(screens, "endScreen", BuildEndScreen(root, host, bootstrap));
         }
 
         static GameObject BuildFrame(Transform root, string name, Vector2 size, string title, int titleSize)
@@ -280,8 +281,9 @@ namespace Naval.SliceEditor
             SliceUi.MakeLabel(left, "Your ships here", 24, SliceUi.WarnColor, 0f, 32f);
             RectTransform shipRows = SliceUi.MakeColumn(left, "Ships", Vector2.zero, 4f);
             Text shipText = SliceUi.MakeLabel(left, "", 26, Color.white);
-            Button repair = SliceUi.MakeButton(left, "Repair", new Vector2(540f, 44f), null, 24);
-            Button send = SliceUi.MakeButton(left, "Send", new Vector2(540f, 44f), null, 24);
+            RectTransform actions = SliceUi.MakeRow(left, 44f);
+            Button repair = SliceUi.MakeButton(actions, "Repair", new Vector2(266f, 44f), null, 24);
+            Button send = SliceUi.MakeButton(actions, "Send", new Vector2(266f, 44f), null, 24);
             RectTransform shipyard = SliceUi.MakeColumn(left, "Shipyard", Vector2.zero, 4f);
             SliceUi.MakeLabel(shipyard, "Shipyard", 24, SliceUi.WarnColor, 0f, 32f);
             RectTransform shipyardRows = SliceUi.MakeColumn(shipyard, "Rows", Vector2.zero, 4f);
@@ -289,7 +291,7 @@ namespace Naval.SliceEditor
             // Right: the market of the selected ship.
             RectTransform right = SliceUi.MakeColumn(p, "Right", new Vector2(1050f, 720f));
             SliceUi.Place(right, TopLeft, new Vector2(620f, -100f));
-            RectTransform marketRows = SliceUi.MakeColumn(right, "Market", Vector2.zero);
+            RectTransform marketRows = SliceUi.MakeColumn(right, "Market", Vector2.zero, 2f);
             Text notTraded = SliceUi.MakeLabel(right, "", 24, SliceUi.WarnColor);
 
             Text message = AddMessage(panel, 1200f);
@@ -344,7 +346,7 @@ namespace Naval.SliceEditor
             return sendPanel;
         }
 
-        static SliceEndScreen BuildEndScreen(Transform root, GameObject host, SliceBootstrap bootstrap, SliceClock clock)
+        static SliceEndScreen BuildEndScreen(Transform root, GameObject host, SliceBootstrap bootstrap)
         {
             GameObject panel = SliceUi.MakeBlocker(root, "End Screen", new Color(0.02f, 0.05f, 0.1f, 0.92f));
             Text title = SliceUi.MakeText(panel.transform, "Title", 110, TextAnchor.MiddleCenter, new Vector2(1600f, 150f));
@@ -354,7 +356,6 @@ namespace Naval.SliceEditor
 
             var endScreen = host.AddComponent<SliceEndScreen>();
             SetRef(endScreen, "bootstrap", bootstrap);
-            SetRef(endScreen, "clock", clock);
             SetRef(endScreen, "panel", panel);
             SetRef(endScreen, "titleText", title);
             SetRef(endScreen, "detailText", detail);

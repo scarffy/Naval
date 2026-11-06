@@ -1,9 +1,7 @@
-using System.Collections.Generic;
 using MiniGame;
 using Naval.Core;
 using UnityEngine;
 using UnityEngine.UI;
-using EventType = Naval.Core.EventType;
 
 namespace Naval.Slice
 {
@@ -11,34 +9,19 @@ namespace Naval.Slice
     public sealed class SliceEndScreen : MonoBehaviour
     {
         [SerializeField] SliceBootstrap bootstrap;
-        [SerializeField] SliceClock clock;
         [SerializeField] GameObject panel;
         [SerializeField] Text titleText;
         [SerializeField] Text detailText;
-
-        FailReason? failReason;
 
         public bool IsOpen { get { return panel.activeSelf; } }
 
         void Start()
         {
-            if (bootstrap == null || clock == null || panel == null || titleText == null || detailText == null)
+            if (bootstrap == null || panel == null || titleText == null || detailText == null)
             {
                 Debug.LogError("SliceEndScreen: every field must be assigned.");
                 enabled = false;
-                return;
             }
-            clock.DayAdvanced += OnDay;
-        }
-
-        void OnDestroy()
-        {
-            if (clock != null) clock.DayAdvanced -= OnDay;
-        }
-
-        void OnDay(IReadOnlyList<GameEvent> events)
-        {
-            foreach (GameEvent e in events) if (e.Type == EventType.MissionFailed) failReason = e.Reason;
         }
 
         public void Show(GameState state)
@@ -53,9 +36,9 @@ namespace Naval.Slice
             else
             {
                 titleText.text = "Mission failed";
-                string reason = failReason == FailReason.NoShips
+                string reason = state.LostBecause == FailReason.NoShips
                     ? "No ships left and not enough gold to buy one."
-                    : "The two years are up.";
+                    : "Time is up: the mission's " + state.Data.Rules.MissionDays + " days have passed.";
                 detailText.text = reason + "\n" + standing;
             }
             panel.SetActive(true);

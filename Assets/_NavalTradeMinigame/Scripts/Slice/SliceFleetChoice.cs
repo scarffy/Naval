@@ -46,7 +46,7 @@ namespace Naval.Slice
             foreach (ShipTier tier in tiers)
             {
                 ShipTier chosen = tier;
-                int count = data.FleetBudget / tier.Price;
+                int count = data.FleetCount(tier);
                 string title = count == 1 ? "1 " + tier.Name : count + " " + tier.Name + "s";
                 string stats = "Each: " + SliceUi.Count(tier.Capacity, "crate") + " of hold, speed "
                     + tier.Speed.ToString("0.##", CultureInfo.InvariantCulture) + ", hull " + tier.Hull + ", wages "

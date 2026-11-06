@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace Naval.Slice
 {
-    /// <summary>One line per ship under the HUD. A ship in port can be clicked to open that port. Rebuilt only when the fleet changes.</summary>
+    /// <summary>One line per ship at the bottom right. A ship in port can be clicked to open that port. Rebuilt only when the fleet changes.</summary>
     public sealed class SliceFleetList : MonoBehaviour
     {
         [SerializeField] SliceBootstrap bootstrap;
@@ -59,12 +59,12 @@ namespace Naval.Slice
                 string name = SliceUi.ShipName(ship);
                 if (ship.Port == null)
                 {
-                    SliceUi.MakeLabel(rows, name + " – at sea to " + ship.Voyage.Destination.Name, 24, Color.white, 0f, 36f);
+                    SliceUi.MakeLabel(rows, name + " – at sea to " + ship.Voyage.Destination.Name, 20, Color.white, 0f, 36f);
                     continue;
                 }
                 Ship clicked = ship;
                 Button button = SliceUi.MakeButton(rows, name + " – " + ship.Port.Name + " – hull " + ship.Hull + "/" + ship.MaxHull,
-                    new Vector2(700f, 36f), () => { Action<Ship> handler = ShipClicked; if (handler != null) handler(clicked); }, 24);
+                    new Vector2(520f, 36f), () => { Action<Ship> handler = ShipClicked; if (handler != null) handler(clicked); }, 20);
                 SliceUi.LabelOf(button).alignment = TextAnchor.MiddleLeft;
             }
         }

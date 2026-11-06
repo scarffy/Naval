@@ -51,10 +51,10 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
 - **Screens** (`Scripts/Slice/`):
   - `SliceFleetChoice`: the three openings with each ship's hold, speed, hull, wages and whether it can cross the ocean.
   - Clicking a route on the map opens `SliceRoutePanel`: distance, the storm, pirate and hurricane chances, the cost (or "Free"), and Open. Routes that could connect now are drawn brighter. A banner counts down the free routes.
-  - Clicking a port opens `SlicePortPanel`: your ships there (pick one), hull and hold space, gold, and the market, with Buy 1, Buy 10, Sell 1 and Sell all at fixed prices. It also has Repair in any port. Shipyards add new ships and the Sails, Hull and Hold upgrades.
+  - Clicking a port opens `SlicePortPanel`: your ships there (step through them with < and >), hull and hold space, gold, and the market, with Buy 1, Buy 10, Sell 1 and Sell all at fixed prices. It also has Repair in any port. Shipyards add new ships and the Sails, Hull and Hold upgrades.
   - `SliceSendPanel`: pick a destination and read the preview (stops, arrival date, pirate risk, hurricane risk in season, chance of losing the ship), then Set sail.
   - `SliceNotifications`: a feed of arrivals, pirates, storms, hurricanes and sinkings at the bottom left.
-  - `SliceFleetList`: one line per ship under the gold. Clicking a ship in port opens that port.
+  - `SliceFleetList`: one line per ship at the bottom right, clear of the port markers. Clicking a ship in port opens that port.
   - `SliceEndScreen`: goal reached, or mission failed with the reason. It replaces the HUD's placeholder text.
   - Every refused command shows its reason on the panel.
 - **Map clicks** use the EventSystem: the camera has a `Physics2DRaycaster`, and ports and routes have 2D colliders (`SliceMapClick`).
@@ -62,7 +62,8 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
 - **Tools:**
   - `Tools/test-runner/run.sh` runs the edit-mode tests on Mono without Unity.
   - The compile check has a small stub for the pointer event types (`stubs/EventSystems.cs`).
-- **Tests:** 102 edit-mode tests (3 new, plus 3 rows of a TestCase) pass in the Mono runner.
+- **Tests:** 107 edit-mode tests pass in the Mono runner (it now runs `[TestCase]` rows too).
+- **Review:** 10 findings plus the author's open questions. Fixed: the test runner skipped `[TestCase]` rows; buying a ship before `ChooseFleet` left `FleetChosen` false; the port panel overflowed with a 14-good market or 4+ ships (ships are now stepped through with < and >, Repair and Send share a row, market rows are shorter); the fleet list covered Natchez and New Orleans (moved to the bottom right); the end screen hard-coded "two years" and guessed the loss reason (`GameState.LostBecause` now says why); the clock could tick one frame after a panel opened; the fleet count was worked out in two places (`GameData.FleetCount`); duplicated date, colour and font helpers; the goal tests used a goal below the start gold.
 
 ## To check in Unity (designer)
 
@@ -79,15 +80,17 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
    - **Port panel:**
      - buying and selling update gold, hold space and the aboard column
      - a full hold and too little gold are refused with a message
-     - the layout fits, also with several ships in port and at a shipyard
+     - the layout fits, also at New York, Liverpool or Bordeaux (14 goods) and with 4 or more ships at a shipyard
+     - < and > step through the ships in port; Repair and Send sit side by side
    - **Shipyard:** buying a ship, each upgrade (two levels, then "complete") and repairing a damaged ship.
    - **Send:** the destination list, the preview numbers (hurricane risk only shows in season), "Only an ocean-going ship can sail there" for a sloop, and Set sail.
    - **Time:** it stops while a panel is open and runs again when it's closed.
    - **Notifications:** lines appear for arrivals and hazards and fade after about 10 seconds.
+   - **Fleet list:** it sits at the bottom right, its lines fit, and it doesn't cover a port or the free-routes banner.
    - **Phase 2 checks:** the map fits the view, port names are readable, and ships glide along their routes and settle beside ports.
-   - **Win and lose:** lower `goal_gold` in `rules.csv` (to 10,000, say) to see the win screen. Use 4× speed, or lower `mission_days`, to see the lose screen.
+   - **Win and lose:** lower `goal_gold` in `rules.csv` (to 10,000, say) to see the win screen. Use 4× speed, or lower `mission_days`, to see the lose screen; it should give the number of days from `rules.csv`.
 3. If clicks on the map don't register, check the Main Camera's `Physics2DRaycaster` and the EventSystem's Input System UI module.
-4. Window → General → Test Runner → EditMode → Run All. Expect 102 passing.
+4. Window → General → Test Runner → EditMode → Run All. Expect 107 passing.
 5. Report anything that looks wrong or is hard to read, and how the opening and the first voyages feel.
 
 ## Next
@@ -96,6 +99,9 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
 
 ## Open items
 
+- **Starting gold (8,500) is the designer's call.** At 6,000 the opening fleet took every coin, nothing could be bought and wages kept the player in debt (the only way out was selling a ship at half price).
+- **The clock stops while the port panel is open.** That keeps trading calm, but ships at sea also wait. Decide by playing.
+- **There is no restart on the end screen.** Leave Play mode and press Play again. A restart button needs `Slice.unity` in Build Settings.
 - **`goal_gold` (500,000) is a placeholder.** Tune it by playing, or with a quick bot, once phase 3 makes the game playable.
 - The current map texture (`Arts/Prototype/Map.png`) is a screenshot of another game's map. It must be replaced with original art before the slice is shown to anyone (phase 5).
 - **Art and sound for phase 5** need sourcing by the designer: an original map, ship sprites, UI style, sounds and music.
