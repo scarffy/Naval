@@ -12,16 +12,19 @@ namespace Naval.Slice
         [SerializeField] GameObject panel;
         [SerializeField] Text titleText;
         [SerializeField] Text detailText;
+        [SerializeField] Button restartButton;
 
         public bool IsOpen { get { return panel.activeSelf; } }
 
         void Start()
         {
-            if (bootstrap == null || panel == null || titleText == null || detailText == null)
+            if (bootstrap == null || panel == null || titleText == null || detailText == null || restartButton == null)
             {
                 Debug.LogError("SliceEndScreen: every field must be assigned.");
                 enabled = false;
+                return;
             }
+            restartButton.onClick.AddListener(SliceBootstrap.Restart);
         }
 
         public void Show(GameState state)

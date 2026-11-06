@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Naval.Slice;
 using UnityEditor;
@@ -44,8 +45,10 @@ namespace Naval.SliceEditor
             var ships = game.AddComponent<SliceShips>();
 
             Transform root = BuildCanvas(game.transform);
-            SliceHud hud = BuildHud(root);
-            BuildScreens(root, bootstrap, clock, map);
+            Button fastest;
+            SliceHud hud = BuildHud(root, out fastest);
+            Screens screens = BuildScreens(root, bootstrap, clock, map);
+            BuildTutorial(root, bootstrap, map, camera, screens, fastest);   // last, so it renders on top
 
             SetRef(clock, "bootstrap", bootstrap);
             SetRef(map, "bootstrap", bootstrap);
@@ -59,8 +62,24 @@ namespace Naval.SliceEditor
             if (!AssetDatabase.IsValidFolder(ScenesFolder))
                 AssetDatabase.CreateFolder("Assets/_NavalTradeMinigame", "Scenes");
             EditorSceneManager.SaveScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene(), ScenePath);
+            AddToBuildSettings();
             AssetDatabase.Refresh();
             Debug.Log("Built " + ScenePath);
+        }
+
+        /// <summary>Restart reloads the scene by its build index, so the scene has to be in Build Settings.</summary>
+        static void AddToBuildSettings()
+        {
+            var scenes = new List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);
+            bool found = false;
+            foreach (EditorBuildSettingsScene scene in scenes)
+            {
+                if (scene.path != ScenePath) continue;
+                scene.enabled = true;
+                found = true;
+            }
+            if (!found) scenes.Add(new EditorBuildSettingsScene(ScenePath, true));
+            EditorBuildSettings.scenes = scenes.ToArray();
         }
 
         static Camera BuildCamera()
@@ -92,7 +111,7 @@ namespace Naval.SliceEditor
             return canvasGo.transform;
         }
 
-        static SliceHud BuildHud(Transform root)
+        static SliceHud BuildHud(Transform root, out Button fastest)
         {
             Text date = SliceUi.MakeText(root, "Date", 44, TextAnchor.UpperLeft, new Vector2(700f, 56f));
             SliceUi.Place(date, TopLeft, new Vector2(30f, -20f));
@@ -115,7 +134,14 @@ namespace Naval.SliceEditor
                 SliceUi.Place(buttons[i], TopRight, new Vector2(x, -24f));
             }
 
+            fastest = buttons[buttons.Length - 1];
+            // Left of Pause (whose left edge is at -540), with a 10px gap.
+            Button restart = SliceUi.MakeButton(root, "Restart", new Vector2(110f, 64f), null, 24);
+            restart.name = "Restart";
+            SliceUi.Place(restart, TopRight, new Vector2(-550f, -24f));
+
             var hud = root.gameObject.AddComponent<SliceHud>();
+            SetRef(hud, "restartButton", restart);
             SetRef(hud, "dateText", date);
             SetRef(hud, "daysLeftText", days);
             SetRef(hud, "goldText", gold);
@@ -171,7 +197,19 @@ namespace Naval.SliceEditor
 
         static readonly Vector2 TopCenter = new Vector2(0.5f, 1f);
 
-        static void BuildScreens(Transform root, SliceBootstrap bootstrap, SliceClock clock, SliceMap map)
+        /// <summary>The panels and widgets the tutorial points at.</summary>
+        sealed class Screens
+        {
+            public SlicePortPanel Port;
+            public SliceSendPanel Send;
+            public RectTransform MarketRows;
+            public Button PortSend;
+            public Button PortClose;
+            public RectTransform DestinationRows;
+            public Button Sail;
+        }
+
+        static Screens BuildScreens(Transform root, SliceBootstrap bootstrap, SliceClock clock, SliceMap map)
         {
             GameObject host = root.gameObject;
             var screens = host.AddComponent<SliceScreens>();
@@ -204,9 +242,13 @@ namespace Naval.SliceEditor
             SetRef(screens, "bannerText", bannerText);
             SetRef(screens, "fleetChoice", BuildFleetChoice(root, host, bootstrap));
             SetRef(screens, "routePanel", BuildRoutePanel(root, host, bootstrap));
-            SetRef(screens, "portPanel", BuildPortPanel(root, host, bootstrap, clock));
-            SetRef(screens, "sendPanel", BuildSendPanel(root, host, bootstrap, clock));
+            var widgets = new Screens();
+            widgets.Port = BuildPortPanel(root, host, bootstrap, clock, widgets);
+            widgets.Send = BuildSendPanel(root, host, bootstrap, clock, widgets);
+            SetRef(screens, "portPanel", widgets.Port);
+            SetRef(screens, "sendPanel", widgets.Send);
             SetRef(screens, "endScreen", BuildEndScreen(root, host, bootstrap));
+            return widgets;
         }
 
         static GameObject BuildFrame(Transform root, string name, Vector2 size, string title, int titleSize)
@@ -268,7 +310,7 @@ namespace Naval.SliceEditor
             return routePanel;
         }
 
-        static SlicePortPanel BuildPortPanel(Transform root, GameObject host, SliceBootstrap bootstrap, SliceClock clock)
+        static SlicePortPanel BuildPortPanel(Transform root, GameObject host, SliceBootstrap bootstrap, SliceClock clock, Screens widgets)
         {
             GameObject panel = BuildFrame(root, "Port Panel", new Vector2(1700f, 960f), "Port", 48);
             Transform p = panel.transform;
@@ -298,6 +340,9 @@ namespace Naval.SliceEditor
             Button close = SliceUi.MakeButton(p, "Close", new Vector2(160f, 60f), null, 28);
             SliceUi.Place(close, BottomRight, new Vector2(-30f, 24f));
 
+            widgets.MarketRows = marketRows;
+            widgets.PortSend = send;
+            widgets.PortClose = close;
             var portPanel = host.AddComponent<SlicePortPanel>();
             SetRef(portPanel, "bootstrap", bootstrap);
             SetRef(portPanel, "clock", clock);
@@ -318,7 +363,7 @@ namespace Naval.SliceEditor
             return portPanel;
         }
 
-        static SliceSendPanel BuildSendPanel(Transform root, GameObject host, SliceBootstrap bootstrap, SliceClock clock)
+        static SliceSendPanel BuildSendPanel(Transform root, GameObject host, SliceBootstrap bootstrap, SliceClock clock, Screens widgets)
         {
             GameObject panel = BuildFrame(root, "Send Panel", new Vector2(1100f, 760f), "Send", 44);
             Transform p = panel.transform;
@@ -332,6 +377,8 @@ namespace Naval.SliceEditor
             Button back = SliceUi.MakeButton(p, "Back", new Vector2(160f, 60f), null, 28);
             SliceUi.Place(back, BottomRight, new Vector2(-30f, 24f));
 
+            widgets.DestinationRows = destinations;
+            widgets.Sail = sail;
             var sendPanel = host.AddComponent<SliceSendPanel>();
             SetRef(sendPanel, "bootstrap", bootstrap);
             SetRef(sendPanel, "clock", clock);
@@ -354,13 +401,74 @@ namespace Naval.SliceEditor
             Text detail = SliceUi.MakeText(panel.transform, "Detail", 44, TextAnchor.UpperCenter, new Vector2(1600f, 300f));
             SliceUi.Place(detail, Center, new Vector2(0f, -10f));
 
+            Button restart = SliceUi.MakeButton(panel.transform, "Restart", new Vector2(300f, 80f), null, 36);
+            SliceUi.Place(restart, Center, new Vector2(0f, -250f));
+
             var endScreen = host.AddComponent<SliceEndScreen>();
+            SetRef(endScreen, "restartButton", restart);
             SetRef(endScreen, "bootstrap", bootstrap);
             SetRef(endScreen, "panel", panel);
             SetRef(endScreen, "titleText", title);
             SetRef(endScreen, "detailText", detail);
             panel.SetActive(false);
             return endScreen;
+        }
+
+        static void BuildTutorial(Transform root, SliceBootstrap bootstrap, SliceMap map, Camera camera, Screens screens, Button fastest)
+        {
+            // Narrow enough to clear the gold text on the left and the Restart button on the right.
+            GameObject box = SliceUi.MakePanel(root, "Tutorial Box", new Vector2(620f, 130f), SliceUi.PanelColor);
+            SliceUi.Place(box.transform, TopCenter, new Vector2(-40f, -10f));
+            Text text = SliceUi.MakeText(box.transform, "Text", 22, TextAnchor.MiddleLeft, new Vector2(470f, 110f));
+            SliceUi.Place(text, TopLeft, new Vector2(14f, -10f));
+            Button skip = SliceUi.MakeButton(box.transform, "Skip", new Vector2(110f, 56f), null, 28);
+            SliceUi.Place(skip, new Vector2(1f, 0.5f), new Vector2(-12f, 0f));
+
+            // Four thin bars, not clickable, so the frame never blocks the widget it outlines.
+            var frame = new GameObject("Tutorial Frame", typeof(RectTransform));
+            frame.transform.SetParent(root, false);
+            var frameRect = (RectTransform)frame.transform;
+            frameRect.anchorMin = frameRect.anchorMax = frameRect.pivot = Center;
+            frameRect.sizeDelta = new Vector2(100f, 100f);
+            const float t = 4f;
+            AddBar(frameRect, "Top", new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, t));
+            AddBar(frameRect, "Bottom", new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, t));
+            AddBar(frameRect, "Left", new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(0f, 0.5f), new Vector2(t, 0f));
+            AddBar(frameRect, "Right", new Vector2(1f, 0f), new Vector2(1f, 1f), new Vector2(1f, 0.5f), new Vector2(t, 0f));
+
+            var tutorial = root.gameObject.AddComponent<SliceTutorial>();
+            SetRef(tutorial, "bootstrap", bootstrap);
+            SetRef(tutorial, "map", map);
+            SetRef(tutorial, "sceneCamera", camera);
+            SetRef(tutorial, "portPanel", screens.Port);
+            SetRef(tutorial, "sendPanel", screens.Send);
+            SetRef(tutorial, "box", box);
+            SetRef(tutorial, "objectiveText", text);
+            SetRef(tutorial, "skipButton", skip);
+            SetRef(tutorial, "frame", frameRect);
+            SetRef(tutorial, "marketRows", screens.MarketRows);
+            SetRef(tutorial, "portSendButton", screens.PortSend);
+            SetRef(tutorial, "portCloseButton", screens.PortClose);
+            SetRef(tutorial, "destinationRows", screens.DestinationRows);
+            SetRef(tutorial, "sailButton", screens.Sail);
+            SetRef(tutorial, "fastestSpeedButton", fastest);
+            box.SetActive(false);
+            frame.SetActive(false);
+        }
+
+        static void AddBar(RectTransform frame, string name, Vector2 anchorMin, Vector2 anchorMax, Vector2 pivot, Vector2 size)
+        {
+            var go = new GameObject(name, typeof(RectTransform));
+            go.transform.SetParent(frame, false);
+            var rect = (RectTransform)go.transform;
+            rect.anchorMin = anchorMin;
+            rect.anchorMax = anchorMax;
+            rect.pivot = pivot;
+            rect.sizeDelta = size;
+            rect.anchoredPosition = Vector2.zero;
+            Image image = go.AddComponent<Image>();
+            image.color = SliceUi.SelectedColor;
+            image.raycastTarget = false;
         }
 
         static void SetRef(UnityEngine.Object target, string field, UnityEngine.Object value)

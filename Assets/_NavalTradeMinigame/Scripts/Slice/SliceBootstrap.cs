@@ -1,5 +1,6 @@
 using Naval.Core;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Naval.Slice
 {
@@ -23,6 +24,18 @@ namespace Naval.Slice
                 LoadError = e.Message;
                 Debug.LogError("Slice data failed to load: " + e.Message);
             }
+        }
+
+        /// <summary>Starts a new game by reloading the active scene. The scene must be in Build Settings.</summary>
+        public static void Restart()
+        {
+            int index = SceneManager.GetActiveScene().buildIndex;
+            if (index < 0)
+            {
+                Debug.LogError("Cannot restart: the scene is not in Build Settings. Run Naval > Build Slice Scene, which adds it.");
+                return;
+            }
+            SceneManager.LoadScene(index);
         }
 
         public static GameData LoadData()

@@ -36,6 +36,14 @@ namespace UnityEditor
         public UnityEngine.Vector2 vector2Value { get; set; }
         public SerializedProperty GetArrayElementAtIndex(int index) { return null; }
     }
+    public class EditorBuildSettingsScene
+    {
+        public EditorBuildSettingsScene() { }
+        public EditorBuildSettingsScene(string path, bool enabled) { }
+        public string path { get; set; }
+        public bool enabled { get; set; }
+    }
+    public static class EditorBuildSettings { public static EditorBuildSettingsScene[] scenes { get; set; } }
     public static class PrefabUtility
     {
         public static UnityEngine.GameObject SaveAsPrefabAsset(UnityEngine.GameObject instanceRoot, string assetPath) { return null; }

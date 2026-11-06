@@ -22,16 +22,23 @@ namespace Naval.Slice
         [SerializeField] Text statusText;
         /// <summary>In the order Pause, 1x, 2x, 4x.</summary>
         [SerializeField] Button[] speedButtons;
+        /// <summary>Needs a second click within a few seconds, so a misclick does not lose the game.</summary>
+        [SerializeField] Button restartButton;
+
+        const float ConfirmSeconds = 3f;
+        float confirmUntil = -1f;
 
         void Start()
         {
             if (bootstrap == null || clock == null || dateText == null || daysLeftText == null ||
-                goldText == null || statusText == null || speedButtons == null || speedButtons.Length != Speeds.Length)
+                goldText == null || statusText == null || speedButtons == null || speedButtons.Length != Speeds.Length ||
+                restartButton == null)
             {
                 Debug.LogError("SliceHud: every field must be assigned (four speed buttons).");
                 enabled = false;
                 return;
             }
+            restartButton.onClick.AddListener(OnRestartClicked);
             for (int i = 0; i < speedButtons.Length; i++)
             {
                 float speed = Speeds[i];
@@ -46,8 +53,25 @@ namespace Naval.Slice
         int shownGold;
         float shownSpeed = -1f;
 
+        void OnRestartClicked()
+        {
+            if (confirmUntil >= 0f && Time.unscaledTime <= confirmUntil)
+            {
+                SliceBootstrap.Restart();
+                return;
+            }
+            confirmUntil = Time.unscaledTime + ConfirmSeconds;
+            SliceUi.LabelOf(restartButton).text = "Sure?";
+        }
+
         void Update()
         {
+            if (confirmUntil >= 0f && Time.unscaledTime > confirmUntil)
+            {
+                confirmUntil = -1f;
+                SliceUi.LabelOf(restartButton).text = "Restart";
+            }
+
             GameState state = bootstrap.State;
             if (state == null)
             {

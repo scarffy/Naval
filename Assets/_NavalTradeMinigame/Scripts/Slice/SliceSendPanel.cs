@@ -31,6 +31,8 @@ namespace Naval.Slice
         public event Action<Port, CommandResult> Sailed;
 
         public bool IsOpen { get { return panel.activeSelf; } }
+        /// <summary>True while a destination is chosen and its preview is valid.</summary>
+        public bool HasPreview { get { return preview != null && preview.Ok; } }
 
         void Start()
         {
