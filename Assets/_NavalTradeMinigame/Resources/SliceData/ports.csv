@@ -1,0 +1,13 @@
+port,region,shipyard,hurricane_zone
+Natchez,Gulf,no,yes
+New Orleans,Gulf,no,yes
+Campeche,Gulf,no,yes
+Veracruz,Gulf,no,yes
+Havana,Caribbean,yes,yes
+Port-au-Prince,Caribbean,no,yes
+Bridgetown,Caribbean,no,yes
+New York,North America,no,no
+Boston,North America,yes,no
+Liverpool,Europe,yes,no
+Bordeaux,Europe,yes,no
+Seville,Europe,no,no

@@ -1,0 +1,4 @@
+ship,price,capacity,speed,hull,wage_per_day,ocean_going
+Sloop,2000,16,1.50,40,12,no
+Brig,3000,34,1.30,70,18,yes
+Merchantman,6000,90,1.15,130,32,yes
