@@ -46,7 +46,7 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
 - **Tests:** 99 edit-mode tests (4 new) pass in a stand-in runner.
 
 **Phase 3: screens** (code only, not yet run in Unity). The game is playable start to finish.
-- **Starting gold is now 8,500** (was 6,000). The fleet costs 6,000, so before this change the player had no gold left for cargo, and wages kept them in debt for good. The design simulator gave the player 2,500 gold for trading, so that's what is left over now. `GameState.ChooseFleet` makes the opening purchase, once: one Merchantman, two Brigs or three Sloops for the price of the most expensive ship (`GameData.FleetBudget`).
+- **Starting gold is 8,500** (was 6,000; the owner confirmed it). The fleet costs 6,000, so before this change the player had no gold left for cargo, and wages kept them in debt for good. The design simulator gave the player 2,500 gold for trading, so that's what is left over now. `GameState.ChooseFleet` makes the opening purchase, once: one Merchantman, two Brigs or three Sloops for the price of the most expensive ship (`GameData.FleetBudget`).
 - **The flow** (`SliceScreens`): choose the fleet, then the 2 free routes, then play, then the win or lose screen. The clock is held while the fleet or free routes are being chosen, and while a route, port or send panel is open. Only one of those panels is open at a time.
 - **Screens** (`Scripts/Slice/`):
   - `SliceFleetChoice`: the three openings with each ship's hold, speed, hull, wages and whether it can cross the ocean.
@@ -82,9 +82,16 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
   - **It can't be lost:** it turns `ShelterNewVoyages` on when it starts and off as soon as the first ship sets sail (or when it's skipped), so only that one voyage is sheltered.
   - **It doesn't get stuck:** if the player sets sail before the text asks, it jumps ahead. If the player opens another port, the outline points at Close. After Back on the send panel, it points at Send again. The sell step completes when the player sells from the tutorial ship, when that ship leaves the port, or when nothing aboard sells there.
   - **The box** stretches between the gold text and the Pause button, so it fits on 16:10 and 4:3 screens too (the text shrinks to fit). Only Skip takes clicks.
-  - It runs again after a restart.
+  - It runs only on the first play (see the follow-up below).
 - **Tests:** 110 edit-mode tests pass in the Mono runner.
 - **Review:** 7 findings. Fixed: every voyage stayed sheltered until the player clicked Done (now only the first); the sell step stuck if the ship left or bought more first; the box covered Restart on 16:10 and 4:3 screens (Restart moved under 4×, the box stretches and doesn't block clicks); no way back after Back on the send panel; steps counted any open port as the start port; the Skip label was looked up every frame. Left: a restart uses the same seed (reproducible on purpose), and the buying tip uses the first ship and today's prices (all opening ships are the same type).
+
+**Phase 4 follow-up: the tutorial runs once.**
+- **Decided:** starting gold stays at 8,500.
+- When the tutorial is completed or skipped (Skip or Done), `SliceTutorial` saves the PlayerPrefs key `Naval.Slice.TutorialSeen` = 1, and it doesn't run again after a restart or on later launches. The flag lives only in the Slice layer; `Naval.Core` and the edit-mode tests never touch it.
+- **If the game ends mid-tutorial** (or before it starts), it doesn't count as seen. If the tutorial ship is gone after it set sail, it counts as seen. Quitting mid-tutorial means it shows again next launch.
+- **HUD Tutorial button** (under 2×, left of Restart): forgets the flag and restarts, so the tutorial runs in the new game. Like Restart, it asks "Sure?" and needs a second click within 3 seconds. Clicking the other button first moves "Sure?" to it and does nothing else.
+- **Tests:** still 110 edit-mode tests.
 
 ## To check in Unity (designer)
 
@@ -124,6 +131,12 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
      - open a different port, press Back on the send panel, or sail away from the destination without selling: the outline and text still point somewhere sensible
      - Skip hides it at any step, and voyages after that meet hazards again
      - doing things out of order (for example, setting sail straight away) doesn't leave it stuck
+   - **Tutorial runs once** (to test from scratch, delete the `Naval.Slice.TutorialSeen` PlayerPrefs key, e.g. Edit → Clear All PlayerPrefs):
+     - finish or skip it, then Restart: the new game has no tutorial; stop and press Play again: still none
+     - let the game end mid-tutorial (lower `mission_days`), then Restart: the tutorial runs again
+     - the HUD Tutorial button (under 2×, left of Restart) shows "Sure?", goes back after about 3 seconds, and on a second click starts a new game with the tutorial
+     - click Restart then Tutorial (or the reverse): only the second shows "Sure?", and nothing restarts
+     - at 16:9, 16:10 and 4:3 the Tutorial button doesn't overlap the tutorial box, the gold text, the speed buttons or Restart
 5. Window → General → Test Runner → EditMode → Run All. Expect 110 passing.
 6. Report anything that looks wrong or is hard to read, and how the opening and the first voyages feel.
 
@@ -136,13 +149,16 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
 - sound and music
 - arrival and sale feedback
 
+## Decided
+
+- **Starting gold is 8,500** (the owner confirmed it). At 6,000 the opening fleet took every coin, nothing could be bought and wages kept the player in debt (the only way out was selling a ship at half price).
+- **The tutorial runs only on the first play.** Completing or skipping it is remembered; the HUD Tutorial button replays it.
+
 ## Open items
 
-- **Starting gold (8,500) is the designer's call.** At 6,000 the opening fleet took every coin, nothing could be bought and wages kept the player in debt (the only way out was selling a ship at half price).
 - **The clock stops while the port panel is open.** That keeps trading calm, but ships at sea also wait. Decide by playing.
 - **The tutorial's preview shows the real risks** while the voyage itself is sheltered. The step text says it sails under escort. The alternative is showing 0%, which teaches less.
 - **"Buy" and "load" are one action** in this game: bought crates go straight into the selected ship's hold. The tutorial covers them as two steps (buy, then fill the hold and click Send).
-- **The tutorial runs on every new game**, including after a restart. Skip is one click.
 - **`goal_gold` (500,000) is a placeholder.** Tune it by playing, or with a quick bot, once phase 3 makes the game playable.
 - The current map texture (`Arts/Prototype/Map.png`) is a screenshot of another game's map. It must be replaced with original art before the slice is shown to anyone (phase 5).
 - **Art and sound for phase 5** need sourcing by the designer: an original map, ship sprites, UI style, sounds and music.

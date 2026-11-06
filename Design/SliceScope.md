@@ -8,7 +8,7 @@
    - Each port sells some goods cheaply and pays well for others.
    - **Prices are fixed:** the player's trading never moves them. Prices rise only in hurricane season (item 7).
 2. **14 goods:** Lumber & Naval Stores, Salt Cod, Flour, Logwood, Sugar, Tobacco, Rum, Wine, Hardware, Furs & Deerskins, Cloth, Coffee, Indigo, Cochineal. Every crate takes 1 space in the hold.
-3. **Start with gold, choose your fleet.** The player starts with 8,500 gold. 6,000 of it buys exactly one Merchantman (great), *or* two Brigs (good), *or* three Sloops (poor), and the rest pays for the first cargoes.
+3. **Start with gold, choose your fleet.** The player starts with 8,500 gold (decided). 6,000 of it buys exactly one Merchantman (great), *or* two Brigs (good), *or* three Sloops (poor), and the rest pays for the first cargoes.
    - Sloops are coastal and can't cross the Atlantic.
    - Ships cost daily wages.
    - More ships can be bought at shipyards (Havana, Boston, Liverpool, Bordeaux), with no fleet limit.
@@ -34,7 +34,7 @@
    Two levels each.
 9. **Time:** a calendar starting July 1, 1770. About 1.5 real seconds per day at 1×, with pause, 2× and 4×.
 10. **Goal:** reach a target amount of gold before the mission ends (2 years). Then a win or lose screen.
-11. **Tutorial:** a short guided first voyage: buy, load, preview, send, arrive, sell.
+11. **Tutorial:** a short guided first voyage: buy, load, preview, send, arrive, sell. It runs on the first play only; a HUD button replays it.
 12. **Polish:**
     - original map art (the current `Map.png` is another game's screenshot and must go)
     - ships moving along their routes

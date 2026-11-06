@@ -135,13 +135,17 @@ namespace Naval.SliceEditor
             }
 
             fastest = buttons[buttons.Length - 1];
-            // Under 4×, clear of the tutorial box.
+            // Under 4× and 2×, clear of the tutorial box.
             Button restart = SliceUi.MakeButton(root, "Restart", new Vector2(120f, 44f), null, 24);
             restart.name = "Restart";
             SliceUi.Place(restart, TopRight, new Vector2(-30f, -98f));
+            Button tutorial = SliceUi.MakeButton(root, "Tutorial", new Vector2(120f, 44f), null, 24);
+            tutorial.name = "Tutorial";
+            SliceUi.Place(tutorial, TopRight, new Vector2(-160f, -98f));
 
             var hud = root.gameObject.AddComponent<SliceHud>();
             SetRef(hud, "restartButton", restart);
+            SetRef(hud, "tutorialButton", tutorial);
             SetRef(hud, "dateText", date);
             SetRef(hud, "daysLeftText", days);
             SetRef(hud, "goldText", gold);

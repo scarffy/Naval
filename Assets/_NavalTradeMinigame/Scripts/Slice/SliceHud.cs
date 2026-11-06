@@ -24,21 +24,25 @@ namespace Naval.Slice
         [SerializeField] Button[] speedButtons;
         /// <summary>Needs a second click within a few seconds, so a misclick does not lose the game.</summary>
         [SerializeField] Button restartButton;
+        /// <summary>Replays the tutorial in a new game. Like Restart, it needs a second click.</summary>
+        [SerializeField] Button tutorialButton;
 
         const float ConfirmSeconds = 3f;
+        Button confirming;
         float confirmUntil = -1f;
 
         void Start()
         {
             if (bootstrap == null || clock == null || dateText == null || daysLeftText == null ||
                 goldText == null || statusText == null || speedButtons == null || speedButtons.Length != Speeds.Length ||
-                restartButton == null)
+                restartButton == null || tutorialButton == null)
             {
                 Debug.LogError("SliceHud: every field must be assigned (four speed buttons).");
                 enabled = false;
                 return;
             }
-            restartButton.onClick.AddListener(OnRestartClicked);
+            restartButton.onClick.AddListener(() => Confirm(restartButton, SliceBootstrap.Restart));
+            tutorialButton.onClick.AddListener(() => Confirm(tutorialButton, SliceTutorial.Replay));
             for (int i = 0; i < speedButtons.Length; i++)
             {
                 float speed = Speeds[i];
@@ -53,24 +57,30 @@ namespace Naval.Slice
         int shownGold;
         float shownSpeed = -1f;
 
-        void OnRestartClicked()
+        /// <summary>Runs the action on a second click of the same button within the time; the first click only asks "Sure?".</summary>
+        void Confirm(Button button, System.Action action)
         {
-            if (confirmUntil >= 0f && Time.unscaledTime <= confirmUntil)
+            if (confirming == button && Time.unscaledTime <= confirmUntil)
             {
-                SliceBootstrap.Restart();
+                action();
                 return;
             }
+            ClearConfirm();
+            confirming = button;
             confirmUntil = Time.unscaledTime + ConfirmSeconds;
-            SliceUi.LabelOf(restartButton).text = "Sure?";
+            SliceUi.LabelOf(button).text = "Sure?";
+        }
+
+        void ClearConfirm()
+        {
+            if (confirming == null) return;
+            SliceUi.LabelOf(confirming).text = confirming == restartButton ? "Restart" : "Tutorial";
+            confirming = null;
         }
 
         void Update()
         {
-            if (confirmUntil >= 0f && Time.unscaledTime > confirmUntil)
-            {
-                confirmUntil = -1f;
-                SliceUi.LabelOf(restartButton).text = "Restart";
-            }
+            if (confirming != null && Time.unscaledTime > confirmUntil) ClearConfirm();
 
             GameState state = bootstrap.State;
             if (state == null)

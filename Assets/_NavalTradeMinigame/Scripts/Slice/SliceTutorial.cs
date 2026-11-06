@@ -10,7 +10,8 @@ namespace Naval.Slice
     /// <summary>
     /// A guided first voyage: buy, load, preview, send, arrive, sell. One objective at a time, with the relevant widget outlined.
     /// It starts once the opening (fleet and free routes) is over, and new voyages are sheltered from hazards while it runs.
-    /// The player can skip it at any time.
+    /// The player can skip it at any time. It runs only until it is completed or skipped once (remembered in PlayerPrefs);
+    /// <see cref="Replay"/> forgets that.
     /// </summary>
     public sealed class SliceTutorial : MonoBehaviour
     {
@@ -25,6 +26,7 @@ namespace Naval.Slice
             public Action OnDone;
         }
 
+        const string SeenKey = "Naval.Slice.TutorialSeen";
         const float PortBox = 110f;
         const float Pad = 6f;
         /// <summary>Steps before "Arrive" in <see cref="BuildSteps"/>; from there on the tutorial ship must exist.</summary>
@@ -87,9 +89,10 @@ namespace Naval.Slice
             }
             canvasRect = (RectTransform)canvas.rootCanvas.transform;
             bars = frame.GetComponentsInChildren<Image>(true);
-            skipButton.onClick.AddListener(Finish);
+            skipButton.onClick.AddListener(() => Finish(true));
             box.SetActive(false);
             frame.gameObject.SetActive(false);
+            if (PlayerPrefs.GetInt(SeenKey, 0) == 1) finished = true;
         }
 
         void Update()
@@ -98,7 +101,7 @@ namespace Naval.Slice
             if (state == null || finished) return;
             if (state.Outcome != GameOutcome.InProgress)
             {
-                Finish();
+                Finish(false);
                 return;
             }
             if (!running)
@@ -117,7 +120,7 @@ namespace Naval.Slice
             // Past the sending step the ship matters; if it is gone there is nothing left to show.
             if (index >= SailStepCount && !InFleet(state, tutorialShip))
             {
-                Finish();
+                Finish(true);
                 return;
             }
             Step step = steps[index];
@@ -127,7 +130,7 @@ namespace Naval.Slice
                 index++;
                 if (index >= steps.Count)
                 {
-                    Finish();
+                    Finish(true);
                     return;
                 }
                 step = steps[index];
@@ -189,10 +192,24 @@ namespace Naval.Slice
             box.SetActive(true);
         }
 
-        void Finish()
+        /// <summary>Forgets that the tutorial was seen and starts a new game, so it runs again.</summary>
+        public static void Replay()
+        {
+            PlayerPrefs.DeleteKey(SeenKey);
+            PlayerPrefs.Save();
+            SliceBootstrap.Restart();
+        }
+
+        /// <param name="seen">True when the player completed or skipped it, so it does not run again.</param>
+        void Finish(bool seen)
         {
             if (finished) return;
             finished = true;
+            if (seen)
+            {
+                PlayerPrefs.SetInt(SeenKey, 1);
+                PlayerPrefs.Save();
+            }
             GameState state = bootstrap.State;
             if (state != null) state.ShelterNewVoyages = false;
             box.SetActive(false);
