@@ -15,6 +15,9 @@ namespace Naval.SliceEditor
         const string ScenesFolder = "Assets/_NavalTradeMinigame/Scenes";
         const string ScenePath = ScenesFolder + "/Slice.unity";
 
+        [MenuItem("Naval/Build Slice Scene", true)]
+        static bool CanBuild() { return !EditorApplication.isPlaying; }
+
         [MenuItem("Naval/Build Slice Scene")]
         public static void Build()
         {
@@ -59,13 +62,12 @@ namespace Naval.SliceEditor
             var go = new GameObject("Main Camera");
             go.tag = "MainCamera";
             Camera camera = go.AddComponent<Camera>();
+            // SliceMap frames the camera and sets the sea colour at Start.
             camera.orthographic = true;
-            camera.orthographicSize = 35f;
             camera.clearFlags = CameraClearFlags.SolidColor;
-            camera.backgroundColor = new Color(0.08f, 0.2f, 0.32f);
             camera.nearClipPlane = 0.1f;
             camera.farClipPlane = 50f;
-            go.transform.position = new Vector3(50f, 30f, -10f);
+            go.transform.position = new Vector3(0f, 0f, -10f);
             go.AddComponent<AudioListener>();
             return camera;
         }
@@ -104,7 +106,7 @@ namespace Naval.SliceEditor
             SetRef(hud, "goldText", gold);
             SetRef(hud, "statusText", status);
             var so = new SerializedObject(hud);
-            SerializedProperty array = so.FindProperty("speedButtons");
+            SerializedProperty array = Prop(so, "speedButtons");
             array.arraySize = buttons.Length;
             for (int i = 0; i < buttons.Length; i++) array.GetArrayElementAtIndex(i).objectReferenceValue = buttons[i];
             so.ApplyModifiedPropertiesWithoutUndo();
@@ -197,9 +199,7 @@ namespace Naval.SliceEditor
         static void SetRef(UnityEngine.Object target, string field, UnityEngine.Object value)
         {
             var so = new SerializedObject(target);
-            SerializedProperty property = so.FindProperty(field);
-            if (property == null) throw new InvalidOperationException(target.GetType().Name + " has no serialized field '" + field + "'");
-            property.objectReferenceValue = value;
+            Prop(so, field).objectReferenceValue = value;
             so.ApplyModifiedPropertiesWithoutUndo();
         }
     }

@@ -112,6 +112,14 @@ namespace Naval.Tests
         }
 
         [Test]
+        public void MapPosition_OutsideTheMap_Fails()
+        {
+            SliceCsv csv = TestData.Csv();
+            csv.Ports = TestData.Replace(csv.Ports, "Natchez,Gulf,no,yes,16,44", "Natchez,Gulf,no,yes,16,75");
+            AssertFails(csv, "ports.csv", "map_y");
+        }
+
+        [Test]
         public void MissingMapColumn_IsNamed()
         {
             SliceCsv csv = TestData.Csv();

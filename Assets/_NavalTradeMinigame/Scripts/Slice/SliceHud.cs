@@ -41,28 +41,53 @@ namespace Naval.Slice
             }
         }
 
+        // What is currently shown, so the strings are only rebuilt when something changes.
+        bool shownLoadError;
+        bool shownState;
+        int shownDay;
+        int shownGold;
+        GameOutcome shownOutcome;
+        float shownSpeed = -1f;
+
         void Update()
         {
             GameState state = bootstrap.State;
             if (state == null)
             {
+                if (shownLoadError) return;
+                shownLoadError = true;
                 statusText.text = bootstrap.LoadError ?? "The game did not start.";
                 statusText.color = new Color(1f, 0.4f, 0.4f);
                 return;
             }
 
-            CultureInfo c = CultureInfo.InvariantCulture;
-            dateText.text = state.Date.ToString("d MMM yyyy", c);
-            daysLeftText.text = state.DaysLeft.ToString("N0", c) + " days left";
-            goldText.text = MoneyManager.Format(state.Gold) + "   (goal " + MoneyManager.Format(state.Data.Rules.GoalGold) + ")";
-            for (int i = 0; i < speedButtons.Length; i++)
-                speedButtons[i].image.color = Mathf.Approximately(clock.Speed, Speeds[i]) ? ActiveColor : IdleColor;
+            if (!shownState || state.Day != shownDay || state.Gold != shownGold)
+            {
+                CultureInfo c = CultureInfo.InvariantCulture;
+                dateText.text = state.Date.ToString("d MMM yyyy", c);
+                daysLeftText.text = state.DaysLeft.ToString("N0", c) + " days left";
+                goldText.text = MoneyManager.Format(state.Gold) + "   (goal " + MoneyManager.Format(state.Data.Rules.GoalGold) + ")";
+                shownDay = state.Day;
+                shownGold = state.Gold;
+            }
 
-            // Placeholder: the real win and lose screens come with the screens phase.
-            statusText.color = Color.white;
-            if (state.Outcome == GameOutcome.Won) statusText.text = "Won";
-            else if (state.Outcome == GameOutcome.Lost) statusText.text = "Lost";
-            else statusText.text = "";
+            if (!Mathf.Approximately(clock.Speed, shownSpeed))
+            {
+                shownSpeed = clock.Speed;
+                for (int i = 0; i < speedButtons.Length; i++)
+                    speedButtons[i].image.color = Mathf.Approximately(shownSpeed, Speeds[i]) ? ActiveColor : IdleColor;
+            }
+
+            if (!shownState || state.Outcome != shownOutcome)
+            {
+                // Placeholder: the real win and lose screens come with the screens phase.
+                statusText.color = Color.white;
+                if (state.Outcome == GameOutcome.Won) statusText.text = "Won";
+                else if (state.Outcome == GameOutcome.Lost) statusText.text = "Lost";
+                else statusText.text = "";
+                shownOutcome = state.Outcome;
+            }
+            shownState = true;
         }
     }
 }

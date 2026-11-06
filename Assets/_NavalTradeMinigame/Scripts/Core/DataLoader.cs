@@ -58,7 +58,7 @@ namespace Naval.Core
                 string name = row.Text("port");
                 if (ports.Exists(p => p.Name == name)) throw row.Error("port", "'" + name + "' appears twice");
                 ports.Add(new Port(ports.Count, name, row.Text("region"), row.YesNo("shipyard"), row.YesNo("hurricane_zone"),
-                    row.Number("map_x", 0, 1000), row.Number("map_y", 0, 1000)));
+                    row.Number("map_x", 0, 100), row.Number("map_y", 0, 60)));
             }
             if (ports.Count == 0) throw new DataException("ports.csv: no ports");
             return ports;

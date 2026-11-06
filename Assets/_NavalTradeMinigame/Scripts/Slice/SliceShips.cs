@@ -146,6 +146,7 @@ namespace Naval.Slice
             slots[port] = slot + 1;
             Vector3 offset = new Vector3(1.6f + 0.9f * (slot % 4), -1.2f - 0.9f * (slot / 4), 0f) * map.Scale;
             m.Transform.position = map.PortPosition(port) + offset;
+            m.Transform.rotation = Quaternion.identity;
         }
     }
 }

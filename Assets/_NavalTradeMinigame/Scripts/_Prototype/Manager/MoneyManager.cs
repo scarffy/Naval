@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 
 namespace MiniGame
@@ -10,7 +11,7 @@ namespace MiniGame
         //! The game's only currency. Always show money through Format() so every screen matches.
         public const string CurrencyName = "gold";
 
-        public static string Format(int amount) => $"{amount:N0} {CurrencyName}";
+        public static string Format(int amount) => string.Format(CultureInfo.InvariantCulture, "{0:N0} {1}", amount, CurrencyName);
 
         public Action<int> OnMoneyUpdated;
         

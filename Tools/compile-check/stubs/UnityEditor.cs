@@ -2,7 +2,8 @@
 // Only the members the game's Editor scripts use. Add members here as needed.
 namespace UnityEditor
 {
-    public sealed class MenuItem : System.Attribute { public MenuItem(string itemName) { } public MenuItem(string itemName, bool isValidateFunction, int priority) { } }
+    public sealed class MenuItem : System.Attribute { public MenuItem(string itemName) { } public MenuItem(string itemName, bool isValidateFunction) { } public MenuItem(string itemName, bool isValidateFunction, int priority) { } }
+    public static class EditorApplication { public static bool isPlaying { get; set; } }
     public static class AssetDatabase
     {
         public static T LoadAssetAtPath<T>(string assetPath) where T : UnityEngine.Object { return null; }

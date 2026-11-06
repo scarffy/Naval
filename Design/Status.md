@@ -43,7 +43,7 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
   - `SliceShips`: ship markers that glide along their routes and sit beside ports
   - `SliceHud`: date, days left, gold and goal, speed buttons, and a placeholder Won/Lost text. It shows the data error if the CSVs fail to load.
 - **`SliceDemo` is temporary.** Until phase 3's screens exist, it opens the two free routes (Havana to New Orleans and Havana to Port-au-Prince), buys two Brigs and keeps sending them to random ports. The ships carry no cargo, so wages and dues push gold below zero. That's expected. Turn it off with its `Run Demo` box, and delete it in phase 3.
-- **Tests:** 98 edit-mode tests (3 new) pass in a stand-in runner.
+- **Tests:** 99 edit-mode tests (4 new) pass in a stand-in runner.
 
 ## To check in Unity (designer)
 
@@ -56,7 +56,7 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
    - the date moves on about every 1.5 s, and Pause, 1×, 2× and 4× work and highlight
    - days left and gold update
 3. The EventSystem gets the Input System's UI module, because the project uses the new Input System only. If the buttons don't respond to clicks, check that module.
-4. Window → General → Test Runner → EditMode → Run All. Expect 98 passing.
+4. Window → General → Test Runner → EditMode → Run All. Expect 99 passing.
 5. Report anything that looks wrong, plus how the map and the ships' speed feel.
 
 ## Next

@@ -9,6 +9,7 @@ namespace Naval.Slice
     /// </summary>
     public sealed class SliceMap : MonoBehaviour
     {
+        // ports.csv is validated to the same range (map_x 0 to 100, map_y 0 to 60).
         const float MapWidth = 100f;
         const float MapHeight = 60f;
         const float Margin = 6f;
@@ -59,6 +60,11 @@ namespace Naval.Slice
             BuildRoutes(state.Data);
             foreach (Port port in state.Data.Ports) BuildPort(port);
             RefreshRoutes(state);
+        }
+
+        void OnDestroy()
+        {
+            if (lineMaterial != null) Destroy(lineMaterial);
         }
 
         void LateUpdate()

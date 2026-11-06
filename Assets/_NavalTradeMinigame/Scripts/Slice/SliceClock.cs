@@ -11,8 +11,11 @@ namespace Naval.Slice
     /// </summary>
     public sealed class SliceClock : MonoBehaviour
     {
-        /// <summary>Most days processed in one frame, so a long hitch cannot snowball.</summary>
-        const int MaxDaysPerFrame = 4;
+        /// <summary>
+        /// Most days processed in one frame. One, so a hitch drops the backlog and the ships' "finish the arrival
+        /// on screen" day is never overwritten by another day in the same frame.
+        /// </summary>
+        const int MaxDaysPerFrame = 1;
 
         [SerializeField] SliceBootstrap bootstrap;
         [SerializeField] float secondsPerDay = 1.5f;
@@ -51,6 +54,13 @@ namespace Naval.Slice
             if (state.Outcome != GameOutcome.InProgress)
             {
                 DayFraction = 1f;
+                // Commands after the game ended (e.g. the selling that reached the goal) still report their events.
+                IReadOnlyList<GameEvent> late = state.TakeEvents();
+                if (late.Count > 0)
+                {
+                    Action<IReadOnlyList<GameEvent>> lateHandler = DayAdvanced;
+                    if (lateHandler != null) lateHandler(late);
+                }
                 return;
             }
 
