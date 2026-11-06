@@ -133,6 +133,8 @@ namespace Naval.Slice
                     Finish(true);
                     return;
                 }
+                // Reaching the wrap-up counts as seen, even if the game then ends or the player quits before clicking Done.
+                if (index == steps.Count - 1) MarkSeen();
                 step = steps[index];
             }
 
@@ -195,21 +197,27 @@ namespace Naval.Slice
         /// <summary>Forgets that the tutorial was seen and starts a new game, so it runs again.</summary>
         public static void Replay()
         {
-            PlayerPrefs.DeleteKey(SeenKey);
-            PlayerPrefs.Save();
+            // If the reload can't happen, keep the flag so nothing changes.
+            if (SliceBootstrap.CanRestart)
+            {
+                PlayerPrefs.DeleteKey(SeenKey);
+                PlayerPrefs.Save();
+            }
             SliceBootstrap.Restart();
         }
 
-        /// <param name="seen">True when the player completed or skipped it, so it does not run again.</param>
+        static void MarkSeen()
+        {
+            PlayerPrefs.SetInt(SeenKey, 1);
+            PlayerPrefs.Save();
+        }
+
+        /// <param name="seen">True when the player completed or skipped it (also saved on reaching the last step), so it does not run again.</param>
         void Finish(bool seen)
         {
             if (finished) return;
             finished = true;
-            if (seen)
-            {
-                PlayerPrefs.SetInt(SeenKey, 1);
-                PlayerPrefs.Save();
-            }
+            if (seen) MarkSeen();
             GameState state = bootstrap.State;
             if (state != null) state.ShelterNewVoyages = false;
             box.SetActive(false);

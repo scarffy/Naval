@@ -26,16 +26,18 @@ namespace Naval.Slice
             }
         }
 
+        /// <summary>False when the scene is not in Build Settings, so <see cref="Restart"/> cannot reload it.</summary>
+        public static bool CanRestart { get { return SceneManager.GetActiveScene().buildIndex >= 0; } }
+
         /// <summary>Starts a new game by reloading the active scene. The scene must be in Build Settings.</summary>
         public static void Restart()
         {
-            int index = SceneManager.GetActiveScene().buildIndex;
-            if (index < 0)
+            if (!CanRestart)
             {
                 Debug.LogError("Cannot restart: the scene is not in Build Settings. Run Naval > Build Slice Scene, which adds it.");
                 return;
             }
-            SceneManager.LoadScene(index);
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
 
         public static GameData LoadData()

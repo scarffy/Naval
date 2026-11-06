@@ -7,7 +7,8 @@ using UnityEngine.UI;
 namespace Naval.Slice
 {
     /// <summary>
-    /// Date, days left, gold against the goal and the speed buttons.
+    /// Date, days left, gold against the goal, the speed buttons, and the Restart and Tutorial buttons (both need a second click;
+    /// Tutorial calls <see cref="SliceTutorial.Replay"/>, which clears the saved tutorial-seen flag and restarts).
     /// If the data failed to load it shows the error in the status text. The scene builder creates the widgets.
     /// </summary>
     public sealed class SliceHud : MonoBehaviour
@@ -29,6 +30,8 @@ namespace Naval.Slice
 
         const float ConfirmSeconds = 3f;
         Button confirming;
+        Text confirmingLabel;
+        string confirmingText;
         float confirmUntil = -1f;
 
         void Start()
@@ -38,6 +41,12 @@ namespace Naval.Slice
                 restartButton == null || tutorialButton == null)
             {
                 Debug.LogError("SliceHud: every field must be assigned (four speed buttons).");
+                enabled = false;
+                return;
+            }
+            if (SliceUi.LabelOf(restartButton) == null || SliceUi.LabelOf(tutorialButton) == null)
+            {
+                Debug.LogError("SliceHud: the Restart and Tutorial buttons need a Text label.");
                 enabled = false;
                 return;
             }
@@ -67,15 +76,18 @@ namespace Naval.Slice
             }
             ClearConfirm();
             confirming = button;
+            confirmingLabel = SliceUi.LabelOf(button);
+            confirmingText = confirmingLabel.text;
+            confirmingLabel.text = "Sure?";
             confirmUntil = Time.unscaledTime + ConfirmSeconds;
-            SliceUi.LabelOf(button).text = "Sure?";
         }
 
         void ClearConfirm()
         {
             if (confirming == null) return;
-            SliceUi.LabelOf(confirming).text = confirming == restartButton ? "Restart" : "Tutorial";
+            confirmingLabel.text = confirmingText;
             confirming = null;
+            confirmingLabel = null;
         }
 
         void Update()

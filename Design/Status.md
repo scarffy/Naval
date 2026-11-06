@@ -87,11 +87,11 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
 - **Review:** 7 findings. Fixed: every voyage stayed sheltered until the player clicked Done (now only the first); the sell step stuck if the ship left or bought more first; the box covered Restart on 16:10 and 4:3 screens (Restart moved under 4×, the box stretches and doesn't block clicks); no way back after Back on the send panel; steps counted any open port as the start port; the Skip label was looked up every frame. Left: a restart uses the same seed (reproducible on purpose), and the buying tip uses the first ship and today's prices (all opening ships are the same type).
 
 **Phase 4 follow-up: the tutorial runs once.**
-- **Decided:** starting gold stays at 8,500.
 - When the tutorial is completed or skipped (Skip or Done), `SliceTutorial` saves the PlayerPrefs key `Naval.Slice.TutorialSeen` = 1, and it doesn't run again after a restart or on later launches. The flag lives only in the Slice layer; `Naval.Core` and the edit-mode tests never touch it.
-- **If the game ends mid-tutorial** (or before it starts), it doesn't count as seen. If the tutorial ship is gone after it set sail, it counts as seen. Quitting mid-tutorial means it shows again next launch.
-- **HUD Tutorial button** (under 2×, left of Restart): forgets the flag and restarts, so the tutorial runs in the new game. Like Restart, it asks "Sure?" and needs a second click within 3 seconds. Clicking the other button first moves "Sure?" to it and does nothing else.
+- **If the game ends or the player quits:** reaching the wrap-up step counts as seen, so the game ending or quitting there doesn't bring the tutorial back. If the game ends earlier, it doesn't count as seen. If the tutorial ship is gone after it set sail, it counts as seen. Quitting before the wrap-up means it shows again next launch.
+- **HUD Tutorial button** (under 2×, left of Restart): forgets the flag and restarts, so the tutorial runs in the new game. Like Restart, it asks "Sure?" and needs a second click within 3 seconds. Clicking the other button first moves "Sure?" to it and does nothing else. If the scene isn't in Build Settings, it logs the Restart error and keeps the flag.
 - **Tests:** still 110 edit-mode tests.
+- **Review:** 8 findings. Fixed: a player who reached the wrap-up but didn't click Done (the game ended or they quit) saw the tutorial again; Replay cleared the flag even when Restart couldn't reload the scene; the confirm restored button labels from hard-coded text; a button without a Text label would throw on click; the HUD summary didn't mention the new buttons; the starting-gold decision was written three times. Left: the ship leaving the fleet after setting sail counts as seen (as designed); the Tutorial button also works mid-tutorial (it restarts with the tutorial, after "Sure?").
 
 ## To check in Unity (designer)
 
@@ -134,6 +134,7 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
    - **Tutorial runs once** (to test from scratch, delete the `Naval.Slice.TutorialSeen` PlayerPrefs key, e.g. Edit → Clear All PlayerPrefs):
      - finish or skip it, then Restart: the new game has no tutorial; stop and press Play again: still none
      - let the game end mid-tutorial (lower `mission_days`), then Restart: the tutorial runs again
+     - reach the wrap-up step, then let the game end or stop Play without clicking Done: the tutorial doesn't run again
      - the HUD Tutorial button (under 2×, left of Restart) shows "Sure?", goes back after about 3 seconds, and on a second click starts a new game with the tutorial
      - click Restart then Tutorial (or the reverse): only the second shows "Sure?", and nothing restarts
      - at 16:9, 16:10 and 4:3 the Tutorial button doesn't overlap the tutorial box, the gold text, the speed buttons or Restart
