@@ -65,6 +65,25 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
 - **Tests:** 107 edit-mode tests pass in the Mono runner (it now runs `[TestCase]` rows too).
 - **Review:** 10 findings plus the author's open questions. Fixed: the test runner skipped `[TestCase]` rows; buying a ship before `ChooseFleet` left `FleetChosen` false; the port panel overflowed with a 14-good market or 4+ ships (ships are now stepped through with < and >, Repair and Send share a row, market rows are shorter); the fleet list covered Natchez and New Orleans (moved to the bottom right); the end screen hard-coded "two years" and guessed the loss reason (`GameState.LostBecause` now says why); the clock could tick one frame after a panel opened; the fleet count was worked out in two places (`GameData.FleetCount`); duplicated date, colour and font helpers; the goal tests used a goal below the start gold.
 
+**Phase 4: restart and the tutorial** (code only, not yet run in Unity).
+- **Restart** reloads the scene. It's on the end screen, plus a small Restart button left of Pause on the HUD, which asks "Sure?" and restarts on a second click within 3 seconds. A reload resets everything, so no component needs its own reset code. **Naval → Build Slice Scene** now adds `Slice.unity` to Build Settings (or enables it), because the reload needs a build index. If the scene isn't in Build Settings, Restart logs an error saying to run the menu command.
+- **Sheltered voyages (Core):** while `GameState.ShelterNewVoyages` is true, voyages started by `Send` meet no hazards for their whole trip, even if it's turned off on the way. The preview still shows the route's real risks. 3 new tests.
+- **Tutorial** (`SliceTutorial`): a guided first voyage. It shows one objective at a time in a box at the top centre, with a pulsing outline on the target. The steps are:
+  1. open the start port
+  2. buy goods (with a tip naming the best-paying good and where it sells)
+  3. load and click Send
+  4. pick a destination and read the preview
+  5. set sail
+  6. watch the ship arrive
+  7. sell
+  8. a wrap-up naming the goal and the date
+  - **Skip** works at any step. It's a short ordered list of steps, each with text, a completion check and a target.
+  - **When it starts:** after the opening (fleet choice and the 2 free routes). The voyage needs a ship and owned routes, and the opening already guides itself with its panel and banner.
+  - **It can't be lost:** it turns `ShelterNewVoyages` on while it runs and off when it ends or is skipped.
+  - **It doesn't get stuck:** if the player sets sail before the text asks, it jumps ahead. If nothing aboard sells at the destination, the sell step completes.
+  - It runs again after a restart.
+- **Tests:** 110 edit-mode tests pass in the Mono runner.
+
 ## To check in Unity (designer)
 
 1. Open the project and check the console for import or compile errors.
@@ -90,18 +109,36 @@ Read this together with `Design/SliceScope.md`, which defines what's being built
    - **Phase 2 checks:** the map fits the view, port names are readable, and ships glide along their routes and settle beside ports.
    - **Win and lose:** lower `goal_gold` in `rules.csv` (to 10,000, say) to see the win screen. Use 4× speed, or lower `mission_days`, to see the lose screen; it should give the number of days from `rules.csv`.
 3. If clicks on the map don't register, check the Main Camera's `Physics2DRaycaster` and the EventSystem's Input System UI module.
-4. Window → General → Test Runner → EditMode → Run All. Expect 107 passing.
-5. Report anything that looks wrong or is hard to read, and how the opening and the first voyages feel.
+4. **Phase 4** (build the scene again first):
+   - **Build Settings:** after the menu command, `Slice.unity` is listed and enabled, and the scenes that were already there are unchanged.
+   - **Restart:** the end screen's Restart starts a fresh game: fleet choice, 8,500 gold, the date back to 1 Jul 1770, no old notifications, markers or panels, speed 1×. The HUD Restart shows "Sure?", goes back to "Restart" after about 3 seconds, and restarts on a second click.
+   - **Tutorial:**
+     - it appears after the second free route, one objective at a time
+     - the outline sits on the right thing at each step: the start port on the map, the market, Send, the destinations, Set sail, Close or 4×, the destination port, then the market there
+     - the outline never blocks a click
+     - the box doesn't cover the date, gold, speed or Restart buttons, or anything you need on the port and send panels
+     - the first voyage meets no storms, pirates or hurricanes
+     - Skip hides it at any step, and voyages after that meet hazards again
+     - doing things out of order (for example, setting sail straight away) doesn't leave it stuck
+5. Window → General → Test Runner → EditMode → Run All. Expect 110 passing.
+6. Report anything that looks wrong or is hard to read, and how the opening and the first voyages feel.
 
 ## Next
 
-**Phase 4: the tutorial.** A short guided first voyage: buy, load, preview, send, arrive, sell.
+**Phase 5: polish.**
+- original map art (it replaces `Map.png`)
+- ships moving along their routes
+- the UI style
+- sound and music
+- arrival and sale feedback
 
 ## Open items
 
 - **Starting gold (8,500) is the designer's call.** At 6,000 the opening fleet took every coin, nothing could be bought and wages kept the player in debt (the only way out was selling a ship at half price).
 - **The clock stops while the port panel is open.** That keeps trading calm, but ships at sea also wait. Decide by playing.
-- **There is no restart on the end screen.** Leave Play mode and press Play again. A restart button needs `Slice.unity` in Build Settings.
+- **The tutorial's preview shows the real risks** while the voyage itself is sheltered. The step text says it sails under escort. The alternative is showing 0%, which teaches less.
+- **"Buy" and "load" are one action** in this game: bought crates go straight into the selected ship's hold. The tutorial covers them as two steps (buy, then fill the hold and click Send).
+- **The tutorial runs on every new game**, including after a restart. Skip is one click.
 - **`goal_gold` (500,000) is a placeholder.** Tune it by playing, or with a quick bot, once phase 3 makes the game playable.
 - The current map texture (`Arts/Prototype/Map.png`) is a screenshot of another game's map. It must be replaced with original art before the slice is shown to anyone (phase 5).
 - **Art and sound for phase 5** need sourcing by the designer: an original map, ship sprites, UI style, sounds and music.
