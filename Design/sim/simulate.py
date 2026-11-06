@@ -46,21 +46,58 @@ class Data:
             self.market[r["port"]] = {g: float(r[g]) for g in self.goods if (r.get(g) or "").strip()}
         self.ships = {r["ship"]: {"price": float(r["price"]), "capacity": int(r["capacity"]),
                                   "speed": float(r["speed"]), "hull": int(r["hull"]),
-                                  "wage": float(r["wage_per_day"])}
+                                  "wage": float(r["wage_per_day"]),
+                                  "ocean": r.get("ocean_going", "yes").strip().lower() == "yes"}
                       for r in read_csv("ships.csv")}
         self.upgrades = defaultdict(list)
         for r in sorted(read_csv("upgrades.csv"), key=lambda r: (r["track"], int(r["level"]))):
             self.upgrades[r["track"]].append({k: as_value(v) for k, v in r.items()})
         self.rules = {r["key"]: as_value(r["value"]) for r in read_csv("rules.csv")}
-        lanes = [{"a": r["from"], "b": r["to"], "distance": float(r["distance"]),
-                  "storm": float(r["storm_per_day"]), "pirates": float(r["pirates_per_day"]),
-                  "hurricanes": float(r["hurricanes_per_day"])} for r in read_csv("lanes.csv")]
+        self.lanes = [{"id": i, "a": r["from"], "b": r["to"], "distance": float(r["distance"]),
+                       "storm": float(r["storm_per_day"]), "pirates": float(r["pirates_per_day"]),
+                       "hurricanes": float(r["hurricanes_per_day"]), "price": float(r["price"]),
+                       "ocean": r.get("ocean", "no").strip().lower() == "yes"}
+                      for i, r in enumerate(read_csv("lanes.csv"))]
         if set(self.market) != set(self.ports):
             raise SystemExit("market.csv and ports.csv list different ports")
-        self.routes = self._routes(lanes)
+        self.routes = self._routes(self.lanes)            # every route open: used for reports
+        self._route_cache, self._score_cache = {}, {}
+        # Best single-crate margin from each port to each other port, before any trading.
+        self.pair_margin = {}
+        for a in self.market:
+            for b in self.market:
+                if a != b:
+                    self.pair_margin[(a, b)] = max(
+                        [self.goods[g] * (self.market[b][g] - self.market[a][g] * (1 + self.rules["spread"]))
+                         for g in self.market[a] if g in self.market[b]] + [0.0])
 
-    def _routes(self, lanes):
-        """Shortest sea path between every pair of ports, as a list of lanes."""
+    def routes_for(self, owned, ocean=True):
+        """Shortest paths using only the routes the player owns (a frozenset of lane ids).
+        Coastal ships (ocean=False) can't use ocean crossings."""
+        key = (owned, ocean)
+        if key not in self._route_cache:
+            lanes = [self.lanes[i] for i in owned if ocean or not self.lanes[i]["ocean"]]
+            self._route_cache[key] = self._routes(lanes, require_all=False)
+        return self._route_cache[key]
+
+    def trade_rates(self, owned, ocean=True):
+        """Best gold per crate per day (at speed 1) for every trip the routes allow, best first."""
+        key = (owned, ocean)
+        if key not in self._score_cache:
+            routes = self.routes_for(owned, ocean)
+            home = self.rules["start_port"]
+            self._score_cache[key] = sorted(
+                (self.pair_margin[(a, b)] / (route["distance"] + self.rules["port_time_days"])
+                 for (a, b), route in routes.items() if a == home or (home, a) in routes), reverse=True)
+        return self._score_cache[key]
+
+    def network_rate(self, owned, ships, ocean=True):
+        """Average of the best 2-per-ship trades: roughly what a fleet of this size earns per crate per day."""
+        k = max(2, 2 * ships)
+        return sum(self.trade_rates(owned, ocean)[:k]) / k
+
+    def _routes(self, lanes, require_all=True):
+        """Shortest sea path between every pair of ports the lanes connect, as a list of lanes."""
         adj = defaultdict(list)
         for lane in lanes:
             for x, y in ((lane["a"], lane["b"]), (lane["b"], lane["a"])):
@@ -68,7 +105,8 @@ class Data:
                     raise SystemExit(f"lanes.csv mentions unknown port {x!r}")
                 adj[x].append((y, lane))
         routes = {}
-        for src in self.ports:
+        sources = list(self.ports) if require_all else sorted({p for l in lanes for p in (l["a"], l["b"])})
+        for src in sources:
             dist, prev = {src: 0.0}, {}
             heap = [(0.0, src)]
             while heap:
@@ -83,7 +121,9 @@ class Data:
                 if dst == src:
                     continue
                 if dst not in dist:
-                    raise SystemExit(f"No sea path from {src} to {dst}")
+                    if require_all:
+                        raise SystemExit(f"No sea path from {src} to {dst}")
+                    continue
                 legs, node = [], dst
                 while node != src:
                     node, lane = prev[node]
@@ -161,6 +201,10 @@ class Game:
         self.ships_bought = Counter()
         self.upgrades_bought = Counter()
         self.history = []                # gold at the end of each day
+        self.owned = frozenset()         # ids of the routes the player has opened
+        self.route_tables = {True: {}, False: {}}   # shortest paths over owned routes: ocean-going / coastal
+        self.free_routes = int(self.r["free_routes"])
+        self.route_log = []              # (day, lane) for each route opened
 
     # --- prices
     def price(self, port, good, pressure):
@@ -228,6 +272,32 @@ class Game:
         self.gold -= cost
         self.upgrades_bought[f"{track} {ship.levels[track]}"] += 1
 
+    # --- routes
+    def routes(self, ship):
+        return self.route_tables[ship.base["ocean"]]
+
+    def network(self):
+        ports = {self.r["start_port"]}
+        for i in self.owned:
+            ports |= {self.d.lanes[i]["a"], self.d.lanes[i]["b"]}
+        return ports
+
+    def route_candidates(self):
+        """Routes that can be opened next: not owned yet and touching the network."""
+        net = self.network()
+        return [l for l in self.d.lanes if l["id"] not in self.owned and (l["a"] in net or l["b"] in net)]
+
+    def route_price(self, lane):
+        return 0.0 if self.free_routes > 0 else lane["price"]
+
+    def buy_route(self, lane):
+        self.gold -= self.route_price(lane)
+        if self.free_routes > 0:
+            self.free_routes -= 1
+        self.owned = self.owned | {lane["id"]}
+        self.route_tables = {ocean: self.d.routes_for(self.owned, ocean) for ocean in (True, False)}
+        self.route_log.append((self.day, lane))
+
     # --- voyages
     def season(self, day):
         start, peak = self.r["hurricane_season_start"], self.r["hurricane_season_peak"]
@@ -236,7 +306,7 @@ class Game:
         return min(1.0, (day - start) / max(1.0, peak - start))
 
     def voyage_days(self, ship, dest):
-        return self.d.routes[(ship.port, dest)]["distance"] / ship.speed()
+        return self.routes(ship)[(ship.port, dest)]["distance"] / ship.speed()
 
     def roll(self, lo, hi):
         return self.rng.randint(int(self.r[lo]), int(self.r[hi]))
@@ -247,7 +317,7 @@ class Game:
             ship.cargo[g] -= round(ship.cargo[g] * frac)
 
     def sail(self, ship, dest):
-        route = self.d.routes[(ship.port, dest)]
+        route = self.routes(ship)[(ship.port, dest)]
         days = self.voyage_days(ship, dest)
         self.trips[tuple(sorted((ship.port, dest)))] += 1
         self.atlantic_trips += route["atlantic"]
@@ -340,7 +410,7 @@ class Game:
 def plan_cargo(game, ship, dest, days):
     """Choose crates one at a time by best expected margin. Returns (plan, expected profit)."""
     r = game.r
-    route = game.d.routes[(ship.port, dest)]
+    route = game.routes(ship)[(ship.port, dest)]
     here, there = game.d.market[ship.port], game.d.market[dest]
     season = game.season(int(game.now + days / 2))
     p_robbed = 1 - (1 - route["pirates"] * (1 - ship.repel())) ** days
@@ -395,16 +465,70 @@ def plan_cargo(game, ship, dest, days):
 
 def reserve(game, extra_capacity=0):
     """Gold to keep back so every ship can still fill its hold."""
-    return 50 * (extra_capacity + sum(s.capacity() for s in game.fleet)) + 300
+    return 50 * (extra_capacity + sum(s.base["capacity"] for s in game.fleet)) + 300
+
+
+ROUTE_PAYBACK_DAYS = 12   # bots open a route if the extra income repays it within this many days
+
+
+def best_new_route(game, owned=None, free=None):
+    """Best next route to open, looking one purchase further ahead.
+    Returns (lane to open now, extra gold per day for the fleet, price of the plan)."""
+    owned = game.owned if owned is None else owned
+    free = game.free_routes if free is None else free
+    ships = len(game.fleet) or 1
+    capacity = sum(s.capacity() * s.speed() for s in game.fleet) or 22.5
+    ocean = any(s.base["ocean"] for s in game.fleet)
+    base = game.d.network_rate(owned, ships, ocean)
+    net = {game.r["start_port"]} | {p for i in owned for p in (game.d.lanes[i]["a"], game.d.lanes[i]["b"])}
+    price = lambda lane, nth: 0.0 if nth < free else lane["price"]
+    best = None
+    for lane in game.d.lanes:
+        if lane["id"] in owned or not (lane["a"] in net or lane["b"] in net):
+            continue
+        one = owned | {lane["id"]}
+        plans = [(one, price(lane, 0))]
+        net2 = net | {lane["a"], lane["b"]}
+        for lane2 in game.d.lanes:
+            if lane2["id"] not in one and (lane2["a"] in net2 or lane2["b"] in net2):
+                plans.append((one | {lane2["id"]}, price(lane, 0) + price(lane2, 1)))
+        for routes, cost in plans:
+            gain = (game.d.network_rate(routes, ships, ocean) - base) * capacity
+            if gain <= 0:
+                continue
+            value = gain / max(1.0, cost) if cost > 0 else gain * 1e6
+            if best is None or value > best[0]:
+                best = (value, lane, gain, cost)
+    return (None, 0.0, 0.0) if best is None else best[1:]
 
 
 class Greedy:
     """Picks the most profitable trip per day from where the ship is.
+    Takes its free routes, then buys more when they pay back quickly (unless expand_routes is off).
     Optionally grows a fleet of one ship type and buys upgrades at shipyards."""
-    def __init__(self, expand_with=None, upgrades=(), allowed=None):
+    def __init__(self, expand_with=None, upgrades=(), allowed=None, expand_routes=True, opening=None):
         self.expand_with = expand_with
         self.upgrades = list(upgrades)
         self.allowed = allowed            # restrict to these port pairs (fixed-route bot)
+        self.expand_routes = expand_routes
+        self.opening = list(opening or [])   # lane ids to take as the free routes, in order
+        self.checked_day = None
+
+    def manage_routes(self, game):
+        while game.free_routes > 0:
+            lane = game.d.lanes[self.opening.pop(0)] if self.opening else best_new_route(game)[0]
+            if lane is None:
+                break
+            game.buy_route(lane)
+        if not self.expand_routes or self.checked_day == game.day or game.day > game.r["day_limit"] - 20:
+            return
+        self.checked_day = game.day
+        while True:
+            lane, gain, cost = best_new_route(game)
+            if (lane is None or cost > gain * ROUTE_PAYBACK_DAYS
+                    or game.gold < game.route_price(lane) + reserve(game)):
+                return
+            game.buy_route(lane)
 
     def shop(self, game, ship):
         if not game.d.ports[ship.port]["shipyard"] or game.day > game.r["day_limit"] - 25:
@@ -428,11 +552,13 @@ class Greedy:
             game.buy_upgrade(ship, track)
 
     def act(self, game, ship):
+        self.manage_routes(game)
         game.repair(ship, below=0.8)
         self.shop(game, ship)
         best = None
         for dest in game.d.ports:
-            if dest == ship.port or (self.allowed and tuple(sorted((ship.port, dest))) not in self.allowed):
+            if (ship.port, dest) not in game.routes(ship) or (
+                    self.allowed and tuple(sorted((ship.port, dest))) not in self.allowed):
                 continue
             days = game.voyage_days(ship, dest)
             plan, profit = plan_cargo(game, ship, dest, days)
@@ -451,15 +577,17 @@ class Greedy:
 
 
 class FixedRoute(Greedy):
-    """Picks the best-looking pair of ports (one with a shipyard) on day 1 and keeps every ship on it."""
+    """Takes its free routes, picks the best-looking pair of ports (one with a shipyard) on day 1,
+    and keeps every ship on it, adding sloops as it can. Never buys more routes."""
     def __init__(self):
-        super().__init__(expand_with="Sloop")
+        super().__init__(expand_with="Sloop", expand_routes=False)
         self.pair = None
 
     def act(self, game, ship):
+        self.manage_routes(game)
         if self.pair is None:
             best = None
-            for (a, b), route in game.d.routes.items():
+            for (a, b), route in game.routes(ship).items():
                 if a > b or not (game.d.ports[a]["shipyard"] or game.d.ports[b]["shipyard"]):
                     continue
                 margin = 0.0
@@ -477,10 +605,20 @@ class FixedRoute(Greedy):
 
 
 class RandomPlayer:
-    """Sails to a random port with random cargo. A stand-in for someone ignoring prices."""
+    """Opens random routes and sails to random ports with random cargo. A stand-in for someone ignoring prices."""
     def act(self, game, ship):
+        while game.free_routes > 0 or (game.route_candidates() and game.gold > 500 + min(
+                l["price"] for l in game.route_candidates())):
+            options = [l for l in game.route_candidates() if game.route_price(l) <= game.gold - 500]
+            if not options:
+                break
+            game.buy_route(game.rng.choice(options))
         game.repair(ship, below=0.5)
-        dest = game.rng.choice([p for p in game.d.ports if p != ship.port])
+        reachable = [b for (a, b) in game.routes(ship) if a == ship.port]
+        if not reachable:
+            ship.free_at = game.now + 1
+            return
+        dest = game.rng.choice(reachable)
         shared = [g for g in game.d.market[ship.port] if g in game.d.market[dest]]
         for _ in range(ship.capacity()):
             if not shared:
@@ -492,6 +630,26 @@ class RandomPlayer:
 
 
 # -------------------------------------------------------------- report ----
+
+def rank_openings(data):
+    """Every valid pair of free routes from the start port, best (for one sloop) first."""
+    start = data.rules["start_port"]
+    sloop = 1
+    options = {}
+    for a in data.lanes:
+        if start not in (a["a"], a["b"]):
+            continue
+        for b in data.lanes:
+            if b["id"] != a["id"] and ({b["a"], b["b"]} & {start, a["a"], a["b"]}):
+                key = frozenset((a["id"], b["id"]))
+                options[key] = (data.network_rate(key, sloop, data.ships[data.rules["start_ship"]]["ocean"]),
+                                [a["id"], b["id"]])
+    return sorted(options.values(), key=lambda o: -o[0])
+
+
+def lane_name(data, i):
+    return f"{data.lanes[i]['a']}-{data.lanes[i]['b']}"
+
 
 def simulate(data, make_bot, runs, seed):
     return [Game(data, random.Random(seed * 100003 + i)).run(make_bot()) for i in range(runs)]
@@ -535,6 +693,10 @@ def summarize(name, games):
         "upgrades": {k: v / len(games) for k, v in upgrades.items()},
         "gold by day": {d: statistics.median(g.history[min(d, len(g.history)) - 1] for g in games)
                         for d in (50, 60, 70, 80, 90)},
+        "routes by day": {d: statistics.mean(sum(1 for day, _ in g.route_log if day <= d) for g in games)
+                          for d in (1, 30, 60, 90)},
+        "first routes": Counter(" + ".join(sorted(f"{l['a']}-{l['b']}" for _, l in g.route_log[:2]))
+                                for g in games).most_common(3),
         "ships bought": {k: sum(g.ships_bought[k] for g in games) / len(games) for k in games[0].d.ships},
     }
 
@@ -580,6 +742,12 @@ def main():
     best = max(fleet, key=lambda r: r["mean gold"])
     kind = "Mixed" if best["bot"] == "Mixed fleet" else best["bot"].split()[-1][:-1]
     label = "Mixed" if kind == "Mixed" else f"{kind}s"
+    stay = run(f"{label}, free routes only", lambda: Greedy(expand_with=kind, expand_routes=False))
+    results.append(stay)
+    openings = rank_openings(data)[:3]
+    opening_results = [run(f"{label}, opening {i + 1}", (lambda o=o: lambda: Greedy(expand_with=kind, opening=o))())
+                       for i, (_, o) in enumerate(openings)]
+    results += opening_results
     upgraded = run(f"{label} + all upgrades", lambda: Greedy(expand_with=kind, upgrades=TRACK_ORDER))
     singles = [run(f"{label} + {t} only", (lambda t=t: lambda: Greedy(expand_with=kind, upgrades=[t]))())
                for t in TRACK_ORDER]
@@ -591,6 +759,13 @@ def main():
           f"{100 * best['hurricane lanes early']:.0f}% before the season, "
           f"{100 * best['hurricane lanes late']:.0f}% at its peak")
     print(f"Most-used route for '{best['bot']}': {best['top route']}")
+    print(f"Routes owned by '{best['bot']}' (of {len(data.lanes)}): " +
+          ", ".join(f"day {d} {v:.1f}" for d, v in best["routes by day"].items()))
+    print(f"Most common free picks for '{best['bot']}': " +
+          "; ".join(f"{pick} ({100 * n / args.runs:.0f}%)" for pick, n in best["first routes"]))
+    print("Openings tried (free routes): " + "; ".join(
+        f"{i + 1}: {' + '.join(lane_name(data, l) for l in o)} -> average gold {r['mean gold']:,.0f}"
+        for i, ((_, o), r) in enumerate(zip(openings, opening_results))))
     print(f"Median gold for '{best['bot']}' by day: " +
           ", ".join(f"day {d} {v:,.0f}" for d, v in best["gold by day"].items()))
     print(f"Least-visited ports for '{best['bot']}': " +
@@ -601,12 +776,13 @@ def main():
     print(f"Upgrades bought per session by '{upgraded['bot']}': " +
           ", ".join(f"{k} {v:.1f}" for k, v in sorted(upgraded["upgrades"].items())))
     print()
-    check(results, best, upgraded, singles, data.rules)
+    check(results, best, upgraded, singles, data.rules, opening_results)
 
 
-def check(results, best, upgraded, singles, rules):
+def check(results, best, upgraded, singles, rules, opening_results):
     by = {r["bot"]: r for r in results}
     hull = next(r for r in singles if r["bot"].endswith("Hull only"))
+    stay = next(r for r in results if r["bot"].endswith("free routes only"))
     fleet = [r for r in results if r["bot"].startswith("Fleet of ")]
     limit = rules["day_limit"]
     base = best["mean gold"]
@@ -628,6 +804,11 @@ def check(results, best, upgraded, singles, rules):
         ("The Atlantic matters (>= 15% of the best bot's voyages cross it)", best["atlantic %"] >= 15),
         ("Hurricane season changes plans (time on hurricane lanes drops >= 20% at the peak)",
          early > 0 and late <= 0.8 * early),
+        ("Opening routes matters (a fleet that keeps only its free routes earns <= 60% of one that expands)",
+         stay["mean gold"] <= 0.6 * base),
+        ("The opening isn't solved (the 2nd-best free pick earns within 10% of the best)",
+         sorted((r["mean gold"] for r in opening_results), reverse=True)[1]
+         >= 0.9 * max(r["mean gold"] for r in opening_results)),
         ("Upgrades pay off (all upgrades: >= 10% more average gold on day 90)", upgraded["mean gold"] >= 1.10 * base),
         ("Every upgrade track is worth buying (each alone: >= 3% more average gold)", min(gains) >= 0.03),
         ("No track is a must-have (best single track gains <= 3x the worst)",

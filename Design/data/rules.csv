@@ -1,7 +1,8 @@
 key,value,notes
 start_port,Havana,Where the player's first ship starts
 start_ship,Sloop,The player's first ship
-start_gold,1500,Gold on day 1
+start_gold,2500,Gold on day 1
+free_routes,2,How many routes the player opens for free. Every later route costs its price in lanes.csv
 goal_gold,50000,Win when gold on hand reaches this
 day_limit,90,Lose if the goal is not reached by the end of this day
 spread,0.10,Gap between buy and sell price at the same port (fraction of the mid price)

@@ -1,4 +1,4 @@
-ship,price,capacity,speed,hull,wage_per_day
-Sloop,1000,15,1.50,40,13
-Brig,1500,32,1.30,70,16
-Fluyt,1800,64,1.20,100,18
+ship,price,capacity,speed,hull,wage_per_day,ocean_going
+Sloop,1000,15,1.50,40,13,no
+Brig,1500,32,1.30,70,16,yes
+Fluyt,1800,64,1.20,100,18,yes

@@ -1,18 +1,18 @@
-from,to,distance,storm_per_day,pirates_per_day,hurricanes_per_day
-Natchez,New Orleans,3,0.01,0.04,0.02
-New Orleans,Havana,4,0.04,0.04,0.04
-New Orleans,Campeche,5,0.04,0.05,0.04
-Campeche,Veracruz,3,0.04,0.06,0.04
-Campeche,Havana,4,0.03,0.07,0.04
-Veracruz,Havana,6,0.04,0.06,0.04
-Havana,Port-au-Prince,4,0.03,0.10,0.04
-Port-au-Prince,Bridgetown,4,0.04,0.08,0.04
-Havana,New York,8,0.05,0.02,0.02
-Bridgetown,New York,9,0.05,0.03,0.02
-New York,Boston,3,0.04,0.01,0.01
-Boston,Liverpool,10,0.06,0.01,0.00
-New York,Liverpool,11,0.06,0.01,0.00
-Liverpool,Bordeaux,4,0.06,0.02,0.00
-Bordeaux,Seville,4,0.05,0.06,0.00
-Seville,Bridgetown,9,0.03,0.02,0.02
-Seville,Havana,12,0.04,0.02,0.02
+from,to,distance,storm_per_day,pirates_per_day,hurricanes_per_day,price,ocean
+Natchez,New Orleans,3,0.01,0.04,0.02,300,no
+New Orleans,Havana,4,0.04,0.04,0.04,500,no
+New Orleans,Campeche,5,0.04,0.05,0.04,500,no
+Campeche,Veracruz,3,0.04,0.06,0.04,250,no
+Campeche,Havana,4,0.03,0.07,0.04,400,no
+Veracruz,Havana,5,0.04,0.06,0.04,400,no
+Havana,Port-au-Prince,4,0.03,0.10,0.04,500,no
+Port-au-Prince,Bridgetown,4,0.04,0.08,0.04,400,no
+Havana,New York,7,0.05,0.02,0.02,1200,no
+Bridgetown,New York,9,0.05,0.03,0.02,1200,no
+New York,Boston,3,0.04,0.01,0.01,400,no
+Boston,Liverpool,8,0.06,0.01,0.00,2000,yes
+New York,Liverpool,9,0.06,0.01,0.00,2000,yes
+Liverpool,Bordeaux,4,0.06,0.02,0.00,800,no
+Bordeaux,Seville,4,0.05,0.06,0.00,800,no
+Seville,Bridgetown,7,0.03,0.02,0.02,1800,yes
+Seville,Havana,10,0.04,0.02,0.02,2000,yes
